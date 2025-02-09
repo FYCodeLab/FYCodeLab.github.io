@@ -50,16 +50,5 @@
     /'\_   _/`\
     \___)=(___/
 
-```markdown
-🎨 **Tux Approves!**
-
-<pre><code>
-       .--.
-      |o_o |   < "Start learning R & Python today!"
-      |:_/ |
-     //   \ \  
-    (|     | ) 
-   /'\_   _/`\  
-   \___)=(___/  
-</code></pre>
+```
 
