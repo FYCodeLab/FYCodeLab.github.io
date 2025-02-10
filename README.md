@@ -1,10 +1,13 @@
-# fycodelab.github.io
+
 # 🚀 Welcome to FYCodeLab! 🎓
+*fycodelab.github.io*
+
+<!-- Comment:  a great way to display icons https://img.shields.io/badge/Languages-R%20%26%20Python-blue?style=for-the-badge&logo=python&logoColor=white -->
 
 ![R & Python](https://img.shields.io/badge/Languages-R%20%26%20Python-blue?style=for-the-badge&logo=python&logoColor=white)
 
 > 📢 **Exciting News!**  
-> I have launched an **Introduction to R** course and will soon release an **Introduction to Python**! 🐍💡
+> We have launched an **Introduction to R** course and will soon release an **Introduction to Python**! 🐍💡
 
 ---
 
@@ -16,7 +19,7 @@
 > - 🏆 Statistical analysis basics  
 > - 🎯 Hands-on examples and projects  
 
-🔗 **[Start Learning R Now](#)**  
+🔗 **[Start Learning R Now](https://github.com/FYCodeLab)**  
 
 ---
 
@@ -31,12 +34,12 @@
 
 ---
 
-## 👨‍💻 **Why Learn with Me?**
-✅ Beginner-friendly explanations  
-✅ Hands-on coding exercises  
-✅ Real-world applications  
+## 👨‍💻 **What is FYCodeLab ?**
+✅ Beginner-friendly explanations
+✅ Hands-on coding exercises aimed at biologists
+✅ Real-world applications for biotech and more 
 
-> **"Learning is fun when it's interactive!"** ✨  
+> **"Learning is fun when it's simple and interactive!"** ✨  
 
 ---
 
