@@ -68,6 +68,7 @@ Have questions or suggestions? Feel free to open an issue or reach out! 🚀
 ---
 
 ### 🎨 **Tux Approves!**
+
 ```shell
 #        .--.
 #       |o_o |  < "Start learning R & Python today!"
