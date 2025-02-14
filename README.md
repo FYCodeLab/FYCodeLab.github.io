@@ -42,8 +42,7 @@ For now, we have **Coding-Intro**, but more courses are on the way! Stay tuned f
 
 ---
 
-## 🎯 Future Courses (Coming Soon)  
-✔ Python Introduction in English  
+## 🎯 Future Courses (Coming Soon)   
 ✔ Useful libraries for the beginner  
 ✔ Machine Learning Basics  
 ✔ Data Science Fundamentals  
