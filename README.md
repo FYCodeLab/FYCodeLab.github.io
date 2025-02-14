@@ -69,11 +69,11 @@ Have questions or suggestions? Feel free to open an issue or reach out! 🚀
 
 ### 🎨 **Tux Approves!**
 
-```shell
-#        .--.
-#       |o_o |  < "Start learning R & Python today!"
-#       |:_/ |
-#      //   \ \
-#     (|     | )
-#    /'\_   _/`\
-#    \___)=(___/
+```bash
+    #        .--.
+    #       |o_o |  < "Start learning R & Python today!"
+    #       |:_/ |
+    #      //   \ \
+    #     (|     | )
+    #    /'\_   _/`\
+    #    \___)=(___/
