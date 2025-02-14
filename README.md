@@ -66,14 +66,3 @@ We are actively working on new content to expand your programming skills!
 Have questions or suggestions? Feel free to open an issue or reach out! 🚀  
 
 ---
-
-### 🎨 **Tux Approves!**
-
-```bash
-    #        .--.
-    #       |o_o |  < "Start learning R & Python today!"
-    #       |:_/ |
-    #      //   \ \
-    #     (|     | )
-    #    /'\_   _/`\
-    #    \___)=(___/
