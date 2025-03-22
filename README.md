@@ -7,7 +7,7 @@ For now, we have **Coding-Intro**, but more courses are on the way! Stay tuned f
 
 ---
 
-## 📂 Available Courses  
+## 📂 Programming Courses  
 
 ### 📘 [Coding-Intro](https://github.com/FYCodeLab/coding-intro) : A beginner-friendly programming course covering the basics of R and Python.  
 ![Intro to R](https://img.shields.io/badge/Intro%20to%20the%20programming%20language%20R-276DC3?style=for-the-badge&logo=r&logoColor=white)
@@ -42,7 +42,18 @@ For now, we have **Coding-Intro**, but more courses are on the way! Stay tuned f
 
 ---
 
-## 🎯 Future Courses (Coming Soon)   
+## 📂 ClassRoom Activities
+Code and tools for live classes to illustrate key points of programming, statistics, AI and biology
+
+### 🍬 [SweetSpot](https://github.com/FYCodeLab/SweetSpot/) - The power of aggregated data**
+[![SweetSpot](https://img.shields.io/badge/🍬-SweetSpot-orange?style=for-the-badge)](https://github.com/FYCodeLab/SweetSpot)\
+With a jar of sweets show how data science and statistics can be useful 
+
+
+
+---
+
+## 🎯 Future Courses and Tools (Coming Soon)   
 ✔ Useful libraries for the beginner  
 ✔ Machine Learning Basics  
 ✔ Data Science Fundamentals  
