@@ -45,7 +45,7 @@ For now, we have **Coding-Intro**, but more courses are on the way! Stay tuned f
 ## 📂 ClassRoom Activities
 Code and tools for live classes to illustrate key points of programming, statistics, AI and biology
 
-### 🍬 [SweetSpot](https://github.com/FYCodeLab/SweetSpot/) - The power of aggregated data**
+### 🍬 [SweetSpot](https://github.com/FYCodeLab/SweetSpot/) - The power of aggregated data
 [![SweetSpot](https://img.shields.io/badge/🍬-SweetSpot-orange?style=for-the-badge)](https://github.com/FYCodeLab/SweetSpot)\
 With a jar of sweets show how data science and statistics can be useful 
 
