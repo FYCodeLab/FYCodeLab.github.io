@@ -1,7 +1,7 @@
 # 🎓 Welcome to FYCodeLab!  
 A place for beginner-friendly and biologist-friendly programming and data science courses.  
 
-For now, we have **Coding-Intro**, but more courses are on the way! Stay tuned for exciting learning opportunities.
+For learning how to code, **Coding-Intro** is for you. More courses are on the way! If you're a teacher have a look at the **Classroom Activities**.
 
 ![R & Python](https://img.shields.io/badge/Languages-R%20%26%20Python-blue?style=for-the-badge&logo=python&logoColor=white)
 
