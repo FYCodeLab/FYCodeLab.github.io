@@ -45,13 +45,19 @@ For learning how to code, **Coding-Intro** is for you. More courses are on the w
 ## 📂 ClassRoom Activities
 Code and tools for live classes to illustrate key points of programming, statistics, AI and biology
 
-### 🍬 [SweetSpot](https://github.com/FYCodeLab/SweetSpot/) - The power of aggregated data
-[![SweetSpot](https://img.shields.io/badge/🍬-SweetSpot-orange?style=for-the-badge)](https://github.com/FYCodeLab/SweetSpot)\
-With a jar of sweets show how data science and statistics can be useful 
+---
 
+### 🍬 [SweetSpot](https://github.com/FYCodeLab/SweetSpot/) — *The Power of Aggregated Data*
 
+> *📦 A playful experiment using a jar of sweets to demonstrate how **data science**, **visualization**, and **statistics** can reveal the surprising power of group estimation.*
+
+<!-- Optional visual badge -->
+<!-- [![SweetSpot](https://img.shields.io/badge/🍬-SweetSpot·[Code]-orange?style=for-the-badge)](https://github.com/FYCodeLab/SweetSpot) -->
+
+#### 🔗 Open the interactive notebook in Google Colab:&nbsp;[![🇫🇷 French](https://flagcdn.com/24x18/fr.png)](https://colab.research.google.com/github/FYCodeLab/SweetSpot/blob/main/SweetSpot_NoteBook_fr.ipynb)&nbsp;[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FYCodeLab/SweetSpot/blob/main/SweetSpot_NoteBook_fr.ipynb)
 
 ---
+
 
 ## 🎯 Future Courses and Tools (Coming Soon)   
 ✔ Useful libraries for the beginner  
