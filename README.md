@@ -56,7 +56,16 @@ Code and tools for live classes to illustrate key points of programming, statist
 
 #### 🔗 Open the interactive notebook in Google Colab:&nbsp;[![🇫🇷 French](https://flagcdn.com/24x18/fr.png)](https://colab.research.google.com/github/FYCodeLab/SweetSpot/blob/main/SweetSpot_NoteBook_fr.ipynb)&nbsp;[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FYCodeLab/SweetSpot/blob/main/SweetSpot_NoteBook_fr.ipynb)&nbsp;[![uk](https://flagcdn.com/24x18/gb.png)](https://colab.research.google.com/github/FYCodeLab/SweetSpot/blob/main/sweetcount_NoteBook_en.ipynb)&nbsp;[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FYCodeLab/SweetSpot/blob/main/sweetcount_NoteBook_en.ipynb)
 
+---
 
+### 🧬 [Intro to Biopython](https://github.com/FYCodeLab/intro-biopython) — *Hands-on Genomics for Beginners*
+
+> *📦 A beginner-friendly introduction to **Biopython**, showing how to access NCBI databases, download real genomic data (the woolly mammoth’s mitochondrial genome!), and visualize gene annotations using Python tools. Great for students in bioinformatics and biotechnology.*
+
+<!-- Optional visual badge -->
+<!-- [![IntroBioPython](https://img.shields.io/badge/🧬-Intro·Biopython·[Code]-green?style=for-the-badge)](https://github.com/FYCodeLab/intro-biopython) -->
+
+#### 🔗 Open the interactive notebook in Google Colab:&nbsp;[![🇬🇧 English](https://flagcdn.com/24x18/gb.png)](https://colab.research.google.com/github/FYCodeLab/intro-biopython/blob/main/BioPython_Mammoth_Viz_en.ipynb)&nbsp;[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FYCodeLab/intro-biopython/blob/main/BioPython_Mammoth_Viz_en.ipynb)
 ---
 
 
