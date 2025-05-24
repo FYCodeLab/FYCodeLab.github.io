@@ -47,6 +47,17 @@ Code and tools for live classes to illustrate key points of programming, statist
 
 ---
 
+### 🔬 [Malassez Grid Counting Game](https://editor.p5js.org/frank.yates/full/OV6pjS93o) — *Hands-on Cell Counting for Biotech Students*
+
+> *🧫 An interactive web-based mini-game to practice **manual cell counting** on a Malassez grid. Designed for students in biotechnology, bioengineering, and related life sciences, this tool simulates cell dispersion under a microscope and helps learners estimate cell concentration (cells/mL) by comparing their guess to real results.*
+
+<!-- Optional badge -->
+<!-- [![MalassezGame](https://img.shields.io/badge/🧫-Malassez·Grid·[Play]-blue?style=for-the-badge)](https://editor.p5js.org/frank.yates/full/OV6pjS93o) -->
+
+#### 🎮 Try it now in your browser (no install): 👉 [Open the Game](https://editor.p5js.org/frank.yates/full/OV6pjS93o)
+
+---
+
 ### 🍬 [SweetSpot](https://github.com/FYCodeLab/SweetSpot/) — *The Power of Aggregated Data*
 
 > *📦 A playful experiment using a jar of sweets to demonstrate how **data science**, **visualization**, and **statistics** can reveal the surprising power of group estimation. Also, learn how to plot data with the ggplot package in R !*
