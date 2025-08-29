@@ -77,6 +77,14 @@ Code and tools for live classes to illustrate key points of programming, statist
 <!-- [![IntroBioPython](https://img.shields.io/badge/🧬-Intro·Biopython·[Code]-green?style=for-the-badge)](https://github.com/FYCodeLab/intro-biopython) -->
 
 #### 🔗 Open the interactive notebook in Google Colab:&nbsp;[![🇬🇧 English](https://flagcdn.com/24x18/gb.png)](https://colab.research.google.com/github/FYCodeLab/intro-biopython/blob/main/BioPython_Mammoth_Viz_en.ipynb)&nbsp;[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FYCodeLab/intro-biopython/blob/main/BioPython_Mammoth_Viz_en.ipynb)
+
+---
+## ESPy Robotics — microelectronics kit
+
+A compact, beginner-friendly collection of **CircuitPython** projects for the **ESPY** microcontroler card (included in kit). It includes colorful LED animations, tilt-controlled games, and small utilities (clock, timer, weather) that teach core microelectronics skills, without wiring, soldering...
+
+**Repo:** [FYCodeLab/espy-robotics › exemples](https://github.com/FYCodeLab/espy-robotics/tree/main/exemples)
+
 ---
 
 
