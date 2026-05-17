@@ -2,42 +2,65 @@ body{
     margin:0;
 }
 
+/* =========================
+   NAVBAR
+========================= */
+
 .fy-navbar{
 
-    padding:20px;
-
-    background:#0b1220;
+    background:#071226;
 
     border-bottom:3px solid #65ff9a;
+
+    padding:18px 36px;
 
     color:white;
 
     font-family:Arial,sans-serif;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:30px;
+
+    flex-wrap:wrap;
 }
+
+/* =========================
+   LEFT SIDE
+========================= */
 
 .fy-top{
 
     display:flex;
+
     align-items:center;
 
-    gap:16px;
+    gap:18px;
 }
 
 .fy-logo{
 
-    width:60px;
-    height:60px;
+    width:58px;
+    height:58px;
 
     border-radius:18px;
+
+    object-fit:cover;
 }
 
 .fy-title{
 
-    font-size:42px;
+    font-size:54px;
 
     font-weight:800;
 
-    letter-spacing:-0.05em;
+    letter-spacing:-0.06em;
+
+    line-height:1;
 }
 
 .green{
@@ -46,24 +69,28 @@ body{
 
 .fy-sub{
 
-    color:#94a3b8;
+    margin-top:8px;
 
-    margin-top:6px;
+    color:#94a3b8;
 
     font-size:12px;
 
     text-transform:uppercase;
 
-    letter-spacing:0.12em;
+    letter-spacing:0.16em;
 }
+
+/* =========================
+   RIGHT SIDE LINKS
+========================= */
 
 .fy-links{
 
-    margin-top:24px;
-
     display:flex;
 
-    gap:28px;
+    align-items:center;
+
+    gap:36px;
 
     flex-wrap:wrap;
 }
@@ -74,16 +101,44 @@ body{
 
     text-decoration:none;
 
-    font-size:18px;
+    font-size:28px;
 
-    font-weight:600;
+    font-weight:700;
+
+    transition:0.2s;
 }
 
-/* Smaller README typography */
+.fy-links a:hover{
+
+    color:#65ff9a;
+}
+
+/* github icon */
+
+.github-icon{
+
+    width:22px;
+
+    vertical-align:middle;
+
+    margin-right:8px;
+
+    filter:invert(1);
+}
+
+/* =========================
+   README CONTENT
+========================= */
 
 .page-content{
 
-    font-size:0.9rem;
+    max-width:950px;
+
+    margin:auto;
+
+    padding:40px;
+
+    font-size:0.88rem;
 }
 
 .page-content h1{
@@ -103,10 +158,34 @@ body{
 
     font-size:1rem;
 
-    line-height:1.6;
+    line-height:1.7;
 }
 
-.fy-links a:hover{
+/* =========================
+   MOBILE
+========================= */
 
-    color:#65ff9a;
+@media(max-width:900px){
+
+    .fy-navbar{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+    }
+
+    .fy-title{
+
+        font-size:40px;
+    }
+
+    .fy-links{
+
+        gap:20px;
+    }
+
+    .fy-links a{
+
+        font-size:22px;
+    }
 }
