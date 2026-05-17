@@ -1,0 +1,85 @@
+body{
+    margin:0;
+}
+
+.fy-navbar{
+
+    padding:20px;
+
+    background:#0b1220;
+
+    border-bottom:3px solid #65ff9a;
+
+    color:white;
+
+    font-family:Arial,sans-serif;
+}
+
+.fy-top{
+
+    display:flex;
+    align-items:center;
+
+    gap:16px;
+}
+
+.fy-logo{
+
+    width:60px;
+    height:60px;
+
+    border-radius:18px;
+}
+
+.fy-title{
+
+    font-size:42px;
+
+    font-weight:800;
+
+    letter-spacing:-0.05em;
+}
+
+.green{
+    color:#65ff9a;
+}
+
+.fy-sub{
+
+    color:#94a3b8;
+
+    margin-top:6px;
+
+    font-size:12px;
+
+    text-transform:uppercase;
+
+    letter-spacing:0.12em;
+}
+
+.fy-links{
+
+    margin-top:24px;
+
+    display:flex;
+
+    gap:28px;
+
+    flex-wrap:wrap;
+}
+
+.fy-links a{
+
+    color:white;
+
+    text-decoration:none;
+
+    font-size:18px;
+
+    font-weight:600;
+}
+
+.fy-links a:hover{
+
+    color:#65ff9a;
+}
