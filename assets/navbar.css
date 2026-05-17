@@ -18,7 +18,7 @@ body{
 
     align-items:center;
 
-    padding:18px 36px;
+    padding:10px 36px;
 
     background:#071226;
 
@@ -27,6 +27,8 @@ body{
     color:white;
 
     font-family:Arial,sans-serif;
+
+    min-height:120px;
 }
 
 /* LEFT */
@@ -42,10 +44,11 @@ body{
 
 .fy-logo{
 
-    width:58px;
-    height:58px;
+    height:96px;
 
-    border-radius:18px;
+    width:auto;
+
+    border-radius:20px;
 
     object-fit:cover;
 }
@@ -104,6 +107,10 @@ body{
     font-weight:700;
 
     transition:0.2s ease;
+
+    display:flex;
+
+    align-items:center;
 }
 
 .fy-links a:hover{
@@ -155,6 +162,8 @@ body{
         align-items:flex-start;
 
         gap:20px;
+
+        padding:20px;
     }
 
     .fy-title{
@@ -166,6 +175,8 @@ body{
         width:100%;
 
         justify-content:space-between;
+
+        gap:16px;
     }
 
     .fy-links a{
@@ -174,5 +185,9 @@ body{
 
     .fy-sub{
         font-size:10px;
+    }
+
+    .fy-logo{
+        height:72px;
     }
 }
