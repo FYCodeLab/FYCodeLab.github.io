@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FYCodeLab - Project Showcase</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;}
+.container{max-width:1400px;margin:0 auto;padding:20px;}
+header{text-align:center;margin-bottom:34px;color:white;position:relative;}
+.lang-switch{position:absolute;right:0;top:0;display:flex;gap:8px;}
+.lang-btn{border:1px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.16);color:white;padding:7px 12px;border-radius:18px;cursor:pointer;font-weight:700;font-size:0.8rem;}
+.lang-btn.active{background:white;color:#667eea;}
+.version{font-size:0.7rem;opacity:0.6;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;}
+header h1{font-size:3rem;margin-bottom:10px;text-shadow:2px 2px 4px rgba(0,0,0,0.3);}
+.subtitle{font-size:1.2rem;opacity:0.9;margin-bottom:15px;}
+.tagline{font-size:1rem;font-style:italic;opacity:0.8;margin-bottom:30px;}
+.global-github{font-size:0.85rem;opacity:0.88;margin-top:6px;}
+.global-github a{color:white;font-weight:700;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.5);}
+.search-container{max-width:600px;margin:0 auto 35px auto;position:relative;}
+.search-bar{width:100%;padding:15px 50px 15px 20px;border:none;border-radius:30px;background:white;box-shadow:0 10px 30px rgba(0,0,0,0.1);font-size:1.1rem;outline:none;transition:box-shadow 0.3s ease;}
+.search-bar:focus{box-shadow:0 15px 40px rgba(0,0,0,0.15);}
+.search-icon{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:1.2rem;color:#667eea;pointer-events:none;}
+.results-info{text-align:center;color:white;margin-bottom:30px;font-size:1.1rem;opacity:0.9;}
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px;}
+.project-box{background:white;border-radius:15px;padding:25px;box-shadow:0 8px 25px rgba(0,0,0,0.1);transition:all 0.3s ease;position:relative;overflow:hidden;border-top:4px solid transparent;border-image:linear-gradient(90deg,#667eea,#764ba2) 1;display:flex;flex-direction:column;}
+.project-box:hover{transform:translateY(-5px);box-shadow:0 15px 40px rgba(0,0,0,0.15);}
+.project-box.hidden{display:none;}
+.project-header{display:flex;align-items:flex-start;margin-bottom:15px;padding-right:54px;}
+.project-icon{font-size:2.2rem;margin-right:15px;margin-top:2px;}
+.project-info{flex:1;}
+.project-title{font-size:1.3rem;font-weight:bold;color:#333;margin:0 0 5px 0;}
+.project-subtitle{font-size:0.85rem;color:#666;margin-bottom:12px;font-style:italic;}
+.project-description{color:#555;margin-bottom:15px;line-height:1.6;font-size:0.95rem;}
+.github-mini{display:inline-flex;align-items:center;gap:4px;margin-left:7px;color:#222;text-decoration:none;font-size:0.72rem;font-weight:700;white-space:nowrap;opacity:0.78;vertical-align:baseline;}
+.github-mini svg{width:13px;height:13px;fill:#222;}
+.github-mini:hover{opacity:1;text-decoration:underline;}
+.project-tech{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;}
+.tech-tag{background:#f1f3f4;color:#667eea;padding:3px 8px;border-radius:10px;font-size:0.7rem;font-weight:500;border:1px solid #e8eaed;cursor:pointer;}
+.project-links{display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid #eee;padding-top:14px;margin-top:auto;}
+.project-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;padding:10px 17px;border-radius:7px;font-size:0.84rem;font-weight:800;transition:all 0.2s ease;letter-spacing:0.02em;}
+.project-link::after{content:'↗';font-size:0.85rem;}
+.project-link.primary{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;box-shadow:0 3px 10px rgba(102,126,234,0.4);}
+.project-link.primary:hover{opacity:0.92;transform:translateY(-2px);box-shadow:0 6px 16px rgba(102,126,234,0.5);}
+.status-badge{position:absolute;top:12px;right:12px;padding:4px 8px;border-radius:10px;font-size:0.65rem;font-weight:bold;}
+.status-live{background:#d4edda;color:#155724;}
+.status-new{background:#d1ecf1;color:#0c5460;}
+.no-results{text-align:center;color:white;font-size:1.2rem;margin:60px 0;opacity:0.8;}
+.clear-search{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);padding:8px 16px;border-radius:20px;text-decoration:none;display:inline-block;margin-top:20px;transition:all 0.3s ease;cursor:pointer;}
+.clear-search:hover{background:rgba(255,255,255,0.3);}
+.footer{text-align:center;color:white;padding:40px 20px;margin-top:60px;opacity:0.9;}
+.footer a{color:white;text-decoration:underline;}
+@media(max-width:768px){
+  body{line-height:1.5;}
+  .container{padding:14px;max-width:100%;}
+  header{margin-bottom:24px;}
+  .lang-switch{position:static;justify-content:center;margin-bottom:14px;}
+  .lang-btn{padding:8px 14px;font-size:0.82rem;}
+  header h1{font-size:2.05rem;line-height:1.1;margin-bottom:8px;}
+  .subtitle{font-size:1rem;margin-bottom:10px;}
+  .tagline{font-size:0.9rem;margin-bottom:16px;}
+  .global-github{font-size:0.78rem;padding:0 8px;}
+  .search-container{margin-bottom:24px;}
+  .search-bar{font-size:0.95rem;padding:13px 44px 13px 16px;}
+  .results-info{font-size:0.95rem;margin-bottom:18px;}
+  .projects-grid{grid-template-columns:1fr;gap:16px;width:100%;}
+  .project-box{padding:18px;border-radius:13px;min-width:0;}
+  .project-header{padding-right:0;margin-bottom:12px;align-items:flex-start;}
+  .project-icon{font-size:1.9rem;margin-right:12px;}
+  .project-title{font-size:1.12rem;line-height:1.25;}
+  .project-subtitle{font-size:0.8rem;margin-bottom:8px;}
+  .project-description{font-size:0.9rem;line-height:1.5;margin-bottom:13px;}
+  .github-mini{display:inline-flex;margin-left:4px;font-size:0.68rem;white-space:normal;}
+  .tech-tag{font-size:0.68rem;padding:3px 7px;}
+  .project-tech{margin-bottom:14px;}
+  .project-links{padding-top:12px;}
+  .project-link.primary{width:100%;padding:12px 14px;font-size:0.85rem;}
+  .status-badge{position:static;display:inline-block;align-self:flex-start;margin-bottom:10px;font-size:0.62rem;}
+  .footer{padding:28px 10px;margin-top:36px;font-size:0.85rem;}
+}
+@media(max-width:380px){
+  .container{padding:10px;}
+  header h1{font-size:1.8rem;}
+  .project-box{padding:15px;}
+  .project-icon{font-size:1.65rem;margin-right:10px;}
+  .project-title{font-size:1.02rem;}
+  .project-description{font-size:0.86rem;}
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="lang-switch" aria-label="Language switcher">
+      <button class="lang-btn active" id="btnEn" onclick="setLanguage('en')">EN</button>
+      <button class="lang-btn" id="btnFr" onclick="setLanguage('fr')">FR</button>
+    </div>
+    <div class="version">v3 bilingual</div>
+    <h1>🎓 FYCodeLab</h1>
+    <div class="subtitle" data-i18n="subtitle">Beginner-friendly and biologist-friendly programming</div>
+    <div class="tagline" data-i18n="tagline">Learning is fun when it is simple and interactive.</div>
+    <div class="global-github">
+      <span data-i18n="githubIntro">Public project showcase — all projects also available on</span>
+      <a href="https://github.com/FYCodeLab" target="_blank" rel="noopener">GitHub FYCodeLab</a>
+    </div>
+  </header>
+
+  <div class="search-container">
+    <input type="text" class="search-bar" id="searchInput">
+    <div class="search-icon">🔍</div>
+  </div>
+
+  <div class="results-info" id="resultsInfo"></div>
+  <div class="projects-grid" id="projectsGrid"></div>
+
+  <div class="no-results" id="noResults" style="display:none;">
+    <div data-i18n="noResults">🔍 No projects found matching your search</div>
+    <span class="clear-search" onclick="clearSearch()" data-i18n="showAll">Show all projects</span>
+  </div>
+
+  <footer class="footer">
+    <p data-i18n="footer1">Beginner-friendly explanations • Hands-on coding exercises • Real-world applications</p>
+    <p style="margin-top:10px;"><span data-i18n="footer2">Have questions or suggestions? Visit</span> <a href="https://fycodelab.github.io">FYCodeLab</a>.</p>
+  </footer>
+</div>
+
+<script>
+const I18N = {
+  en: {
+    subtitle: 'Beginner-friendly and biologist-friendly programming',
+    tagline: 'Learning is fun when it is simple and interactive.',
+    githubIntro: 'Public project showcase — all projects also available on',
+    searchPlaceholder: 'Search projects by name, description, or technology...',
+    showing: count => `Showing ${count} project${count === 1 ? '' : 's'}`,
+    noMatch: 'No projects match your search',
+    noResults: '🔍 No projects found matching your search',
+    showAll: 'Show all projects',
+    github: 'GitHub',
+    live: 'LIVE',
+    new: 'NEW',
+    footer1: 'Beginner-friendly explanations • Hands-on coding exercises • Real-world applications',
+    footer2: 'Have questions or suggestions? Visit'
+  },
+  fr: {
+    subtitle: 'Programmation accessible aux débutants et aux biologistes',
+    tagline: 'Apprendre devient plaisant quand c’est simple et interactif.',
+    githubIntro: 'Vitrine publique des projets — tous les projets sont aussi disponibles sur',
+    searchPlaceholder: 'Rechercher par nom, description ou technologie...',
+    showing: count => `${count} projet${count === 1 ? '' : 's'} affiché${count === 1 ? '' : 's'}`,
+    noMatch: 'Aucun projet ne correspond à votre recherche',
+    noResults: '🔍 Aucun projet trouvé pour cette recherche',
+    showAll: 'Afficher tous les projets',
+    github: 'GitHub',
+    live: 'ACTIF',
+    new: 'NOUVEAU',
+    footer1: 'Explications accessibles • Exercices pratiques • Applications concrètes',
+    footer2: 'Questions ou suggestions ? Visitez'
+  }
+};
+
+const githubIcon = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>`;
+
+const projects = [
+  {
+    icon:'📘', status:'live', title:'Coding-Intro', keywords:'coding intro r python programming beginner course tutorial',
+    github:'https://github.com/FYCodeLab/coding-intro', big:'https://fycodelab.github.io/coding-intro/',
+    en:{subtitle:'Beginner-friendly programming course', description:'A practical introduction to R and Python programming for beginners, including syntax, data structures, libraries and basic operations.', button:'R and Python courses'},
+    fr:{subtitle:'Cours de programmation pour débutants', description:'Une introduction pratique à R et Python pour débutants, avec syntaxe, structures de données, bibliothèques et opérations de base.', button:'Cours R et Python'}
+  },
+  {
+    icon:'🔬', status:'live', title:'Malassez Grid Game', keywords:'malassez grid counting game cell biology biotechnology p5js interactive',
+    github:'https://github.com/FYCodeLab', big:'https://editor.p5js.org/frank.yates/full/OV6pjS93o',
+    en:{subtitle:'Interactive cell counting simulation', description:'A web mini-game for practicing manual cell counting on a Malassez grid, with simulated cell dispersion under a microscope.', button:'Play game'},
+    fr:{subtitle:'Simulation interactive de comptage cellulaire', description:'Un mini-jeu web pour s’entraîner au comptage manuel sur grille de Malassez, avec dispersion cellulaire simulée au microscope.', button:'Jouer'}
+  },
+  {
+    icon:'🍬', status:'live', title:'SweetSpot', keywords:'sweetspot data aggregation statistics ggplot r visualization sweet jar experiment',
+    github:'https://github.com/FYCodeLab/SweetSpot/', big:'https://fycodelab.github.io/SweetSpot/',
+    en:{subtitle:'The power of aggregated data', description:'A classroom experiment using a jar of sweets to show how statistics, visualization and group estimation can reveal robust patterns.', button:'Instructions'},
+    fr:{subtitle:'La force des données agrégées', description:'Une expérience de classe avec un bocal de bonbons pour montrer comment statistiques, visualisation et estimation collective révèlent des tendances robustes.', button:'Instructions'}
+  },
+  {
+    icon:'🧬', status:'live', title:'Intro to Biopython', keywords:'biopython genomics bioinformatics ncbi python dna sequence',
+    github:'https://github.com/FYCodeLab/intro-biopython', big:'https://fycodelab.github.io/intro-biopython/',
+    en:{subtitle:'Hands-on genomics for beginners', description:'A beginner-friendly introduction to Biopython for accessing NCBI databases, downloading genomic data and visualizing gene annotations.', button:'Biopython course'},
+    fr:{subtitle:'Génomique pratique pour débutants', description:'Une introduction accessible à Biopython pour interroger NCBI, télécharger des données génomiques et visualiser des annotations de gènes.', button:'Cours Biopython'}
+  },
+  {
+    icon:'🤖', status:'live', title:'Vibe Robotics', keywords:'vibe robotics espy microelectronics circuitpython esp32 iot led games clock timer',
+    github:'https://github.com/FYCodeLab/espyrobotics', big:'https://github.com/FYCodeLab/espyrobotics/tree/main/exemples',
+    en:{subtitle:'Microelectronics and robotics kit for beginners', description:'A compact collection of CircuitPython projects for ESP32 boards, including LED animations, games and robotics utilities.', button:'Robotics projects'},
+    fr:{subtitle:'Kit microélectronique et robotique pour débutants', description:'Une collection compacte de projets CircuitPython pour cartes ESP32, avec animations LED, jeux et utilitaires robotiques.', button:'Projets robotiques'}
+  },
+  {
+    icon:'🔲', status:'live', title:'MicroMatrix', keywords:'micromatrix esp32 circuitpython led matrix robotics electronics education audioguide',
+    github:'https://github.com/FYCodeLab/micromatrix', big:'https://fycodelab.github.io/micromatrix/',
+    en:{subtitle:'Mini LED laboratory for beginners', description:'An ESP32 and LED matrix kit for learning electronics, programming and robotics through interactive experiments and an embedded audioguide.', button:'Website'},
+    fr:{subtitle:'Mini-laboratoire LED pour débutants', description:'Un kit ESP32 et matrice LED pour découvrir électronique, programmation et robotique avec des expériences interactives et un audioguide intégré.', button:'Site web'}
+  },
+  {
+    icon:'🤖', status:'live', title:'pinGPT', keywords:'pingpt esp32 llm ai robotics electronics circuitpython tutor prototyping',
+    github:'https://github.com/FYCodeLab/pinGPT', big:'https://pingpt.lovable.app/',
+    en:{subtitle:'LLM-assisted electronics prototyping', description:'An ESP32 prototyping platform combining CircuitPython, electronics modules and an AI tutor to guide beginners step by step.', button:'Website'},
+    fr:{subtitle:'Prototypage électronique assisté par IA', description:'Une plateforme de prototypage ESP32 combinant CircuitPython, modules électroniques et tuteur IA pour guider les débutants pas à pas.', button:'Site web'}
+  },
+  {
+    icon:'🔎', status:'new', title:'PhinDer', keywords:'phinder phd theses france theses.fr doctoral database names search tool',
+    github:'https://github.com/FYCodeLab/PhinDer', big:'https://github.com/FYCodeLab/PhinDer',
+    en:{subtitle:'Find PhDs from names on theses.fr', description:'A small tool for searching PhD records from names in the French doctoral database theses.fr.', button:'Open project'},
+    fr:{subtitle:'Retrouver des thèses à partir de noms sur theses.fr', description:'Un petit outil pour rechercher des doctorats à partir de noms dans la base française theses.fr.', button:'Ouvrir le projet'}
+  },
+  {
+    icon:'🧪', status:'live', title:'SupBiotech Projects', keywords:'supbiotech biotechnology research science education journal undergraduate student',
+    github:'https://github.com/SupBiotech-Projects', big:'https://supbiotech-projects.github.io/',
+    en:{subtitle:'Undergraduate scientific journal', description:'A scientific journal showcasing student projects, biotechnology initiatives, research work and educational innovation.', button:'Website'},
+    fr:{subtitle:'Journal scientifique étudiant', description:'Un journal scientifique valorisant projets étudiants, initiatives en biotechnologie, travaux de recherche et innovation pédagogique.', button:'Site web'}
+  },
+  {
+    icon:'🔒', status:'new', title:'SafeSeal', keywords:'safeseal presentation protection security slides powerpoint ppt distribution',
+    github:'https://github.com/FYCodeLab', big:'https://github.com/FYCodeLab',
+    en:{subtitle:'Presentation protection tool', description:'A security-oriented project for protecting slide decks and PowerPoint presentations during distribution.', button:'View project'},
+    fr:{subtitle:'Outil de protection de présentations', description:'Un projet orienté sécurité pour protéger des diaporamas et présentations PowerPoint lors de leur diffusion.', button:'Voir le projet'}
+  },
+  {
+    icon:'🦻', status:'new', title:'Babili', keywords:'babili communication hearing loss accessibility audio phone amplification elderly',
+    github:'https://github.com/FYCodeLab', big:'https://github.com/FYCodeLab',
+    en:{subtitle:'Communication aid for hearing loss', description:'An accessibility concept to help people with hearing loss communicate more effectively, especially by phone.', button:'View project'},
+    fr:{subtitle:'Aide à la communication en cas de perte auditive', description:'Un concept d’accessibilité pour aider les personnes malentendantes à mieux communiquer, notamment par téléphone.', button:'Voir le projet'}
+  },
+  {
+    icon:'🎮', status:'new', title:'Advent Roblox', keywords:'advent roblox game holiday christmas missions puzzles enigma daily challenges',
+    github:'https://github.com/FYCodeLab', big:'https://github.com/FYCodeLab',
+    en:{subtitle:'Holiday adventure game', description:'A festive Roblox game concept with daily missions and puzzles during the holiday season.', button:'View project'},
+    fr:{subtitle:'Jeu d’aventure de fin d’année', description:'Un concept de jeu Roblox festif avec missions quotidiennes et énigmes pendant la période des fêtes.', button:'Voir le projet'}
+  },
+  {
+    icon:'🗺️', status:'new', title:'Chasse au Trésor', keywords:'chasse tresor treasure hunt assistant outdoor web clues audio codes scavenger',
+    github:'https://github.com/FYCodeLab', big:'https://github.com/FYCodeLab',
+    en:{subtitle:'Treasure hunt assistant', description:'An interactive assistant for outdoor treasure hunts with text and audio clues, secret codes and progress tracking.', button:'Launch project'},
+    fr:{subtitle:'Assistant de chasse au trésor', description:'Un assistant interactif pour chasses au trésor en extérieur avec indices texte et audio, codes secrets et suivi de progression.', button:'Lancer le projet'}
+  }
+];
+
+let currentLang = localStorage.getItem('fycodelab-lang') || 'en';
+const searchInput = document.getElementById('searchInput');
+const projectsGrid = document.getElementById('projectsGrid');
+const resultsInfo = document.getElementById('resultsInfo');
+const noResults = document.getElementById('noResults');
+
+function t(key){ return I18N[currentLang][key]; }
+
+function renderCards(){
+  projectsGrid.innerHTML = projects.map((p, index) => {
+    const lang = p[currentLang];
+    const statusLabel = p.status === 'live' ? t('live') : t('new');
+    return `
+      <div class="project-box" data-index="${index}">
+        <div class="status-badge status-${p.status}">${statusLabel}</div>
+        <div class="project-header">
+          <div class="project-icon">${p.icon}</div>
+          <div class="project-info">
+            <h3 class="project-title">${p.title}</h3>
+            <div class="project-subtitle">${lang.subtitle}</div>
+          </div>
+        </div>
+        <div class="project-description">${lang.description}
+          <a href="${p.github}" target="_blank" rel="noopener" class="github-mini" title="${t('github')}">${githubIcon}<span>${t('github')}</span></a>
+        </div>
+        <div class="project-tech">${p.keywords.split(' ').slice(0,5).map(k => `<span class="tech-tag">${k}</span>`).join('')}</div>
+        <div class="project-links">
+          <a href="${p.big}" target="_blank" rel="noopener" class="project-link primary">${lang.button}</a>
+        </div>
+      </div>`;
+  }).join('');
+  document.querySelectorAll('.tech-tag').forEach(tag => {
+    tag.addEventListener('click', function(){ searchInput.value = this.textContent.trim(); searchProjects(); });
+  });
+  searchProjects();
+}
+
+function searchableText(project){
+  return [project.title, project.keywords, project.en.subtitle, project.en.description, project.fr.subtitle, project.fr.description]
+    .join(' ').toLowerCase();
+}
+
+function searchProjects(){
+  const term = searchInput.value.toLowerCase().trim();
+  let visible = 0;
+  document.querySelectorAll('.project-box').forEach(box => {
+    const p = projects[Number(box.dataset.index)];
+    const match = term === '' || searchableText(p).includes(term);
+    box.classList.toggle('hidden', !match);
+    if(match) visible++;
+  });
+  resultsInfo.textContent = visible === 0 ? t('noMatch') : t('showing')(visible);
+  noResults.style.display = visible === 0 ? 'block' : 'none';
+  projectsGrid.style.display = visible === 0 ? 'none' : 'grid';
+}
+
+function clearSearch(){ searchInput.value = ''; searchProjects(); }
+
+function setLanguage(lang){
+  currentLang = lang;
+  localStorage.setItem('fycodelab-lang', lang);
+  document.documentElement.lang = lang;
+  document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+  document.getElementById('btnFr').classList.toggle('active', lang === 'fr');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  searchInput.placeholder = t('searchPlaceholder');
+  renderCards();
+}
+
+searchInput.addEventListener('input', searchProjects);
+searchInput.addEventListener('keyup', e => { if(e.key === 'Escape') clearSearch(); });
+setLanguage(currentLang);
+</script>
+</body>
+</html>
