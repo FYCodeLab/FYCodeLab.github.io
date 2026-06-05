@@ -2,7 +2,7 @@
 A place for beginner-friendly and biologist-friendly programming and data science courses.  
 
 <p align="center">
-  <a href="https://fycodelab.github.io/showcase2">
+  <a href="https://fycodelab.github.io/showcase3">
     <img src="https://img.shields.io/badge/🚀-ShowCase:View%20All%20Projects-667eea?style=for-the-badge">
   </a>
 </p>
