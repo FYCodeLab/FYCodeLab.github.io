@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Personal Space for Learning and Sharing - FYCodeLab</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg1:#667eea;
+  --bg2:#764ba2;
+  --text:#2d2d2d;
+  --muted:#666;
+  --card:#ffffff;
+  --soft:#f6f7fb;
+  --line:#e8e8ef;
+  --accent:#667eea;
+  --accent2:#764ba2;
+}
+body{
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  line-height:1.6;
+  color:var(--text);
+  background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);
+  min-height:100vh;
+}
+.container{max-width:1100px;margin:0 auto;padding:22px;}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:28px;color:white;}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:white;font-weight:800;letter-spacing:.01em;}
+.brand-icon{font-size:1.6rem;}
+.nav-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+.nav-link{color:white;text-decoration:none;font-weight:650;font-size:.9rem;opacity:.92;border-bottom:1px solid rgba(255,255,255,.35);}
+.lang-switch{display:inline-flex;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);padding:4px;border-radius:999px;backdrop-filter:blur(8px);}
+.lang-btn{border:none;background:transparent;color:white;padding:7px 11px;border-radius:999px;cursor:pointer;font-weight:750;font-size:.82rem;}
+.lang-btn.active{background:white;color:var(--accent2);}
+.hero{display:grid;grid-template-columns:1.35fr .65fr;gap:24px;align-items:stretch;margin-bottom:24px;}
+.hero-main,.hero-side,.card,.section{background:var(--card);border-radius:22px;box-shadow:0 12px 35px rgba(0,0,0,.14);}
+.hero-main{padding:34px;position:relative;overflow:hidden;}
+.hero-main:before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--bg1),var(--bg2));}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;font-size:.72rem;letter-spacing:.12em;margin-bottom:12px;}
+h1{font-size:2.25rem;line-height:1.12;margin-bottom:16px;color:#222;}
+.lead{font-size:1.08rem;color:#4b4b4b;margin-bottom:15px;max-width:780px;}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+.pill{background:#f1f3ff;color:#5b63c7;border:1px solid #e4e7ff;padding:6px 10px;border-radius:999px;font-size:.78rem;font-weight:700;}
+.hero-side{padding:24px;display:flex;flex-direction:column;justify-content:center;gap:14px;}
+.profile-mark{width:86px;height:86px;border-radius:24px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:white;font-size:2.5rem;font-weight:850;box-shadow:0 10px 24px rgba(102,126,234,.28);}
+.side-title{font-size:1.15rem;font-weight:850;color:#222;}
+.side-text{color:var(--muted);font-size:.94rem;}
+.links-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px;}
+.big-link,.small-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;border-radius:10px;font-weight:800;transition:.2s ease;}
+.big-link{background:linear-gradient(135deg,var(--bg1),var(--bg2));color:white;padding:10px 15px;font-size:.9rem;}
+.small-link{background:#fff;color:#222;border:1px solid #d9d9e5;padding:9px 12px;font-size:.84rem;}
+.big-link:hover,.small-link:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.12);}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px;}
+.card{padding:23px;}
+.card h2{font-size:1.16rem;margin-bottom:10px;color:#222;display:flex;gap:8px;align-items:center;}
+.card p{color:#555;font-size:.95rem;margin-bottom:10px;}
+.card ul{padding-left:19px;color:#555;font-size:.95rem;}
+.card li{margin:6px 0;}
+.wide{grid-column:span 2;}
+.section{padding:28px;margin-bottom:18px;}
+.section h2{font-size:1.35rem;margin-bottom:12px;color:#222;}
+.section p{color:#555;margin-bottom:12px;}
+.project-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px;}
+.project-mini{background:var(--soft);border:1px solid var(--line);border-radius:15px;padding:14px;}
+.project-mini strong{display:block;color:#222;margin-bottom:4px;font-size:.95rem;}
+.project-mini span{display:block;color:#666;font-size:.82rem;line-height:1.45;}
+.quote{background:rgba(255,255,255,.16);color:white;border:1px solid rgba(255,255,255,.22);border-radius:22px;padding:24px;text-align:center;margin:24px 0 4px 0;}
+.quote strong{font-size:1.12rem;display:block;margin-bottom:6px;}
+.footer{text-align:center;color:white;padding:32px 10px;opacity:.92;font-size:.9rem;}
+[lang-block]{display:none;}
+[lang-block].active{display:block;}
+.inline{display:inline;}
+@media(max-width:900px){.hero{grid-template-columns:1fr;}.grid{grid-template-columns:1fr 1fr;}.wide{grid-column:span 2;}.project-mini-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:620px){.container{padding:14px;}.topbar{align-items:flex-start;gap:14px;}.brand{font-size:.98rem;}.nav-actions{gap:8px;}.nav-link{font-size:.82rem;}.hero-main,.hero-side,.section,.card{border-radius:18px;padding:20px;}h1{font-size:1.78rem;}.lead{font-size:1rem;}.grid{grid-template-columns:1fr;}.wide{grid-column:span 1;}.project-mini-grid{grid-template-columns:1fr;}.links-row{flex-direction:column;}.big-link,.small-link{width:100%;}.profile-mark{width:72px;height:72px;font-size:2.1rem;border-radius:20px;}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <a class="brand" href="https://fycodelab.github.io/"><span class="brand-icon">🎓</span><span>FYCodeLab</span></a>
+    <div class="nav-actions">
+      <a class="nav-link" href="https://fycodelab.github.io/">Projects</a>
+      <a class="nav-link" href="https://github.com/FYCodeLab" target="_blank" rel="noopener">GitHub</a>
+      <div class="lang-switch" aria-label="Language switch">
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btn-fr" onclick="setLang('fr')">FR</button>
+      </div>
+    </div>
+  </div>
+
+  <div lang-block="en" class="active">
+    <section class="hero">
+      <div class="hero-main">
+        <div class="kicker">About FYCodeLab</div>
+        <h1>A Personal Space for Learning and Sharing</h1>
+        <p class="lead"><strong>Hello, I am Frank Yates.</strong></p>
+        <p class="lead">Professionally, I am a scientist, researcher and professor with a passion for biotechnology and life sciences. My work focuses on stem cells, organoids, neurodegenerative diseases, and the ways biological models can help us better understand human health.</p>
+        <p class="lead">Outside my professional activities, I am also passionate about open-source tools, electronics, robotics and the possibilities opened by programming. FYCodeLab is a place where I share both my professional and personal interests, hoping they can help others develop their curiosity for science in all its forms.</p>
+        <div class="pills">
+          <span class="pill">Biotechnology</span><span class="pill">Open source</span><span class="pill">Programming</span><span class="pill">Electronics</span><span class="pill">Curiosity</span>
+        </div>
+      </div>
+      <aside class="hero-side">
+        <div class="profile-mark">FY</div>
+        <div>
+          <div class="side-title">Frank Yates</div>
+          <div class="side-text">Scientist, researcher and professor. Director of research at SupBiotech, Villejuif, France.</div>
+        </div>
+        <div class="links-row">
+          <a class="big-link" href="https://fycodelab.github.io/">View projects</a>
+          <a class="small-link" href="https://github.com/FYCodeLab" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </aside>
+    </section>
+
+    <div class="grid">
+      <article class="card"><h2>🧬 Science</h2><p>My professional work is rooted in biotechnology, stem cells, organoids and models of neurodegenerative diseases.</p></article>
+      <article class="card"><h2>👨‍🏫 Teaching</h2><p>I enjoy helping students approach science, data and technology through practical, accessible and visual examples.</p></article>
+      <article class="card"><h2>🛠️ Making</h2><p>I like building small tools, electronic projects and interactive resources that make technology easier to explore.</p></article>
+    </div>
+
+    <section class="section">
+      <h2>Why FYCodeLab?</h2>
+      <p>FYCodeLab is a personal space where my interests meet: biology, programming, data science, electronics, robotics, artificial intelligence and education.</p>
+      <p>The idea is simple: share resources that are useful, beginner-friendly and concrete. Some projects are linked to teaching. Others come from curiosity, experimentation or the pleasure of building something small that works.</p>
+      <p>I hope this space can help students, teachers, scientists, makers and beginners feel more comfortable exploring science and technology.</p>
+      <div class="project-mini-grid">
+        <div class="project-mini"><strong>Coding-Intro</strong><span>R and Python foundations for beginners.</span></div>
+        <div class="project-mini"><strong>SweetSpot</strong><span>A playful experiment about statistics and collective estimation.</span></div>
+        <div class="project-mini"><strong>Intro to Biopython</strong><span>Bioinformatics with real biological data.</span></div>
+        <div class="project-mini"><strong>Vibe Robotics</strong><span>Robotics and electronics projects for first experiments.</span></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <article class="card wide"><h2>🎯 A simple intention</h2><ul><li>Make science and programming less intimidating.</li><li>Start from concrete examples rather than abstract theory.</li><li>Encourage curiosity, experimentation and small personal projects.</li><li>Show that code can be useful for biology, teaching, electronics and everyday creativity.</li></ul></article>
+      <article class="card"><h2>🌱 For whom?</h2><p>Students, biologists, teachers, beginners, makers, or anyone curious about science and technology.</p></article>
+    </div>
+
+    <section class="quote"><strong>Science is not limited to laboratories, and programming is not reserved for experts.</strong><span>Both can become tools for curiosity, creation and sharing.</span></section>
+  </div>
+
+  <div lang-block="fr">
+    <section class="hero">
+      <div class="hero-main">
+        <div class="kicker">À propos de FYCodeLab</div>
+        <h1>A Personal Space for Learning and Sharing</h1>
+        <p class="lead"><strong>Bonjour, je suis Frank Yates.</strong></p>
+        <p class="lead">Professionnellement, je suis scientifique, chercheur et enseignant, passionné par les biotechnologies et les sciences du vivant. Mon travail porte notamment sur les cellules souches, les organoïdes, les maladies neurodégénératives et les modèles biologiques permettant de mieux comprendre la santé humaine.</p>
+        <p class="lead">Dans ma vie personnelle, je suis aussi passionné par l’open source, l’électronique, la robotique et les possibilités ouvertes par la programmation. FYCodeLab est un espace où je partage mes passions personnelles et professionnelles, avec l’intention qu’elles puissent aider chacun, je l’espère, à développer sa curiosité pour les sciences de toute nature.</p>
+        <div class="pills">
+          <span class="pill">Biotechnologies</span><span class="pill">Open source</span><span class="pill">Programmation</span><span class="pill">Électronique</span><span class="pill">Curiosité</span>
+        </div>
+      </div>
+      <aside class="hero-side">
+        <div class="profile-mark">FY</div>
+        <div>
+          <div class="side-title">Frank Yates</div>
+          <div class="side-text">Scientifique, chercheur et enseignant. Directeur de recherche à SupBiotech, Villejuif, France.</div>
+        </div>
+        <div class="links-row">
+          <a class="big-link" href="https://fycodelab.github.io/">Voir les projets</a>
+          <a class="small-link" href="https://github.com/FYCodeLab" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </aside>
+    </section>
+
+    <div class="grid">
+      <article class="card"><h2>🧬 Science</h2><p>Mon activité professionnelle s’inscrit dans les biotechnologies, les cellules souches, les organoïdes et les modèles de maladies neurodégénératives.</p></article>
+      <article class="card"><h2>👨‍🏫 Enseignement</h2><p>J’aime aider les étudiants à aborder les sciences, les données et la technologie avec des exemples pratiques, accessibles et visuels.</p></article>
+      <article class="card"><h2>🛠️ Création</h2><p>J’aime construire de petits outils, des projets électroniques et des ressources interactives qui rendent la technologie plus facile à explorer.</p></article>
+    </div>
+
+    <section class="section">
+      <h2>Pourquoi FYCodeLab ?</h2>
+      <p>FYCodeLab est un espace personnel où se rencontrent plusieurs centres d’intérêt : biologie, programmation, science des données, électronique, robotique, intelligence artificielle et pédagogie.</p>
+      <p>L’idée est simple : partager des ressources utiles, accessibles aux débutants et concrètes. Certains projets sont liés à l’enseignement. D’autres viennent de la curiosité, de l’expérimentation ou du plaisir de construire quelque chose de simple qui fonctionne.</p>
+      <p>J’espère que cet espace pourra aider des étudiants, enseignants, scientifiques, makers ou débutants à explorer plus librement les sciences et les technologies.</p>
+      <div class="project-mini-grid">
+        <div class="project-mini"><strong>Coding-Intro</strong><span>Les bases de R et Python pour débuter.</span></div>
+        <div class="project-mini"><strong>SweetSpot</strong><span>Une expérience ludique sur les statistiques et l’estimation collective.</span></div>
+        <div class="project-mini"><strong>Intro to Biopython</strong><span>Bioinformatique avec de vraies données biologiques.</span></div>
+        <div class="project-mini"><strong>Vibe Robotics</strong><span>Projets de robotique et d’électronique pour premières expérimentations.</span></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <article class="card wide"><h2>🎯 Une intention simple</h2><ul><li>Rendre les sciences et la programmation moins intimidantes.</li><li>Partir d’exemples concrets plutôt que d’une théorie abstraite.</li><li>Encourager la curiosité, l’expérimentation et les petits projets personnels.</li><li>Montrer que le code peut servir la biologie, l’enseignement, l’électronique et la créativité du quotidien.</li></ul></article>
+      <article class="card"><h2>🌱 Pour qui ?</h2><p>Étudiants, biologistes, enseignants, débutants, makers ou toute personne curieuse des sciences et des technologies.</p></article>
+    </div>
+
+    <section class="quote"><strong>La science ne se limite pas aux laboratoires, et la programmation n’est pas réservée aux experts.</strong><span>Les deux peuvent devenir des outils de curiosité, de création et de partage.</span></section>
+  </div>
+
+  <footer class="footer">
+    <span lang-block="en" class="active inline">FYCodeLab — a personal space for learning and sharing.</span>
+    <span lang-block="fr" class="inline">FYCodeLab — un espace personnel pour apprendre et partager.</span>
+  </footer>
+</div>
+
+<script>
+function setLang(lang){
+  document.documentElement.lang = lang;
+  localStorage.setItem('fycodelab-about-lang', lang);
+  document.querySelectorAll('[lang-block]').forEach(el=>{
+    el.classList.toggle('active', el.getAttribute('lang-block') === lang);
+  });
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+}
+(function(){
+  const saved = localStorage.getItem('fycodelab-about-lang');
+  const browser = (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+  setLang(saved || browser);
+})();
+</script>
+</body>
+</html>
