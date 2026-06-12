@@ -164,82 +164,212 @@ const githubIcon = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.
 
 const projects = [
   {
-    icon:'📘', status:'live', title:'Coding-Intro', keywords:'coding intro r python programming beginner course tutorial',
-    github:'https://github.com/FYCodeLab/coding-intro', big:'https://fycodelab.github.io/coding-intro/',
-    en:{subtitle:'Beginner-friendly programming course', description:'A practical introduction to R and Python programming for beginners, including syntax, data structures, libraries and basic operations.', button:'R and Python courses'},
-    fr:{subtitle:'Cours de programmation pour débutants', description:'Une introduction pratique à R et Python pour débutants, avec syntaxe, structures de données, bibliothèques et opérations de base.', button:'Cours R et Python'}
+    icon:'📘', status:'live', title:'Coding-Intro',
+    keywords:'coding intro r python programming beginner course tutorial',
+    github:'https://github.com/FYCodeLab/coding-intro',
+    big:'https://fycodelab.github.io/coding-intro/',
+    en:{
+      subtitle:'Beginner-friendly programming course',
+      description:'A practical introduction to R and Python programming for beginners, including syntax, data structures, libraries and basic operations.',
+      button:'R and Python courses'
+    },
+    fr:{
+      subtitle:'Cours de programmation pour débutants',
+      description:'Une introduction pratique à R et Python pour débutants, avec syntaxe, structures de données, bibliothèques et opérations de base.',
+      button:'Cours R et Python'
+    }
   },
   {
-    icon:'🔬', status:'live', title:'Malassez Grid Game', keywords:'malassez grid counting game cell biology biotechnology p5js interactive',
-    github:'https://github.com/FYCodeLab', big:'https://editor.p5js.org/frank.yates/full/OV6pjS93o',
-    en:{subtitle:'Interactive cell counting simulation', description:'A web mini-game for practicing manual cell counting on a Malassez grid, with simulated cell dispersion under a microscope.', button:'Play game'},
-    fr:{subtitle:'Simulation interactive de comptage cellulaire', description:'Un mini-jeu web pour s’entraîner au comptage manuel sur grille de Malassez, avec dispersion cellulaire simulée au microscope.', button:'Jouer'}
+    icon:'🔬', status:'live', title:'Malassez Grid Game',
+    keywords:'malassez grid counting game cell biology biotechnology p5js interactive',
+    github:'https://github.com/FYCodeLab',
+    big:'https://editor.p5js.org/frank.yates/full/OV6pjS93o',
+    en:{
+      subtitle:'Interactive cell counting simulation',
+      description:'A web mini-game for practicing manual cell counting on a Malassez grid, with simulated cell dispersion under a microscope.',
+      button:'Play game'
+    },
+    fr:{
+      subtitle:'Simulation interactive de comptage cellulaire',
+      description:'Un mini-jeu web pour s’entraîner au comptage manuel sur grille de Malassez, avec dispersion cellulaire simulée au microscope.',
+      button:'Jouer'
+    }
   },
   {
-    icon:'🍬', status:'live', title:'SweetSpot', keywords:'sweetspot data aggregation statistics ggplot r visualization sweet jar experiment',
-    github:'https://github.com/FYCodeLab/SweetSpot/', big:'https://fycodelab.github.io/SweetSpot/',
-    en:{subtitle:'The power of aggregated data', description:'A classroom experiment using a jar of sweets to show how statistics, visualization and group estimation can reveal robust patterns.', button:'Instructions'},
-    fr:{subtitle:'La force des données agrégées', description:'Une expérience de classe avec un bocal de bonbons pour montrer comment statistiques, visualisation et estimation collective révèlent des tendances robustes.', button:'Instructions'}
+    icon:'🍬', status:'live', title:'SweetSpot',
+    keywords:'sweetspot data aggregation statistics ggplot r visualization sweet jar experiment',
+    github:'https://github.com/FYCodeLab/SweetSpot/',
+    big:'https://fycodelab.github.io/SweetSpot/',
+    en:{
+      subtitle:'The power of aggregated data',
+      description:'A classroom experiment using a jar of sweets to show how statistics, visualization and group estimation can reveal robust patterns.',
+      button:'Instructions'
+    },
+    fr:{
+      subtitle:'La force des données agrégées',
+      description:'Une expérience de classe avec un bocal de bonbons pour montrer comment statistiques, visualisation et estimation collective révèlent des tendances robustes.',
+      button:'Instructions'
+    }
   },
   {
-    icon:'🧬', status:'live', title:'Intro to Biopython', keywords:'biopython genomics bioinformatics ncbi python dna sequence',
-    github:'https://github.com/FYCodeLab/intro-biopython', big:'https://fycodelab.github.io/intro-biopython/',
-    en:{subtitle:'Hands-on genomics for beginners', description:'A beginner-friendly introduction to Biopython for accessing NCBI databases, downloading genomic data and visualizing gene annotations.', button:'Biopython course'},
-    fr:{subtitle:'Génomique pratique pour débutants', description:'Une introduction accessible à Biopython pour interroger NCBI, télécharger des données génomiques et visualiser des annotations de gènes.', button:'Cours Biopython'}
+    icon:'🧬', status:'live', title:'Intro to Biopython',
+    keywords:'biopython genomics bioinformatics ncbi python dna sequence',
+    github:'https://github.com/FYCodeLab/intro-biopython',
+    big:'https://fycodelab.github.io/intro-biopython/',
+    en:{
+      subtitle:'Hands-on genomics for beginners',
+      description:'A beginner-friendly introduction to Biopython for accessing NCBI databases, downloading genomic data and visualizing gene annotations.',
+      button:'Biopython course'
+    },
+    fr:{
+      subtitle:'Génomique pratique pour débutants',
+      description:'Une introduction accessible à Biopython pour interroger NCBI, télécharger des données génomiques et visualiser des annotations de gènes.',
+      button:'Cours Biopython'
+    }
   },
   {
-    icon:'🤖', status:'live', title:'Vibe Robotics', keywords:'vibe robotics espy microelectronics circuitpython esp32 iot led games clock timer',
-    github:'https://github.com/FYCodeLab/espyrobotics', big:'https://github.com/FYCodeLab/espyrobotics/tree/main/exemples',
-    en:{subtitle:'Microelectronics and robotics kit for beginners', description:'A compact collection of CircuitPython projects for ESP32 boards, including LED animations, games and robotics utilities.', button:'Robotics projects'},
-    fr:{subtitle:'Kit microélectronique et robotique pour débutants', description:'Une collection compacte de projets CircuitPython pour cartes ESP32, avec animations LED, jeux et utilitaires robotiques.', button:'Projets robotiques'}
+    icon:'🤖', status:'live', title:'Vibe Robotics',
+    keywords:'vibe robotics espy microelectronics circuitpython esp32 iot led games clock timer',
+    github:'https://github.com/FYCodeLab/espyrobotics',
+    big:'https://github.com/FYCodeLab/espyrobotics/tree/main/exemples',
+    en:{
+      subtitle:'Microelectronics and robotics kit for beginners',
+      description:'A compact collection of CircuitPython projects for ESP32 boards, including LED animations, games and robotics utilities.',
+      button:'Robotics projects'
+    },
+    fr:{
+      subtitle:'Kit microélectronique et robotique pour débutants',
+      description:'Une collection compacte de projets CircuitPython pour cartes ESP32, avec animations LED, jeux et utilitaires robotiques.',
+      button:'Projets robotiques'
+    }
   },
   {
-    icon:'🔲', status:'live', title:'MicroMatrix', keywords:'micromatrix esp32 circuitpython led matrix robotics electronics education audioguide',
-    github:'https://github.com/FYCodeLab/micromatrix', big:'https://fycodelab.github.io/micromatrix/',
-    en:{subtitle:'Mini LED laboratory for beginners', description:'An ESP32 and LED matrix kit for learning electronics, programming and robotics through interactive experiments and an embedded audioguide.', button:'Website'},
-    fr:{subtitle:'Mini-laboratoire LED pour débutants', description:'Un kit ESP32 et matrice LED pour découvrir électronique, programmation et robotique avec des expériences interactives et un audioguide intégré.', button:'Site web'}
+    icon:'🔲', status:'live', title:'MicroMatrix',
+    keywords:'micromatrix esp32 circuitpython led matrix robotics electronics education audioguide',
+    github:'https://github.com/FYCodeLab/micromatrix',
+    big:'https://fycodelab.github.io/micromatrix/',
+    en:{
+      subtitle:'Mini LED laboratory for beginners',
+      description:'An ESP32 and LED matrix kit for learning electronics, programming and robotics through interactive experiments and an embedded audioguide.',
+      button:'Website'
+    },
+    fr:{
+      subtitle:'Mini-laboratoire LED pour débutants',
+      description:'Un kit ESP32 et matrice LED pour découvrir électronique, programmation et robotique avec des expériences interactives et un audioguide intégré.',
+      button:'Site web'
+    }
   },
   {
-    icon:'🤖', status:'live', title:'pinGPT', keywords:'pingpt esp32 llm ai robotics electronics circuitpython tutor prototyping',
-    github:'https://github.com/FYCodeLab/pinGPT', big:'https://pingpt.lovable.app/',
-    en:{subtitle:'LLM-assisted electronics prototyping', description:'An ESP32 prototyping platform combining CircuitPython, electronics modules and an AI tutor to guide beginners step by step.', button:'Website'},
-    fr:{subtitle:'Prototypage électronique assisté par IA', description:'Une plateforme de prototypage ESP32 combinant CircuitPython, modules électroniques et tuteur IA pour guider les débutants pas à pas.', button:'Site web'}
+    icon:'🤖', status:'live', title:'pinGPT',
+    keywords:'pingpt esp32 llm ai robotics electronics circuitpython tutor prototyping',
+    github:'https://github.com/FYCodeLab/pinGPT',
+    big:'https://pingpt.lovable.app/',
+    en:{
+      subtitle:'LLM-assisted electronics prototyping',
+      description:'An ESP32 prototyping platform combining CircuitPython, electronics modules and an AI tutor to guide beginners step by step.',
+      button:'Website'
+    },
+    fr:{
+      subtitle:'Prototypage électronique assisté par IA',
+      description:'Une plateforme de prototypage ESP32 combinant CircuitPython, modules électroniques et tuteur IA pour guider les débutants pas à pas.',
+      button:'Site web'
+    }
   },
   {
-    icon:'🔎', status:'new', title:'PhinDer', keywords:'phinder phd theses france theses.fr doctoral database names search tool',
-    github:'https://github.com/FYCodeLab/PhinDer', big:'https://github.com/FYCodeLab/PhinDer',
-    en:{subtitle:'Find PhDs from names on theses.fr', description:'A small tool for searching PhD records from names in the French doctoral database theses.fr.', button:'Open project'},
-    fr:{subtitle:'Retrouver des thèses à partir de noms sur theses.fr', description:'Un petit outil pour rechercher des doctorats à partir de noms dans la base française theses.fr.', button:'Ouvrir le projet'}
+    icon:'🔎', status:'new', title:'PhinDer',
+    keywords:'phinder phd theses france theses.fr doctoral database names search tool',
+    github:'https://github.com/FYCodeLab/PhinDer',
+    big:'https://github.com/FYCodeLab/PhinDer',
+    en:{
+      subtitle:'Find PhDs from names on theses.fr',
+      description:'A small tool for searching PhD records from names in the French doctoral database theses.fr.',
+      button:'Open project'
+    },
+    fr:{
+      subtitle:'Retrouver des thèses à partir de noms sur theses.fr',
+      description:'Un petit outil pour rechercher des doctorats à partir de noms dans la base française theses.fr.',
+      button:'Ouvrir le projet'
+    }
   },
   {
-    icon:'🧪', status:'live', title:'SupBiotech Projects', keywords:'supbiotech biotechnology research science education journal undergraduate student',
-    github:'https://github.com/SupBiotech-Projects', big:'https://supbiotech-projects.github.io/',
-    en:{subtitle:'Undergraduate scientific journal', description:'A scientific journal showcasing student projects, biotechnology initiatives, research work and educational innovation.', button:'Website'},
-    fr:{subtitle:'Journal scientifique étudiant', description:'Un journal scientifique valorisant projets étudiants, initiatives en biotechnologie, travaux de recherche et innovation pédagogique.', button:'Site web'}
+    icon:'🧪', status:'live', title:'SupBiotech Projects',
+    keywords:'supbiotech biotechnology research science education journal undergraduate student',
+    github:'https://github.com/SupBiotech-Projects',
+    big:'https://supbiotech-projects.github.io/',
+    en:{
+      subtitle:'Undergraduate scientific journal',
+      description:'A scientific journal showcasing student projects, biotechnology initiatives, research work and educational innovation.',
+      button:'Website'
+    },
+    fr:{
+      subtitle:'Journal scientifique étudiant',
+      description:'Un journal scientifique valorisant projets étudiants, initiatives en biotechnologie, travaux de recherche et innovation pédagogique.',
+      button:'Site web'
+    }
   },
   {
-    icon:'🔒', status:'new', title:'SafeSeal', keywords:'safeseal presentation protection security slides powerpoint ppt distribution',
-    github:'https://github.com/FYCodeLab', big:'https://github.com/FYCodeLab',
-    en:{subtitle:'Presentation protection tool', description:'A security-oriented project for protecting slide decks and PowerPoint presentations during distribution.', button:'View project'},
-    fr:{subtitle:'Outil de protection de présentations', description:'Un projet orienté sécurité pour protéger des diaporamas et présentations PowerPoint lors de leur diffusion.', button:'Voir le projet'}
+    icon:'🔒', status:'new', title:'SafeSeal',
+    keywords:'safeseal presentation protection security slides powerpoint ppt distribution',
+    github:'https://github.com/FYCodeLab/SafeSeal',
+    big:'https://safeseal-7lxz.onrender.com/',
+    en:{
+      subtitle:'Presentation protection tool',
+      description:'A security-oriented project for protecting slide decks and PowerPoint presentations during distribution.',
+      button:'View project'
+    },
+    fr:{
+      subtitle:'Outil de protection de présentations',
+      description:'Un projet orienté sécurité pour protéger des diaporamas et présentations PowerPoint lors de leur diffusion.',
+      button:'Voir le projet'
+    }
   },
   {
-    icon:'🦻', status:'new', title:'Babili', keywords:'babili communication hearing loss accessibility audio phone amplification elderly',
-    github:'https://github.com/FYCodeLab', big:'https://github.com/FYCodeLab',
-    en:{subtitle:'Communication aid for hearing loss', description:'An accessibility concept to help people with hearing loss communicate more effectively, especially by phone.', button:'View project'},
-    fr:{subtitle:'Aide à la communication en cas de perte auditive', description:'Un concept d’accessibilité pour aider les personnes malentendantes à mieux communiquer, notamment par téléphone.', button:'Voir le projet'}
+    icon:'🦻', status:'new', title:'Babili',
+    keywords:'babili communication hearing loss accessibility audio phone amplification elderly',
+    github:'https://github.com/FYCodeLab/babili',
+    big:'http://babili.fr/',
+    en:{
+      subtitle:'Communication aid for hearing loss',
+      description:'An accessibility concept to help people with hearing loss communicate more effectively, especially by phone.',
+      button:'Visit website'
+    },
+    fr:{
+      subtitle:'Aide à la communication en cas de perte auditive',
+      description:'Un concept d’accessibilité pour aider les personnes malentendantes à mieux communiquer, notamment par téléphone.',
+      button:'Visiter le site'
+    }
   },
   {
-    icon:'🎮', status:'new', title:'Advent Roblox', keywords:'advent roblox game holiday christmas missions puzzles enigma daily challenges',
-    github:'https://github.com/FYCodeLab', big:'https://github.com/FYCodeLab',
-    en:{subtitle:'Holiday adventure game', description:'A festive Roblox game concept with daily missions and puzzles during the holiday season.', button:'View project'},
-    fr:{subtitle:'Jeu d’aventure de fin d’année', description:'Un concept de jeu Roblox festif avec missions quotidiennes et énigmes pendant la période des fêtes.', button:'Voir le projet'}
+    icon:'🎮', status:'new', title:'Advent Roblox',
+    keywords:'advent roblox game holiday christmas missions puzzles enigma daily challenges',
+    github:'https://github.com/FYCodeLab/roblox-avent',
+    big:'https://github.com/FYCodeLab/roblox-avent',
+    en:{
+      subtitle:'Holiday adventure game',
+      description:'A festive Roblox game concept with daily missions and puzzles during the holiday season.',
+      button:'Open project'
+    },
+    fr:{
+      subtitle:'Jeu d’aventure de fin d’année',
+      description:'Un concept de jeu Roblox festif avec missions quotidiennes et énigmes pendant la période des fêtes.',
+      button:'Ouvrir le projet'
+    }
   },
   {
-    icon:'🗺️', status:'new', title:'Chasse au Trésor', keywords:'chasse tresor treasure hunt assistant outdoor web clues audio codes scavenger',
-    github:'https://github.com/FYCodeLab', big:'https://github.com/FYCodeLab',
-    en:{subtitle:'Treasure hunt assistant', description:'An interactive assistant for outdoor treasure hunts with text and audio clues, secret codes and progress tracking.', button:'Launch project'},
-    fr:{subtitle:'Assistant de chasse au trésor', description:'Un assistant interactif pour chasses au trésor en extérieur avec indices texte et audio, codes secrets et suivi de progression.', button:'Lancer le projet'}
+    icon:'🗺️', status:'new', title:'Chasse au Trésor',
+    keywords:'chasse tresor treasure hunt assistant outdoor web clues audio codes scavenger',
+    github:'https://github.com/FYCodeLab/tresor2025',
+    big:'https://fycodelab.github.io/tresor2025/',
+    en:{
+      subtitle:'Treasure hunt assistant',
+      description:'An interactive assistant for outdoor treasure hunts with text and audio clues, secret codes and progress tracking.',
+      button:'Launch project'
+    },
+    fr:{
+      subtitle:'Assistant de chasse au trésor',
+      description:'Un assistant interactif pour chasses au trésor en extérieur avec indices texte et audio, codes secrets et suivi de progression.',
+      button:'Lancer le projet'
+    }
   }
 ];
 
