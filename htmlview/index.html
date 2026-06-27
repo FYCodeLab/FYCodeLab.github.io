@@ -152,7 +152,6 @@
       background: #fff;
     }
 
-    /* Target Responsive Viewports for iPhone and Mobile Devices */
     @media (max-width: 768px) {
       #appContainer {
         flex-direction: column;
@@ -172,14 +171,12 @@
       }
       #previewContainer {
         width: 100%;
-        height: 400px; /* Give it a predictable fixed landscape on mobile */
+        height: 400px;
       }
     }
   </style>
 </head>
 <body onload="document.getElementById('htmlInput').focus();">
-
-  <iframe id="sandbox" style="position: absolute; width:0; height:0; border:0; visibility:hidden;"></iframe>
 
   <div id="appContainer">
     <div id="controller">
@@ -210,7 +207,6 @@
   </div>
 
   <script>
-    const sandbox = document.getElementById('sandbox');
     let capturedErrors = [];
     let awaitingPrompt = false;
 
@@ -257,23 +253,67 @@
       const html = document.getElementById("htmlInput").value;
       const iframe = document.getElementById("previewIframe");
 
+      // Clear previous logs before running a new test
+      capturedErrors = [];
+
+      // We inject the error handling system directly into the visible preview frame.
+      // If an error triggers, it appends a stylized red error alert box inside the preview area.
       const wrapped = `
 <!DOCTYPE html>
-<html><head>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    .error-box-container {
+      background-color: #fef2f2;
+      border: 2px solid #ef4444;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #991b1b;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .error-box-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+    .error-box-msg {
+      font-family: monospace;
+      background: #fca5a5;
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      word-break: break-all;
+    }
+  </style>
   <script>
-    let errorLock = false;
     window.onerror = function(message, source, lineno, colno, error) {
-      parent.postMessage({ type: 'sandbox-error', message: message + ' (Approx. Line: ' + (lineno - 12) + ')' }, '*');
+      const readableMsg = message + ' (Line: ' + lineno + ')';
+      
+      // Notify parent app to build the clipboard prompt
+      parent.postMessage({ type: 'sandbox-error', message: readableMsg }, '*');
+      
+      // Visually display the red box inside the preview
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.className = 'error-box-container';
+        div.innerHTML = '<div class="error-box-title">⚠️ Runtime Error Detected</div>' +
+                        '<div class="error-box-msg">' + readableMsg + '</div>';
+        document.body.insertBefore(div, document.body.firstChild);
+      }, 50);
     };
   <\/script>
-</head><body>
+</head>
+<body>
 ${html}
-</body></html>`;
+</body>
+</html>`;
 
-      const blob = new Blob([wrapped], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      sandbox.src = url;
-      iframe.srcdoc = html;
+      iframe.srcdoc = wrapped;
     }
 
     window.addEventListener("message", function(event) {
@@ -283,13 +323,15 @@ ${html}
         }
       }
       
+      // Small timeout ensures the postMessage events have gathered completely before evaluating
       if (awaitingPrompt) {
-        awaitingPrompt = false; 
-        const htmlInput = document.getElementById("htmlInput");
-        const lines = htmlInput.value.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
-        const errorTextString = capturedErrors.filter(Boolean).join('\n') || "No concrete frontend layout errors logged, checking syntax.";
-        
-        const promptTemplate = `Can you help me identify the cause of the following errors and how to fix them?
+        setTimeout(() => {
+          awaitingPrompt = false; 
+          const htmlInput = document.getElementById("htmlInput");
+          const lines = htmlInput.value.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
+          const errorTextString = capturedErrors.filter(Boolean).join('\n') || "No concrete frontend layout errors logged, checking syntax.";
+          
+          const promptTemplate = `Can you help me identify the cause of the following errors and how to fix them?
 
 ${errorTextString}
 
@@ -301,13 +343,12 @@ ${lines}
 
 If there are any key points or caveats, please include them too.`;
 
-        navigator.clipboard.writeText(promptTemplate).then(() => {
-          alert("ChatGPT prompt copied!");
-        }).catch(err => {
-          alert("Failed to copy prompt: " + err);
-        });
-        
-        capturedErrors = []; 
+          navigator.clipboard.writeText(promptTemplate).then(() => {
+            alert("ChatGPT prompt copied!");
+          }).catch(err => {
+            alert("Failed to copy prompt: " + err);
+          });
+        }, 100);
       }
     });
 
@@ -320,30 +361,7 @@ If there are any key points or caveats, please include them too.`;
         newTab.document.write(html);
         newTab.document.close();
       } else {
-        const wrapped = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Rendered HTML</title>
-</head>
-<body>
-  ${html}
-  <script>
-    window.onerror = function(message, source, lineno, colno, error) {
-      document.body.innerHTML = '<pre style="color:red;padding:1rem;">' +
-        'An error occurred:\\n' +
-        message + '\\n' +
-        'Line: ' + lineno + ', Column: ' + colno + '\\n' +
-        'Stack: ' + (error && error.stack ? error.stack : 'N/A') +
-        '</pre>';
-    };
-  <\/script>
-</body>
-</html>`;
-        document.open();
-        document.write(wrapped);
-        document.close();
+        alert("Pop-up blocked! Please allow pop-ups for this site to open a new tab.");
       }
     }
   </script>
