@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Test Tool</title>
+  <style>
+    :root {
+      --bg-main: #1e1e24;
+      --bg-sidebar: #111115;
+      --bg-input: #2a2a35;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-primary: #3b82f6;
+      --accent-primary-hover: #2563eb;
+      --accent-success: #10b981;
+      --accent-success-hover: #059669;
+      --accent-warning: #f59e0b;
+      --accent-warning-hover: #d97706;
+      --border-color: #374151;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    #appContainer {
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    @media (max-width: 900px) {
+      #appContainer {
+        flex-direction: column;
+      }
+      #controller {
+        width: 100% !important;
+        height: 50% !important;
+      }
+      #previewContainer {
+        width: 100% !important;
+        height: 50% !important;
+      }
+    }
+
+    #controller {
+      width: 450px;
+      min-width: 350px;
+      background: var(--bg-sidebar);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-color);
+      box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+      z-index: 10;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .description {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .textarea-wrapper {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+    }
+
+    textarea {
+      width: 100%;
+      flex-grow: 1;
+      min-height: 150px;
+      background-color: var(--bg-input);
+      color: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+      font-size: 0.9rem;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    button {
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.05s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-primary);
+      color: white;
+    }
+    .btn-primary:hover { background-color: var(--accent-primary-hover); }
+
+    .btn-success {
+      background-color: var(--accent-success);
+      color: white;
+    }
+    .btn-success:hover { background-color: var(--accent-success-hover); }
+
+    .btn-warning {
+      background-color: var(--accent-warning);
+      color: white;
+    }
+    .btn-warning:hover { background-color: var(--accent-warning-hover); }
+
+    .btn-secondary {
+      background-color: #4b5563;
+      color: white;
+    }
+    .btn-secondary:hover { background-color: #374151; }
+
+    footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    footer a {
+      color: var(--accent-primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    #previewContainer {
+      flex-grow: 1;
+      background: #fff;
+      position: relative;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+    }
+  </style>
+</head>
+<body onload="document.getElementById('htmlInput').focus();">
+
+  <iframe id="sandbox" style="display:none"></iframe>
+
+  <div id="appContainer">
+    <div id="controller">
+      <h2>HTML Tester</h2>
+      <p class="description">
+        Paste code to check errors in Safe Mode. If issues appear, instantly generate a ChatGPT fix prompt. Keep it clean or test it live in a new tab!
+      </p>
+
+      <div class="textarea-wrapper">
+        <textarea id="htmlInput" placeholder=""></textarea>
+      </div>
+      
+      <div class="actions-grid">
+        <button class="btn-primary" onclick="renderInIframe()">Render (Safe Mode)</button>
+        <button class="btn-success" onclick="replaceEntirePage()">Open New Tab</button>
+        <button class="btn-warning" onclick="ChatGPT()">ChatGPT Prompt</button>
+        <button class="btn-secondary" onclick="Download()">Download HTML</button>
+      </div>
+
+      <footer>
+        Original code from <a href="https://github.com/uni928/TestSpeedy" target="_blank" rel="noopener noreferrer">github.com/uni928/TestSpeedy</a>
+      </footer>
+    </div>
+
+    <div id="previewContainer">
+      <iframe id="previewIframe" title="Live Preview Output"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const sandbox = document.getElementById('sandbox');
+    let capturedErrors = [];
+    let awaitingPrompt = false;
+
+    function Download() {
+      const date = new Date();
+      date.setTime(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
+      const str_date = date.toISOString().replace('T', ' ').substring(0,19);
+      const textarea = document.getElementById("htmlInput");
+      const fileName = str_date + "_GeneratedHTML.html";
+      
+      if (typeof window.showSaveFilePicker !== 'function') {
+        const blob = new Blob([textarea.value], {type:"text/plain"});
+        let downloadTag = document.createElement('a');
+        downloadTag.href = URL.createObjectURL(blob);
+        downloadTag.download = fileName;
+        downloadTag.click();
+      } else {
+        let downloadTag = document.createElement('a');
+        downloadTag.addEventListener('click', async () => {
+          const opts = {
+            suggestedName: fileName,
+            types: [{
+              description: 'HTML file',
+              accept: {'text/plain': ['.html']},
+            }],
+          };
+          try {
+            const handle = await window.showSaveFilePicker(opts);
+            const writable = await handle.createWritable();
+            await writable.write(textarea.value);
+            await writable.close();
+          } catch (e) {
+            // Silently catch abort exceptions
+          }
+        });
+        downloadTag.click();
+      }
+    }
+
+    function ChatGPT() {
+      awaitingPrompt = true;
+      renderInIframe();
+    }
+
+    function renderInIframe() {
+      const html = document.getElementById("htmlInput").value;
+      const iframe = document.getElementById("previewIframe");
+
+      const wrapped = `
+<!DOCTYPE html>
+<html><head>
+  <script>
+    let errorLock = false;
+    window.onerror = function(message, source, lineno, colno, error) {
+      parent.postMessage({ type: 'sandbox-error', message: message + ' (Approx. Line: ' + (lineno - 12) + ')' }, '*');
+    };
+  <\/script>
+</head><body>
+${html}
+</body></html>`;
+
+      const blob = new Blob([wrapped], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      sandbox.src = url;
+
+      iframe.srcdoc = html;
+    }
+
+    window.addEventListener("message", function(event) {
+      if (event.data && event.data.type === 'sandbox-error') {
+        if (!capturedErrors.includes(event.data.message)) {
+          capturedErrors.push(event.data.message);
+        }
+      }
+      
+      if (awaitingPrompt) {
+        awaitingPrompt = false; // Reset early
+        const htmlInput = document.getElementById("htmlInput");
+        const lines = htmlInput.value.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
+        const errorTextString = capturedErrors.filter(Boolean).join('\n') || "No concrete frontend layout errors logged, checking syntax.";
+        
+        const promptTemplate = `Can you help me identify the cause of the following errors and how to fix them?
+
+${errorTextString}
+
+Here is the content of the related HTML file:
+
+\`\`\`html
+${lines}
+\`\`\`
+
+If there are any key points or caveats, please include them too.`;
+
+        navigator.clipboard.writeText(promptTemplate).then(() => {
+          alert("ChatGPT error fixing prompt copied to clipboard!");
+        }).catch(err => {
+          alert("Failed to copy prompt: " + err);
+        });
+        
+        capturedErrors = []; // Clear log for subsequent clicks
+      }
+    });
+
+    function replaceEntirePage() {
+      const html = document.getElementById("htmlInput").value;
+      const newTab = window.open("", "_blank");
+
+      if (newTab) {
+        newTab.document.open();
+        newTab.document.write(html);
+        newTab.document.close();
+      } else {
+        const wrapped = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rendered HTML</title>
+</head>
+<body>
+  ${html}
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      document.body.innerHTML = '<pre style="color:red;padding:1rem;">' +
+        'An error occurred:\\n' +
+        message + '\\n' +
+        'Line: ' + lineno + ', Column: ' + colno + '\\n' +
+        'Stack: ' + (error && error.stack ? error.stack : 'N/A') +
+        '</pre>';
+    };
+  <\/script>
+</body>
+</html>`;
+        document.open();
+        document.write(wrapped);
+        document.close();
+      }
+    }
+  </script>
+</body>
+</html>
