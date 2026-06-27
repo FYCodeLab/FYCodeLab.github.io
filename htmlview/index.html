@@ -31,6 +31,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg-main);
       color: var(--text-main);
+      overflow: hidden; /* Prevents whole-page bouncing/scrolling on iOS */
     }
 
     #appContainer {
@@ -152,26 +153,63 @@
       background: #fff;
     }
 
+    /* Target Mobile Layouts (iFrames and small screens) */
     @media (max-width: 768px) {
       #appContainer {
         flex-direction: column;
-        height: auto;
-        overflow-y: auto;
+        height: 100vh;
+        overflow: hidden;
       }
+
       #controller {
         width: 100%;
         min-width: 100%;
-        height: auto;
+        height: 60%; /* Controls split partition footprint */
         border-right: none;
         border-bottom: 1px solid var(--border-color);
-        overflow-y: visible;
+        padding: 1rem;
+        overflow-y: auto;
       }
+
+      h2 {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .description {
+        font-size: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+
       .textarea-wrapper {
-        min-height: 250px;
+        min-height: 110px; /* Reduced to fit box inside safe screen real estate */
+        margin-bottom: 0.75rem;
       }
+
+      textarea {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+      }
+
+      .actions-grid {
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      button {
+        padding: 0.65rem 0.25rem;
+        font-size: 0.75rem;
+        border-radius: 6px;
+      }
+
       #previewContainer {
         width: 100%;
-        height: 400px;
+        height: 40%; /* Lower frame display slice */
+      }
+
+      footer {
+        padding-top: 0.75rem;
+        font-size: 0.7rem;
       }
     }
   </style>
@@ -243,16 +281,15 @@
       }
     }
 
-    // Fixed for iOS: This function now executes clipboard copies immediately 
-    // inside the user click routine so Safari allows access.
     function ChatGPT() {
-      const htmlInput = document.getElementById("htmlInput");
-      const lines = htmlInput.value.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
-      
-      // Look up any logs caught during previous renders
-      const errorTextString = capturedErrors.filter(Boolean).join('\n') || "No concrete frontend layout errors logged, checking syntax.";
-      
-      const promptTemplate = `Can you help me identify the cause of the following errors and how to fix them?
+      renderInIframe();
+
+      setTimeout(() => {
+        const htmlInput = document.getElementById("htmlInput");
+        const lines = htmlInput.value.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
+        const errorTextString = capturedErrors.filter(Boolean).join('\n') || "No concrete frontend layout errors logged, checking syntax.";
+        
+        const promptTemplate = `Can you help me identify the cause of the following errors and how to fix them?
 
 ${errorTextString}
 
@@ -264,20 +301,19 @@ ${lines}
 
 If there are any key points or caveats, please include them too.`;
 
-      navigator.clipboard.writeText(promptTemplate).then(() => {
-        alert("ChatGPT prompt copied!");
-      }).catch(err => {
-        // Fallback for exceptional clipboard configurations
-        alert("Clipboard failed: " + err);
-      });
-
-      // Synchronously kick off the refresh render block
-      renderInIframe();
+        navigator.clipboard.writeText(promptTemplate).then(() => {
+          alert("ChatGPT prompt copied!");
+        }).catch(err => {
+          alert("Clipboard failed: " + err);
+        });
+      }, 50);
     }
 
     function renderInIframe() {
       const html = document.getElementById("htmlInput").value;
       const iframe = document.getElementById("previewIframe");
+
+      capturedErrors = [];
 
       const wrapped = `
 <!DOCTYPE html>
@@ -320,7 +356,7 @@ If there are any key points or caveats, please include them too.`;
         div.innerHTML = '<div class="error-box-title">⚠️ Runtime Error Detected</div>' +
                         '<div class="error-box-msg">' + readableMsg + '</div>';
         document.body.insertBefore(div, document.body.firstChild);
-      }, 50);
+      }, 10);
     };
   <\/script>
 </head><body>
@@ -330,7 +366,6 @@ ${html}
       iframe.srcdoc = wrapped;
     }
 
-    // Keep updating the background logging reference table smoothly
     window.addEventListener("message", function(event) {
       if (event.data && event.data.type === 'sandbox-error') {
         if (!capturedErrors.includes(event.data.message)) {
