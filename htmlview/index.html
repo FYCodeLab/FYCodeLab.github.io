@@ -208,7 +208,6 @@
 
   <script>
     let capturedErrors = [];
-    let awaitingPrompt = false;
 
     function Download() {
       const date = new Date();
@@ -244,8 +243,35 @@
       }
     }
 
+    // Fixed for iOS: This function now executes clipboard copies immediately 
+    // inside the user click routine so Safari allows access.
     function ChatGPT() {
-      awaitingPrompt = true;
+      const htmlInput = document.getElementById("htmlInput");
+      const lines = htmlInput.value.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
+      
+      // Look up any logs caught during previous renders
+      const errorTextString = capturedErrors.filter(Boolean).join('\n') || "No concrete frontend layout errors logged, checking syntax.";
+      
+      const promptTemplate = `Can you help me identify the cause of the following errors and how to fix them?
+
+${errorTextString}
+
+Here is the content of the related HTML file:
+
+\`\`\`html
+${lines}
+\`\`\`
+
+If there are any key points or caveats, please include them too.`;
+
+      navigator.clipboard.writeText(promptTemplate).then(() => {
+        alert("ChatGPT prompt copied!");
+      }).catch(err => {
+        // Fallback for exceptional clipboard configurations
+        alert("Clipboard failed: " + err);
+      });
+
+      // Synchronously kick off the refresh render block
       renderInIframe();
     }
 
@@ -253,11 +279,6 @@
       const html = document.getElementById("htmlInput").value;
       const iframe = document.getElementById("previewIframe");
 
-      // Clear previous logs before running a new test
-      capturedErrors = [];
-
-      // We inject the error handling system directly into the visible preview frame.
-      // If an error triggers, it appends a stylized red error alert box inside the preview area.
       const wrapped = `
 <!DOCTYPE html>
 <html>
@@ -278,8 +299,6 @@
       font-weight: bold;
       font-size: 1.1rem;
       margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
     }
     .error-box-msg {
       font-family: monospace;
@@ -293,11 +312,8 @@
   <script>
     window.onerror = function(message, source, lineno, colno, error) {
       const readableMsg = message + ' (Line: ' + lineno + ')';
-      
-      // Notify parent app to build the clipboard prompt
       parent.postMessage({ type: 'sandbox-error', message: readableMsg }, '*');
       
-      // Visually display the red box inside the preview
       setTimeout(() => {
         const div = document.createElement('div');
         div.className = 'error-box-container';
@@ -307,48 +323,19 @@
       }, 50);
     };
   <\/script>
-</head>
-<body>
+</head><body>
 ${html}
-</body>
-</html>`;
+</body></html>`;
 
       iframe.srcdoc = wrapped;
     }
 
+    // Keep updating the background logging reference table smoothly
     window.addEventListener("message", function(event) {
       if (event.data && event.data.type === 'sandbox-error') {
         if (!capturedErrors.includes(event.data.message)) {
           capturedErrors.push(event.data.message);
         }
-      }
-      
-      // Small timeout ensures the postMessage events have gathered completely before evaluating
-      if (awaitingPrompt) {
-        setTimeout(() => {
-          awaitingPrompt = false; 
-          const htmlInput = document.getElementById("htmlInput");
-          const lines = htmlInput.value.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
-          const errorTextString = capturedErrors.filter(Boolean).join('\n') || "No concrete frontend layout errors logged, checking syntax.";
-          
-          const promptTemplate = `Can you help me identify the cause of the following errors and how to fix them?
-
-${errorTextString}
-
-Here is the content of the related HTML file:
-
-\`\`\`html
-${lines}
-\`\`\`
-
-If there are any key points or caveats, please include them too.`;
-
-          navigator.clipboard.writeText(promptTemplate).then(() => {
-            alert("ChatGPT prompt copied!");
-          }).catch(err => {
-            alert("Failed to copy prompt: " + err);
-          });
-        }, 100);
       }
     });
 
