@@ -6,6 +6,7 @@
 <title>Le voyage en Norvège de Suzanne, Paul, Steph et Frank</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <style>
+html{scroll-behavior:smooth}
 :root{--ink:#17212b;--muted:#607080;--paper:#f4f7f8;--card:#fff;--line:#d8e0e4;--accent:#076b78;--accent2:#d56635;--good:#237a57;--shadow:0 10px 30px rgba(20,35,45,.08)}
 *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--paper)}
 header{padding:28px clamp(18px,4vw,58px) 18px;background:linear-gradient(120deg,#0a5966,#173e59);color:white}
@@ -21,6 +22,10 @@ main{display:grid;grid-template-columns:minmax(300px,430px) 1fr;min-height:calc(
 .pin-tip{font-size:12.5px;font-weight:600}
 .leaflet-tooltip.date-tag{font-size:10px;font-weight:700;color:#7a1015;background:rgba(255,255,255,.92);border:1px solid #f0c3c6;padding:1px 6px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
 .leaflet-tooltip.date-tag::before{display:none}
+.map-jump{display:flex;align-items:center;gap:10px;padding:12px 15px;border-radius:14px;background:linear-gradient(120deg,#076b78,#0a5966);color:white;text-decoration:none;font-size:14.5px;font-weight:700;margin-bottom:14px;box-shadow:var(--shadow);transition:transform .15s}
+.map-jump:active{transform:scale(.98)}
+.map-jump svg{flex-shrink:0}
+.map-jump span.arrow{margin-left:auto;font-size:16px}
 .controls{display:grid;gap:10px;margin-bottom:14px}.search{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:white;font-size:15px}
 .filters{display:flex;gap:7px;flex-wrap:wrap}.filter{border:1px solid var(--line);background:white;border-radius:999px;padding:7px 10px;cursor:pointer;font-size:12px}.filter.active{background:var(--ink);color:white;border-color:var(--ink)}
 .day{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:0 0 12px;overflow:hidden;box-shadow:var(--shadow)}
@@ -44,6 +49,7 @@ footer{font-size:11px;color:var(--muted);padding:10px 2px 25px;line-height:1.5}
 <section class="sidebar">
   <div class="notice"><strong>Avertissement spécifique au voyage :</strong> le pont de Tromsø sera fermé à la circulation automobile du 20 juin au 16 août 2026. Il reste ouvert aux piétons et aux cyclistes ; prévoyez du temps supplémentaire pour les trajets entre le centre-ville et Tromsdalen.</div>
   <div class="summary"><div class="stat"><b id="count">0</b><span>lieux affichés</span></div><div class="stat"><b id="saved">0</b><span>enregistrés</span></div><div class="stat"><b>689 km+</b><span>itinéraire principal</span></div></div>
+  <a class="map-jump" href="#mapSection"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="white"/><circle cx="12" cy="9" r="2.6" fill="#076b78"/></svg>Voir la carte interactive<span class="arrow">↓</span></a>
   <div class="controls">
     <input id="search" class="search" placeholder="Rechercher un lieu ou une activité…" aria-label="Rechercher un lieu" />
     <div class="filters" id="filters"></div>
@@ -51,10 +57,10 @@ footer{font-size:11px;color:var(--muted);padding:10px 2px 25px;line-height:1.5}
   <div id="days"></div>
   <footer>Carte : © contributeurs OpenStreetMap. Les recommandations sont organisées autour des étapes réservées et du ferry indiqués dans le document de voyage fourni. Vérifiez la météo, l'état des sentiers, les horaires d'ouverture et les exigences du ferry peu avant chaque sortie.</footer>
 </section>
-<section class="mapwrap">
+<section class="mapwrap" id="mapSection">
   <div id="map"></div>
   <div class="map-btns"><button class="map-button" id="resetMap">Voir l'itinéraire complet</button></div>
-  <div class="legend"><div><span class="dot" style="background:#e0293a"></span>Hébergement</div><div><span class="dot d2"></span>Coup de cœur</div><div><span class="dot d3"></span>Autre site</div></div>
+  <div class="legend"><div><svg width="12" height="12" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:6px"><path d="M12 2.3 L22 11 H19 V21.5 H14 V14 H10 V21.5 H5 V11 H2 Z" fill="#e0293a"/></svg>Hébergement</div><div><span class="dot d2"></span>Coup de cœur</div><div><span class="dot d3"></span>Autre site</div></div>
 </section>
 </main>
 <div class="modal" id="modal"><div class="modalcard"><button class="close" id="close">×</button><div id="modalContent"></div></div></div>
@@ -106,6 +112,14 @@ function makeIcon(color,size){
     iconAnchor:[size/2,size/2]
   });
 }
+function makeHomeIcon(color,size){
+  return L.divIcon({
+    className:'',
+    html:`<svg width="${size}" height="${size}" viewBox="0 0 24 24" style="filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))"><path d="M12 2.3 L22 11 H19 V21.5 H14 V14 H10 V21.5 H5 V11 H2 Z" fill="${color}" stroke="white" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
+    iconSize:[size,size],
+    iconAnchor:[size/2,size/2]
+  });
+}
 function allBounds(){
   return [...stays.map(s=>[s.lat,s.lng]), ...places.map(p=>[p.lat,p.lng])];
 }
@@ -124,7 +138,7 @@ function drawMarkers(){
   if(routeLine){map.removeLayer(routeLine);}
   routeLine=L.polyline(stays.map(s=>[s.lat,s.lng]),{color:'#076b78',weight:4,opacity:.85,dashArray:'10 8'}).addTo(markerLayer);
   stays.forEach(s=>{
-    L.marker([s.lat,s.lng],{icon:makeIcon('#e0293a',20)})
+    L.marker([s.lat,s.lng],{icon:makeHomeIcon('#e0293a',26)})
       .addTo(markerLayer)
       .bindTooltip(`<span class="pin-tip">${s.name}</span>`,{direction:'top',offset:[0,-12]});
     L.tooltip({permanent:true,direction:'right',offset:[11,0],className:'date-tag',interactive:false})
