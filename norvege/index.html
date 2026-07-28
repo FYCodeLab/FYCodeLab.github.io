@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Le voyage en Norvège de Suzanne, Paul, Steph et Frank</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<style>
+:root{--ink:#17212b;--muted:#607080;--paper:#f4f7f8;--card:#fff;--line:#d8e0e4;--accent:#076b78;--accent2:#d56635;--good:#237a57;--shadow:0 10px 30px rgba(20,35,45,.08)}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--paper)}
+header{padding:28px clamp(18px,4vw,58px) 18px;background:linear-gradient(120deg,#0a5966,#173e59);color:white}
+header h1{margin:0 0 8px;font-size:clamp(26px,4vw,44px);letter-spacing:-.03em} header p{margin:0;max-width:850px;opacity:.9;line-height:1.55}
+.topbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.pill{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);font-size:13px}
+main{display:grid;grid-template-columns:minmax(300px,430px) 1fr;min-height:calc(100vh - 176px)}
+.sidebar{padding:18px;overflow:auto;max-height:calc(100vh - 176px);border-right:1px solid var(--line)}
+.mapwrap{position:sticky;top:0;height:calc(100vh - 176px);background:#dceff3}
+#map{height:100%;width:100%}
+.map-btns{position:absolute;z-index:1000;left:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap}
+.map-button{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 10px;box-shadow:var(--shadow);font-size:12px;cursor:pointer}
+.pin{border-radius:50%;border:3px solid white;box-shadow:0 1px 5px rgba(0,0,0,.45)}
+.pin-tip{font-size:12.5px;font-weight:600}
+.leaflet-tooltip.date-tag{font-size:10px;font-weight:700;color:#7a1015;background:rgba(255,255,255,.92);border:1px solid #f0c3c6;padding:1px 6px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.leaflet-tooltip.date-tag::before{display:none}
+.controls{display:grid;gap:10px;margin-bottom:14px}.search{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:white;font-size:15px}
+.filters{display:flex;gap:7px;flex-wrap:wrap}.filter{border:1px solid var(--line);background:white;border-radius:999px;padding:7px 10px;cursor:pointer;font-size:12px}.filter.active{background:var(--ink);color:white;border-color:var(--ink)}
+.day{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:0 0 12px;overflow:hidden;box-shadow:var(--shadow)}
+.dayhead{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.dayhead h2{font-size:16px;margin:0 0 3px}.dayhead small{color:var(--muted)}
+.stop{padding:13px 15px;border-bottom:1px solid #edf1f3;cursor:pointer;transition:.15s}.stop:last-child{border-bottom:0}.stop:hover{background:#f7fafb}.stop h3{margin:0 0 5px;font-size:15px}.meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}.desc{font-size:13px;line-height:1.45;margin:8px 0 0;color:#344450}.badge{font-size:11px;padding:3px 7px;border-radius:999px;background:#eaf3f4;color:#075b66}.priority{background:#fff0e8;color:#9b421f}.fav{float:right;border:0;background:transparent;font-size:18px;cursor:pointer;color:#a7b1b7}.fav.saved{color:#d08b00}
+.notice{background:#fff7dc;border:1px solid #ecd591;border-radius:12px;padding:11px 13px;font-size:12px;line-height:1.45;margin-bottom:12px}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.stat{background:white;border:1px solid var(--line);border-radius:12px;padding:10px}.stat b{display:block;font-size:18px}.stat span{font-size:11px;color:var(--muted)}
+.legend{position:absolute;z-index:1000;right:12px;bottom:20px;background:white;border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:var(--shadow);font-size:12px;line-height:1.7}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.d1{background:#076b78}.d2{background:#d56635}.d3{background:#237a57}
+.modal{display:none;position:fixed;inset:0;background:rgba(10,20,28,.55);z-index:2000;padding:20px;align-items:center;justify-content:center}.modal.open{display:flex}.modalcard{background:white;width:min(680px,100%);max-height:86vh;overflow:auto;border-radius:18px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.25)}.close{float:right;border:0;background:#eef2f4;border-radius:50%;width:32px;height:32px;cursor:pointer}.modal h2{margin:2px 38px 8px 0}.modal p{line-height:1.55}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{display:inline-block;padding:9px 12px;border-radius:10px;text-decoration:none;background:var(--accent);color:white;font-size:13px;border:0;cursor:pointer}.btn.secondary{background:#e9eff1;color:var(--ink)}
+footer{font-size:11px;color:var(--muted);padding:10px 2px 25px;line-height:1.5}
+@media(max-width:850px){main{display:block}.sidebar{max-height:none;border-right:0}.mapwrap{position:relative;height:62vh}.legend{bottom:10px}.summary{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Le voyage en Norvège de Suzanne, Paul, Steph et Frank</h1>
+  <p>Un guide interactif pour votre trajet Tromsø → Gratangen → Vesterålen → Lofoten → Bodø. Filtrez par centre d'intérêt, touchez une suggestion pour voir les détails, et enregistrez vos favoris dans votre navigateur. La carte se déplace au doigt et se zoome en pinçant, comme Google Maps.</p>
+  <div class="topbar"><span class="pill">28 juillet–7 août 2026</span><span class="pill">10 nuits</span><span class="pill">Voiture de location + ferry Moskenes–Bodø</span><span class="pill">4 voyageurs</span></div>
+</header>
+<main>
+<section class="sidebar">
+  <div class="notice"><strong>Avertissement spécifique au voyage :</strong> le pont de Tromsø sera fermé à la circulation automobile du 20 juin au 16 août 2026. Il reste ouvert aux piétons et aux cyclistes ; prévoyez du temps supplémentaire pour les trajets entre le centre-ville et Tromsdalen.</div>
+  <div class="summary"><div class="stat"><b id="count">0</b><span>lieux affichés</span></div><div class="stat"><b id="saved">0</b><span>enregistrés</span></div><div class="stat"><b>689 km+</b><span>itinéraire principal</span></div></div>
+  <div class="controls">
+    <input id="search" class="search" placeholder="Rechercher un lieu ou une activité…" aria-label="Rechercher un lieu" />
+    <div class="filters" id="filters"></div>
+  </div>
+  <div id="days"></div>
+  <footer>Carte : © contributeurs OpenStreetMap. Les recommandations sont organisées autour des étapes réservées et du ferry indiqués dans le document de voyage fourni. Vérifiez la météo, l'état des sentiers, les horaires d'ouverture et les exigences du ferry peu avant chaque sortie.</footer>
+</section>
+<section class="mapwrap">
+  <div id="map"></div>
+  <div class="map-btns"><button class="map-button" id="resetMap">Voir l'itinéraire complet</button></div>
+  <div class="legend"><div><span class="dot" style="background:#e0293a"></span>Hébergement</div><div><span class="dot d2"></span>Coup de cœur</div><div><span class="dot d3"></span>Autre site</div></div>
+</section>
+</main>
+<div class="modal" id="modal"><div class="modalcard"><button class="close" id="close">×</button><div id="modalContent"></div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const stays=[
+ {name:'Tromsø Lodge & Camping',lat:69.6487,lng:19.0167,dates:'28–30 juil.',type:'stay'},
+ {name:'Øse Camping, Gratangen',lat:68.6208,lng:17.6524,dates:'30 juil.–1 août',type:'stay'},
+ {name:'Midnattsolveien, Hadsel',lat:68.338,lng:14.80,dates:'1–3 août',type:'stay'},
+ {name:'Reine sjøhus, Moskenes',lat:67.932,lng:13.089,dates:'3–6 août',type:'stay'},
+ {name:'Bodø centre',lat:67.284,lng:14.383,dates:'6–7 août',type:'stay'}
+];
+const places=[
+ {day:'28–30 juil. · Tromsø',name:'Fjellheisen & Fløya',lat:69.6416,lng:18.9868,cat:'Point de vue',time:'2–4 h',level:'Facile à modéré',priority:true,desc:"Meilleure vue d'ensemble sur Tromsø, les îles et les fjords. Prenez le téléphérique, puis marchez vers Fløya si les conditions le permettent.",tip:"Un excellent choix pour la première soirée : fin juillet, la lumière du jour dure presque toute la nuit. Réservez un créneau flexible et prévoyez une couche coupe-vent.",url:'https://www.visittromso.no/attractions'},
+ {day:'28–30 juil. · Tromsø',name:'Cathédrale arctique',lat:69.6489,lng:18.9872,cat:'Culture',time:'45–75 min',level:'Facile',priority:false,desc:"Église emblématique de 1965 avec une grande mosaïque de verre, à proximité de Fjellheisen.",tip:"Traversez le pont à pied plutôt qu'en voiture pendant la fermeture aux véhicules en 2026.",url:'https://www.visittromso.no/arctic-cathedral'},
+ {day:'28–30 juil. · Tromsø',name:'Musée polaire & balade au port',lat:69.6529,lng:18.9637,cat:'Musée',time:'1,5–2 h',level:'Facile',priority:false,desc:"Introduction compacte aux expéditions arctiques, au piégeage et à l'histoire polaire de Tromsø.",tip:"Combinez avec le vieux port, Skansen et le centre-ville, à pied.",url:'https://www.visittromso.no/attractions'},
+ {day:'28–30 juil. · Tromsø',name:'Polaria',lat:69.6435,lng:18.9488,cat:'Famille',time:'1,5–2 h',level:'Facile',priority:false,desc:"Centre d'expérience arctique avec aquariums, expositions interactives et présentations de phoques.",tip:"Bonne option en cas de mauvais temps, particulièrement adaptée avec un enfant.",url:'https://www.visittromso.no/polaria-entrance-ticket'},
+ {day:'28–30 juil. · Tromsø',name:'Telegrafbukta & Musée de Tromsø',lat:69.6331,lng:18.9138,cat:'Nature',time:'2–3 h',level:'Facile',priority:false,desc:"Une balade côtière tranquille et une plage, associées à des expositions sur la nature nordique et la culture sámie.",tip:"À utiliser comme demi-journée reposante après le vol.",url:'https://www.visittromso.no/attractions'},
+
+ {day:'30 juil.–1 août · Gratangen',name:'Polar Park',lat:68.6918,lng:18.1084,cat:'Faune',time:'3–4 h',level:'Facile',priority:true,desc:"Grand parc animalier arctique près de Bardu, avec des espèces telles que loups, ours, lynx et bœufs musqués.",tip:"Logique sur le trajet depuis Tromsø ou en demi-journée depuis Gratangen. Vérifiez les horaires d'ouverture 2026.",url:'https://polarpark.no/'},
+ {day:'30 juil.–1 août · Gratangen',name:'Paysage d\'histoire de guerre à Gratangen',lat:68.692,lng:17.55,cat:'Histoire',time:'1–2 h',level:'Facile',priority:false,desc:"Explorez le fjord et les sites locaux liés à la campagne de Narvik de 1940.",tip:"À associer à une route panoramique le long du Gratangsfjorden ; les horaires du musée local peuvent être limités.",url:'https://www.visitnarvik.com/'},
+ {day:'30 juil.–1 août · Gratangen',name:'Randonnée du point de vue Spanstinden',lat:68.611,lng:17.73,cat:'Randonnée',time:'3–5 h',level:'Modéré',priority:false,desc:"Paysage de montagne au-dessus de Gratangen avec de larges vues sur le fjord ; choisissez l'itinéraire exact selon la météo et le niveau.",tip:"À ne tenter qu'avec une carte de sentier à jour et une météo stable.",url:'https://ut.no/'},
+
+ {day:'1–3 août · Hadsel / Vesterålen',name:'Musée Hurtigruten, Stokmarknes',lat:68.5658,lng:14.9102,cat:'Musée',time:'2–3 h',level:'Facile',priority:true,desc:"Musée maritime consacré à l'express côtier norvégien, avec le navire préservé MS Finnmarken.",tip:"Excellente option pour un jour de pluie, près de votre base à Hadsel.",url:'https://www.visitvesteralen.com/'},
+ {day:'1–3 août · Hadsel / Vesterålen',name:'Village de pêcheurs de Nyksund',lat:68.9954,lng:15.0136,cat:'Village',time:'3–5 h',level:'Facile',priority:true,desc:"Ancien village de pêcheurs pittoresque, sur la côte nord-ouest exposée de Langøya.",tip:"La route est étroite ; prévoyez du temps et combinez avec Myre ou une balade côtière.",url:'https://www.visitvesteralen.com/'},
+ {day:'1–3 août · Hadsel / Vesterålen',name:'Dronningruta',lat:68.985,lng:15.115,cat:'Randonnée',time:'5–8 h',level:'Difficile',priority:false,desc:"Randonnée classique de crête et de côte entre Nyksund et Stø, avec des sections raides et exposées.",tip:"À réserver aux conditions sèches et calmes ; une marche côtière aller-retour plus courte est l'alternative familiale plus sûre.",url:'https://www.visitvesteralen.com/'},
+ {day:'1–3 août · Hadsel / Vesterålen',name:'Parc national de Møysalen',lat:68.530,lng:15.50,cat:'Nature',time:'Demi-journée/journée complète',level:'Variable',priority:false,desc:"Paysage sauvage de montagne et de fjord autour de l'un des sommets dominants de la région.",tip:"Utilisez un guide pour le sommet ; sinon choisissez une balade de basse altitude ou une route panoramique.",url:'https://www.visitvesteralen.com/'},
+
+ {day:'3–6 août · Lofoten / Moskenes',name:'Circuit Reine, Hamnøy & Sakrisøy',lat:67.946,lng:13.133,cat:'Village',time:'3–5 h',level:'Facile',priority:true,desc:"Le groupe incontournable de villages de pêcheurs, ponts, rorbuer et vues sur le port entourées de montagnes.",tip:"Allez-y tôt ou tard pour éviter le pic de circulation ; marchez sur de courtes sections plutôt que de déplacer la voiture sans cesse.",url:'https://visitlofoten.com/en/destination/moskenes/'},
+ {day:'3–6 août · Lofoten / Moskenes',name:'Reinebringen',lat:67.9248,lng:13.0877,cat:'Randonnée',time:'3–5 h',level:'Difficile',priority:true,desc:"Sentier raide en escalier menant à la vue emblématique sur le Reinefjord.",tip:"Très fréquenté et physiquement exigeant. Partez tôt, évitez la pluie et le vent fort, et faites demi-tour si l'appui est mauvais.",url:'https://visitlofoten.com/en/destination/moskenes/'},
+ {day:'3–6 août · Lofoten / Moskenes',name:'Å et le musée du village de pêcheurs norvégien',lat:67.8807,lng:12.9818,cat:'Musée',time:'2–4 h',level:'Facile',priority:false,desc:"Village en bout de route avec des bâtiments préservés de l'industrie de la pêche et son histoire côtière.",tip:"Combinez avec une courte marche autour de Sørvågen et du lac Ågvatnet.",url:'https://visitlofoten.com/en/destination/moskenes/'},
+ {day:'3–6 août · Lofoten / Moskenes',name:'Plage de Bunes',lat:67.986,lng:12.955,cat:'Randonnée',time:'5–7 h',level:'Modéré',priority:true,desc:"Plage isolée accessible en bateau à passagers depuis Reine jusqu'à Vindstad, suivie d'une randonnée simple.",tip:"La capacité du bateau et les horaires de retour dictent la journée. Réservez si possible et emportez nourriture, eau et vêtements chauds.",url:'https://visitlofoten.com/en/destination/moskenes/'},
+ {day:'3–6 août · Lofoten / Moskenes',name:'Plages de Ramberg & Flakstad',lat:68.089,lng:13.231,cat:'Plage',time:'2–4 h',level:'Facile',priority:false,desc:"Plages de sable blanc facilement accessibles, avec un impressionnant décor de montagnes.",tip:"Bonne option flexible quand les sentiers en altitude sont nuageux ou venteux.",url:'https://visitlofoten.com/en/'},
+ {day:'3–6 août · Lofoten / Moskenes',name:'Nusfjord',lat:68.0354,lng:13.3484,cat:'Village',time:'2–4 h',level:'Facile',priority:false,desc:"Village de pêcheurs historique bien préservé, niché dans un port compact.",tip:"Vérifiez les frais d'accès et les horaires d'ouverture ; combinez avec les plages de Flakstad.",url:'https://visitlofoten.com/en/'},
+
+ {day:'6–7 août · Bodø',name:'Port de Bodø, Stormen & street art',lat:67.2828,lng:14.376,cat:'Culture',time:'1,5–3 h',level:'Facile',priority:true,desc:"Une balade compacte en soirée depuis le centre-ville, à travers le port, le quartier culturel moderne et les grandes fresques murales.",tip:"S'intègre bien après l'arrivée du ferry à 18h00.",url:'https://visitbodo.com/en/things-to-do-for-a-few-hours-in-bodo/'},
+ {day:'6–7 août · Bodø',name:'Musée de l\'aviation norvégienne',lat:67.2769,lng:14.4047,cat:'Musée',time:'2–3 h',level:'Facile',priority:false,desc:"Grande collection aéronautique civile et militaire avec des présentations interactives.",tip:"Option possible le matin, seulement si l'horaire d'ouverture et celui de l'aéroport le permettent.",url:'https://visitbodo.com/en/topic/to-do/'},
+ {day:'6–7 août · Bodø',name:'Saltstraumen',lat:67.2313,lng:14.615,cat:'Nature',time:'3–4 h',level:'Facile',priority:false,desc:"Puissant maelström de marée à 33 km de Bodø ; les moments les plus forts varient chaque jour.",tip:"Votre séjour à Bodø est court. N'y allez que si l'heure du courant le plus fort coïncide avec l'arrivée du ferry ou le matin du vol ; vérifiez le calendrier officiel.",url:'https://visitbodo.com/en/destination/saltstraumen/'}
+];
+const categories=['Tous',...new Set(places.map(p=>p.cat))]; let active='Tous'; let saved=new Set(JSON.parse(localStorage.getItem('norwaySaved')||'[]'));
+
+let map, markerLayer, routeLine;
+function makeIcon(color,size){
+  return L.divIcon({
+    className:'',
+    html:`<div class="pin" style="width:${size}px;height:${size}px;background:${color}"></div>`,
+    iconSize:[size,size],
+    iconAnchor:[size/2,size/2]
+  });
+}
+function allBounds(){
+  return [...stays.map(s=>[s.lat,s.lng]), ...places.map(p=>[p.lat,p.lng])];
+}
+function initMap(){
+  map=L.map('map',{zoomControl:true,tap:true});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:18,
+    attribution:'&copy; contributeurs OpenStreetMap'
+  }).addTo(map);
+  markerLayer=L.layerGroup().addTo(map);
+  map.fitBounds(allBounds(),{padding:[30,30]});
+  document.getElementById('resetMap').addEventListener('click',()=>map.fitBounds(allBounds(),{padding:[30,30]}));
+}
+function drawMarkers(){
+  markerLayer.clearLayers();
+  if(routeLine){map.removeLayer(routeLine);}
+  routeLine=L.polyline(stays.map(s=>[s.lat,s.lng]),{color:'#076b78',weight:4,opacity:.85,dashArray:'10 8'}).addTo(markerLayer);
+  stays.forEach(s=>{
+    L.marker([s.lat,s.lng],{icon:makeIcon('#e0293a',20)})
+      .addTo(markerLayer)
+      .bindTooltip(`<span class="pin-tip">${s.name}</span>`,{direction:'top',offset:[0,-12]});
+    L.tooltip({permanent:true,direction:'right',offset:[11,0],className:'date-tag',interactive:false})
+      .setContent(s.dates)
+      .setLatLng([s.lat,s.lng])
+      .addTo(markerLayer);
+  });
+  filtered().forEach(p=>{
+    const color=p.priority?'#d56635':'#237a57';
+    L.marker([p.lat,p.lng],{icon:makeIcon(color,15)})
+      .addTo(markerLayer)
+      .bindTooltip(p.name,{direction:'top',offset:[0,-8]})
+      .on('click',()=>openModal(p));
+  });
+}
+
+function filtered(){const q=document.getElementById('search').value.toLowerCase();return places.filter(p=>(active==='Tous'||p.cat===active)&&(`${p.name} ${p.desc} ${p.day} ${p.cat}`.toLowerCase().includes(q)))}
+function render(){
+ const list=filtered(); document.getElementById('count').textContent=list.length; document.getElementById('saved').textContent=saved.size;
+ drawMarkers();
+ const groups={};list.forEach(p=>(groups[p.day]??=[]).push(p));
+ document.getElementById('days').innerHTML=Object.entries(groups).map(([day,items])=>`<section class="day"><div class="dayhead"><div><h2>${day}</h2><small>${items.length} suggestion${items.length>1?'s':''}</small></div></div>${items.map(p=>`<article class="stop" data-name="${p.name.replaceAll('"','&quot;')}"><button class="fav ${saved.has(p.name)?'saved':''}" data-fav="${p.name.replaceAll('"','&quot;')}" title="Enregistrer">★</button><h3>${p.name}</h3><div class="meta"><span class="badge">${p.cat}</span>${p.priority?'<span class="badge priority">Coup de cœur</span>':''}<span>${p.time}</span><span>${p.level}</span></div><p class="desc">${p.desc}</p></article>`).join('')}</section>`).join('') || '<p>Aucun lieu correspondant.</p>';
+ document.querySelectorAll('.stop').forEach(el=>el.addEventListener('click',e=>{if(e.target.matches('.fav'))return;openModal(places.find(p=>p.name===el.dataset.name))}));
+ document.querySelectorAll('.fav').forEach(b=>b.addEventListener('click',()=>{saved.has(b.dataset.fav)?saved.delete(b.dataset.fav):saved.add(b.dataset.fav);localStorage.setItem('norwaySaved',JSON.stringify([...saved]));render()}));
+}
+function openModal(p){
+ map.flyTo([p.lat,p.lng],12,{duration:.6});
+ document.getElementById('modalContent').innerHTML=`<h2>${p.name}</h2><div class="meta"><span class="badge">${p.cat}</span><span>${p.time}</span><span>${p.level}</span></div><p>${p.desc}</p><p><strong>Note pratique :</strong> ${p.tip}</p><div class="actions"><a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name+', Norvège')}">Itinéraire</a><a class="btn secondary" target="_blank" rel="noopener" href="${p.url}">Informations officielles</a><button class="btn secondary" id="modalFav">${saved.has(p.name)?'Retirer des favoris':'Enregistrer ce lieu'}</button></div>`;
+ document.getElementById('modal').classList.add('open');
+ document.getElementById('modalFav').onclick=()=>{saved.has(p.name)?saved.delete(p.name):saved.add(p.name);localStorage.setItem('norwaySaved',JSON.stringify([...saved]));document.getElementById('modal').classList.remove('open');render()}
+}
+const filterBox=document.getElementById('filters');filterBox.innerHTML=categories.map(c=>`<button class="filter ${c==='Tous'?'active':''}" data-cat="${c}">${c}</button>`).join('');filterBox.addEventListener('click',e=>{if(!e.target.matches('.filter'))return;active=e.target.dataset.cat;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x.dataset.cat===active));render()});
+document.getElementById('search').addEventListener('input',render);document.getElementById('close').onclick=()=>document.getElementById('modal').classList.remove('open');document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')e.currentTarget.classList.remove('open')};document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('modal').classList.remove('open')});
+
+initMap();
+render();
+</script>
+</body>
+</html>
