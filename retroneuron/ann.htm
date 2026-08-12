@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Retro Neural Network Apparatus</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+  :root{
+    --wood1:#5a2d18; --wood2:#2d140b; --panel:#ded9cc; --ink:#171512;
+    --blue:#173b7a; --red:#8f211b; --green:#1d5a31; --purple:#51306f;
+    --led:#7dff86; --led2:#95edff; --ledred:#ff7768; --line:#716f68;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;background:#151311}
+  body{margin:0;background:#1b1714;color:var(--ink);font-family:Georgia,"Times New Roman",serif;overflow-x:hidden}
+  input,button{font:inherit}
+  input[type=range]{width:100%;accent-color:#3d4c67;touch-action:pan-y}
+
+  .frame{
+    margin:12px auto;max-width:1480px;padding:14px;
+    background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(0,0,0,.12)),repeating-linear-gradient(0deg,var(--wood1) 0 8px,var(--wood2) 9px 11px,var(--wood1) 12px 17px);
+    border:4px ridge #7e4a2b;box-shadow:0 12px 45px #000b;
+  }
+  .panel{
+    position:relative;padding:18px;
+    background:radial-gradient(circle at 20% 10%,#fff8 0 1px,transparent 2px),radial-gradient(circle at 80% 70%,#0001 0 1px,transparent 2px),linear-gradient(#e9e5d8,#d7d1c2);
+    border:2px solid #89877f;box-shadow:inset 0 0 28px #0002,0 0 0 1px #f8f4e7 inset;
+  }
+  .panel:before,.panel:after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#eee 0 8%,#777 22%,#252525 65%,#000 100%);box-shadow:0 1px 2px #0008}
+  .panel:before{left:7px;top:7px}.panel:after{right:7px;top:7px}
+  h1{margin:0;text-align:center;letter-spacing:.12em;font-family:"Arial Black",Arial,sans-serif;font-size:clamp(24px,3vw,44px);line-height:1.02;text-shadow:0 1px #fff}
+  .subtitle{text-align:center;font:bold clamp(13px,1.55vw,23px) Arial,sans-serif;letter-spacing:.08em;color:#173b7a;margin:5px 0 15px}
+
+  .layout{display:grid;grid-template-columns:minmax(215px,250px) minmax(480px,1fr) minmax(290px,360px);gap:12px;align-items:stretch}
+  .box,.neuron,.error{border:1px solid #68708c;border-radius:8px;background:linear-gradient(180deg,#ffffff45,#ffffff20);box-shadow:inset 0 1px #fff9;padding:10px}
+  .section-title{text-align:center;font:bold 15px Arial,sans-serif;color:#20357e;letter-spacing:.045em;margin-bottom:8px}
+  .input-card{border:1px solid #7d87aa;border-radius:7px;margin-bottom:8px;padding:8px;background:#fff2}
+  .input-card:last-child{margin-bottom:0}
+  .input-card label{display:block;text-align:center;font:bold 13px Arial,sans-serif;color:#1d3b7d;margin-bottom:4px}
+  .led{margin:6px auto 1px;width:max-content;min-width:82px;padding:3px 7px 2px;border:3px inset #111;border-radius:3px;background:#020503;color:var(--led2);font:24px "Share Tech Mono",monospace;line-height:1.05;letter-spacing:.035em;text-shadow:0 0 4px currentColor,0 0 9px currentColor;text-align:right;box-shadow:inset 0 0 10px #000}
+  .led.green{color:var(--led)}.led.red{color:var(--ledred)}
+
+  .network{display:grid;grid-template-rows:auto auto auto;gap:9px;min-width:0}
+  .neuron{border-color:#55715f;padding:10px 11px}
+  .neuron h3{text-align:center;margin:0 0 6px;color:#24542f;font:bold 14px Arial,sans-serif;letter-spacing:.035em}
+  .row{display:grid;grid-template-columns:repeat(5,minmax(66px,1fr));gap:6px;align-items:end}
+  .control{text-align:center;min-width:0}.control .cap,.cap{font:12px Arial,sans-serif;margin-bottom:2px;line-height:1.1}
+  .knob{--a:0deg;width:48px;height:48px;border-radius:50%;margin:2px auto 1px;background:radial-gradient(circle at 35% 30%,#666 0 6%,#111 31%,#030303 57%,#333 59%,#0a0a0a 72%);border:3px ridge #555;position:relative;box-shadow:0 2px 5px #0008}
+  .knob:after{content:"";position:absolute;left:21px;top:3px;width:3px;height:18px;background:#ddd;border-radius:2px;transform-origin:1.5px 21px;transform:rotate(var(--a));box-shadow:0 0 2px #fff}
+  .smallrange{margin-top:1px}
+  .sum{width:50px;height:50px;border-radius:50%;border:1.5px solid #222;display:grid;place-items:center;font:28px Georgia,serif;background:#f8f5eb;margin:auto;box-shadow:inset 0 0 10px #0001}
+  .activation{height:68px;border:1px solid #666;border-radius:5px;background:#fdfcf8;position:relative;overflow:hidden}
+  .activation svg{width:100%;height:100%}
+  .neuron > div[style*="grid-template-columns:1fr 115px 120px"]{grid-template-columns:1fr 88px 92px !important;gap:7px !important;margin-top:7px !important}
+  .note{font:12px/1.35 Arial,sans-serif}.mini-led{font-size:20px;min-width:70px}
+  .error{justify-self:center;min-width:230px;text-align:center;border-color:#55715f;padding:7px 14px}
+  .error b{font:14px Arial,sans-serif;color:#26552e}.formula{font:italic 17px Georgia,serif}
+
+  .output-panel{display:grid;grid-template-columns:1fr;align-items:center}.weights-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .output-panel .knob{width:54px;height:54px}.output-panel .knob:after{left:24px;height:20px;transform-origin:1.5px 24px}
+  .output-panel .sum{margin:13px auto !important;width:56px !important;height:56px}
+  .output-equation{text-align:center;font:italic 14px Georgia,serif;margin:5px 0 9px}
+  .output-panel .box.note{margin-top:12px !important}
+  .footer{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .wire-legend span{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:6px}
+
+
+  /* faint chalkboard-style mathematics printed into the instrument face */
+  .formula-wall{position:absolute;inset:0;pointer-events:none;overflow:hidden;opacity:.065;color:#24385a;font:italic 17px/1.55 Georgia,serif;z-index:0}
+  .formula-wall span{position:absolute;white-space:nowrap;transform:rotate(var(--r,0deg))}
+  .formula-wall .f1{left:3%;top:16%;--r:-6deg}.formula-wall .f2{right:3%;top:11%;--r:5deg}.formula-wall .f3{left:16%;top:47%;--r:3deg}.formula-wall .f4{right:7%;top:59%;--r:-4deg}.formula-wall .f5{left:4%;bottom:8%;--r:5deg}.formula-wall .f6{right:24%;bottom:5%;--r:-2deg}
+  .panel > *:not(.formula-wall){position:relative;z-index:1}
+
+  .schematic{margin:0 0 9px;border:1px solid #777d77;border-radius:7px;padding:7px 8px 5px;background:linear-gradient(#f7f3e9f5,#ded8c8f2);box-shadow:inset 0 1px #fff,0 3px 10px #0003;position:sticky !important;top:max(0px,env(safe-area-inset-top));z-index:50 !important;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+  .schematic-title{text-align:center;font:bold 11px Arial,sans-serif;color:#384039;letter-spacing:.08em;margin-bottom:3px}
+  .schematic svg{display:block;width:100%;height:132px}
+  .wire{fill:none;stroke:#3b516f;stroke-width:1.35;opacity:.82}
+  .wire.out{stroke:#356144}.wire.bias{stroke:#624677;stroke-dasharray:3 2}
+  .node{fill:#eee9dc;stroke:#3e4742;stroke-width:1.4}.node.hidden{fill:#e2eadf;stroke:#345d3d}.node.output{fill:#e4e7ef;stroke:#314c80}
+  .node-label{font:bold 10px Arial,sans-serif;fill:#1f2722;text-anchor:middle;dominant-baseline:middle}
+  .value-frame{fill:#070b08;stroke:#666a61;stroke-width:1.4;rx:3;ry:3;filter:drop-shadow(0 1px 1px #0007)}
+  .value-frame.input{stroke:#5b6f87}.value-frame.hidden{stroke:#52725a}.value-frame.output{stroke:#5c6f9a}.value-frame.target{stroke:#8a514b}.value-frame.errorv{stroke:#5b765e}
+    .node-value{font:700 17px "Courier New",monospace;fill:#91d9ff;text-anchor:middle;dominant-baseline:middle;letter-spacing:.04em;stroke:none}
+  .node-value.hidden{fill:#86ff9a}.node-value.output{fill:#a9d3ff}.node-value.target{fill:#ff8f7e}.node-value.errorv{fill:#92ffad;font-size:15px}
+  .compare-line{fill:none;stroke:#5b765e;stroke-width:1.6;stroke-dasharray:5 4;opacity:.9}
+  .wire-label{font:8px "Share Tech Mono",monospace;fill:#24334a;paint-order:stroke;stroke:#ece7da;stroke-width:3px;stroke-linejoin:round}.wire-label.out{fill:#254c30}.bias-label{fill:#553666}
+  .formula-strip{text-align:center;margin-top:1px;font:italic 10px/1.25 Georgia,serif;color:#313633;letter-spacing:.01em}
+
+  .weight-readout{display:block;font:8px "Share Tech Mono",monospace;color:#293c62;min-height:9px;line-height:1;margin-top:1px}
+
+  @media(max-width:900px){
+    .frame{margin:0;padding:7px;border-width:3px;min-height:100svh}
+    .panel{padding:10px 8px 8px}
+    h1{font-size:20px;letter-spacing:.09em}
+    .subtitle{font-size:11px;margin:3px 0 8px;letter-spacing:.055em}
+    .layout{grid-template-columns:1fr;gap:7px}
+    .box{padding:7px}.section-title{font-size:12px;margin-bottom:5px}
+    .schematic{padding:4px 3px 3px;margin-bottom:6px;border-radius:5px}.schematic svg{height:120px}.schematic-title{font-size:8px;margin-bottom:1px}.formula-strip{font-size:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wire-label{font-size:5.6px}.node-label{font-size:8px}.node-value{font-size:15px}.node-value.output,.node-value.target{font-size:16px}.node-value.errorv{font-size:13px}
+    .formula-wall{font-size:11px;opacity:.045}.weight-readout{font-size:7px}
+
+    .layout > section:first-child{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+    .layout > section:first-child .section-title{grid-column:1/-1}
+    .input-card{margin:0;padding:5px 4px;min-width:0}
+    .input-card label{font-size:9px;line-height:1.1;min-height:20px;display:flex;align-items:center;justify-content:center}
+    .input-card input[type=range]{height:22px}
+    .input-card .led{font-size:15px;min-width:0;width:100%;padding:3px 2px 2px;margin-top:2px}
+
+    .network{gap:6px}.neuron{padding:7px 6px}.neuron h3{font-size:11px;margin-bottom:4px}
+    .row{grid-template-columns:repeat(4,1fr);gap:3px;align-items:end}
+    .row > .sum{display:none}
+    .control .cap,.cap{font-size:9px}
+    .knob{width:36px;height:36px;border-width:2px}
+    .knob:after{left:16px;top:2px;width:2px;height:13px;transform-origin:1px 16px}
+    .smallrange,.control input[type=range]{height:20px;margin:0}
+    .neuron > div[style*="grid-template-columns:1fr 115px 120px"]{grid-template-columns:1fr 58px 67px !important;gap:4px !important;margin-top:4px !important}
+    .note{font-size:9px;line-height:1.25}.activation{height:43px}.mini-led{font-size:13px;min-width:54px;border-width:2px;margin-top:2px}
+    .error{min-width:0;width:100%;padding:5px}.error b{font-size:10px}.formula{font-size:12px}.error .led{display:inline-block;font-size:14px;min-width:70px;margin:2px 0 0}
+
+    .output-panel{padding:7px}.output-panel > div{display:grid;grid-template-columns:1fr 1fr 1fr;column-gap:6px;align-items:end}
+    .output-panel .section-title{grid-column:1/-1}
+    .weights-grid{display:contents}
+    .output-panel .control:nth-of-type(1),.output-panel .control:nth-of-type(2){min-width:0}
+    .output-panel .sum{display:none !important}
+    .output-panel > div > .control{grid-column:3}
+    .output-panel .knob{width:38px;height:38px;border-width:2px}
+    .output-panel .knob:after{left:17px;top:2px;width:2px;height:14px;transform-origin:1px 17px}
+    .output-equation{grid-column:1/-1;font-size:10px;margin:4px 0 3px}
+    .output-panel > div > .cap[style*="font-weight:bold"]{grid-column:1/3;align-self:center;font-size:9px !important}
+    #yhat{grid-column:3;font-size:16px;min-width:0;width:100%;margin:0}
+    .output-panel .box.note{grid-column:1/-1;margin-top:5px !important;font-size:9px;padding:5px}
+    .output-panel .box.note br{display:none}
+
+    .footer{grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}.footer .box{padding:5px}.footer .note{font-size:8px;line-height:1.25}.footer br{display:none}
+  }
+
+  @media(max-width:390px){
+    .frame{padding:5px}.panel{padding:8px 6px 6px}h1{font-size:17px}.subtitle{font-size:9px}
+    .input-card label{font-size:8px}.input-card .led{font-size:13px}.schematic svg{height:112px}.formula-strip{font-size:6.5px}.wire-label{font-size:5.2px}.node-value{font-size:14px}.node-value.output,.node-value.target{font-size:15px}.node-value.errorv{font-size:12px}
+    .knob{width:32px;height:32px}.knob:after{left:14px;height:12px;transform-origin:1px 14px}
+    .neuron > div[style*="grid-template-columns:1fr 115px 120px"]{grid-template-columns:1fr 52px 60px !important}
+    .footer .note{font-size:7.5px}
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="panel">
+    <div class="formula-wall" aria-hidden="true">
+      <span class="f1">z₁ = w₁₁x₁ + w₁₂x₂ + w₁₃x₃ + b₁</span>
+      <span class="f2">σ(z) = 1 / (1 + e⁻ᶻ)</span>
+      <span class="f3">aⱼ = σ(Σᵢ wⱼᵢxᵢ + bⱼ)</span>
+      <span class="f4">ŷ = v₁a₁ + v₂a₂ + bₒᵤₜ</span>
+      <span class="f5">E = ½(y − ŷ)²</span>
+      <span class="f6">x → W → σ → v → ŷ</span>
+    </div>
+    <h1>NEURAL NETWORK APPARATUS</h1>
+    <div class="subtitle">3 INPUTS → 2 HIDDEN NEURONS → 1 OUTPUT</div>
+
+    <section class="schematic" aria-label="Neural network diagram">
+      <div class="schematic-title">LIVE ANN / SIGNAL PATH / WEIGHTS</div>
+      <svg viewBox="0 0 700 132" role="img" aria-label="Three inputs connected by six weights to two hidden neurons, then by two weights to one output neuron, with entered and estimated shoe size compared by an error line">
+        <line class="wire" x1="82" y1="22" x2="330" y2="33"/><line class="wire" x1="82" y1="22" x2="330" y2="83"/>
+        <line class="wire" x1="82" y1="58" x2="330" y2="33"/><line class="wire" x1="82" y1="58" x2="330" y2="83"/>
+        <line class="wire" x1="82" y1="94" x2="330" y2="33"/><line class="wire" x1="82" y1="94" x2="330" y2="83"/>
+        <line class="wire out" x1="370" y1="33" x2="610" y2="58"/><line class="wire out" x1="370" y1="83" x2="610" y2="58"/>
+        <line class="wire bias" x1="290" y1="8" x2="336" y2="24"/><line class="wire bias" x1="290" y1="108" x2="336" y2="92"/><line class="wire bias" x1="657" y1="95" x2="640" y2="72"/>
+        <text class="wire-label" x="181" y="21" id="sw11">w₁₁=.60</text><text class="wire-label" x="226" y="40" id="sw21">w₂₁=−.40</text>
+        <text class="wire-label" x="165" y="48" id="sw12">w₁₂=1.20</text><text class="wire-label" x="226" y="67" id="sw22">w₂₂=.85</text>
+        <text class="wire-label" x="177" y="78" id="sw13">w₁₃=−.35</text><text class="wire-label" x="223" y="94" id="sw23">w₂₃=.45</text>
+        <text class="wire-label out" x="468" y="34" id="sv1">v₁=2.80</text><text class="wire-label out" x="468" y="86" id="sv2">v₂=−1.80</text>
+        <text class="wire-label bias-label" x="267" y="10" id="sb1">b₁=.15</text><text class="wire-label bias-label" x="267" y="114" id="sb2">b₂=−.20</text><text class="wire-label bias-label" x="637" y="111" id="sbout">bₒ=40.80</text>
+        <circle class="node" cx="62" cy="22" r="17"/><circle class="node" cx="62" cy="58" r="17"/><circle class="node" cx="62" cy="94" r="17"/>
+        <circle class="node hidden" cx="350" cy="33" r="20"/><circle class="node hidden" cx="350" cy="83" r="20"/>
+        <circle class="node output" cx="632" cy="58" r="22"/>
+        <text class="node-label" x="62" y="22">x₁</text><text class="node-label" x="62" y="58">x₂</text><text class="node-label" x="62" y="94">x₃</text>
+        <text class="node-label" x="350" y="33">h₁</text><text class="node-label" x="350" y="83">h₂</text><text class="node-label" x="632" y="58">ŷ</text>
+        <rect class="value-frame input" x="84" y="7" width="70" height="27"/><text class="node-value" x="119" y="20.5" id="sx1v">25.0</text>
+        <rect class="value-frame input" x="84" y="43" width="70" height="27"/><text class="node-value" x="119" y="56.5" id="sx2v">15.0</text>
+        <rect class="value-frame input" x="84" y="79" width="70" height="27"/><text class="node-value" x="119" y="92.5" id="sx3v">165</text>
+        <rect class="value-frame hidden" x="374" y="16" width="72" height="29"/><text class="node-value hidden" x="410" y="30.5" id="sa1v">0.73</text>
+        <rect class="value-frame hidden" x="374" y="66" width="72" height="29"/><text class="node-value hidden" x="410" y="80.5" id="sa2v">0.42</text>
+
+        <text class="wire-label" x="502" y="110">ENTERED y</text>
+        <rect class="value-frame target" x="474" y="114" width="82" height="30"/><text class="node-value target" x="515" y="129" id="syv">41.0</text>
+        <line class="compare-line" x1="558" y1="129" x2="604" y2="129"/>
+        <rect class="value-frame errorv" x="561" y="116" width="40" height="25"/><text class="node-value errorv" x="581" y="128.5" id="serrv">.045</text>
+        <line class="compare-line" x1="602" y1="129" x2="646" y2="129"/>
+        <text class="wire-label out" x="618" y="110">EST. ŷ</text>
+        <rect class="value-frame output" x="645" y="114" width="54" height="30"/><text class="node-value output" x="672" y="129" id="syhatv">41.30</text>
+      </svg>
+      <div class="formula-strip">hⱼ = σ(wⱼ₁x₁ + wⱼ₂x₂ + wⱼ₃x₃ + bⱼ) &nbsp; • &nbsp; σ(z)=1/(1+e<sup>−z</sup>) &nbsp; • &nbsp; ŷ=v₁h₁+v₂h₂+b<sub>out</sub></div>
+    </section>
+
+    <div class="layout">
+      <section class="box">
+        <div class="section-title">INPUTS — STUDENT DATA</div>
+
+        <div class="input-card">
+          <label>AGE (years) x₁</label>
+          <input id="x1" type="range" min="10" max="60" step="1" value="25">
+          <div id="x1v" class="led">25.0</div>
+        </div>
+
+        <div class="input-card">
+          <label>HAND SIZE (cm) x₂</label>
+          <input id="x2" type="range" min="5" max="35" step=".5" value="15">
+          <div id="x2v" class="led">15.0</div>
+        </div>
+
+        <div class="input-card">
+          <label>HEIGHT (cm) x₃</label>
+          <input id="x3" type="range" min="100" max="220" step="1" value="165">
+          <div id="x3v" class="led">165</div>
+        </div>
+
+        <div class="input-card" style="border-color:#b66">
+          <label style="color:#8c2727">ACTUAL SHOE SIZE (y)</label>
+          <input id="y" type="range" min="28" max="55" step=".1" value="41">
+          <div id="yv" class="led red">41.0</div>
+        </div>
+      </section>
+
+      <section class="network">
+        <div class="neuron">
+          <h3>HIDDEN LAYER — NEURON 1 (h₁)</h3>
+          <div class="row">
+            <div class="control"><div class="cap">w₁₁</div><span class="weight-readout" id="rw11">0.60</span><div class="knob" id="kw11"></div><input class="smallrange" id="w11" type="range" min="-2" max="2" step=".05" value=".6"></div>
+            <div class="control"><div class="cap">w₁₂</div><span class="weight-readout" id="rw12">1.20</span><div class="knob" id="kw12"></div><input class="smallrange" id="w12" type="range" min="-2" max="2" step=".05" value="1.2"></div>
+            <div class="control"><div class="cap">w₁₃</div><span class="weight-readout" id="rw13">−0.35</span><div class="knob" id="kw13"></div><input class="smallrange" id="w13" type="range" min="-2" max="2" step=".05" value="-.35"></div>
+            <div class="sum">Σ</div>
+            <div class="control"><div class="cap">BIAS b₁</div><span class="weight-readout" id="rb1">0.15</span><div class="knob" id="kb1"></div><input class="smallrange" id="b1" type="range" min="-2" max="2" step=".05" value=".15"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 115px 120px;gap:12px;align-items:center;margin-top:10px">
+            <div class="note">Activation: sigmoid σ(z)</div>
+            <div class="activation">
+              <svg viewBox="0 0 100 100"><path d="M8 82 C35 82,35 18,92 18" fill="none" stroke="#1f45a0" stroke-width="3"/><path d="M50 4V96M4 50H96" stroke="#999" stroke-width="1"/></svg>
+            </div>
+            <div><div class="cap" style="text-align:center">OUTPUT a₁</div><div id="a1" class="led green mini-led">0.73</div></div>
+          </div>
+        </div>
+
+        <div class="neuron">
+          <h3>HIDDEN LAYER — NEURON 2 (h₂)</h3>
+          <div class="row">
+            <div class="control"><div class="cap">w₂₁</div><span class="weight-readout" id="rw21">−0.40</span><div class="knob" id="kw21"></div><input class="smallrange" id="w21" type="range" min="-2" max="2" step=".05" value="-.4"></div>
+            <div class="control"><div class="cap">w₂₂</div><span class="weight-readout" id="rw22">0.85</span><div class="knob" id="kw22"></div><input class="smallrange" id="w22" type="range" min="-2" max="2" step=".05" value=".85"></div>
+            <div class="control"><div class="cap">w₂₃</div><span class="weight-readout" id="rw23">0.45</span><div class="knob" id="kw23"></div><input class="smallrange" id="w23" type="range" min="-2" max="2" step=".05" value=".45"></div>
+            <div class="sum">Σ</div>
+            <div class="control"><div class="cap">BIAS b₂</div><span class="weight-readout" id="rb2">−0.20</span><div class="knob" id="kb2"></div><input class="smallrange" id="b2" type="range" min="-2" max="2" step=".05" value="-.2"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 115px 120px;gap:12px;align-items:center;margin-top:10px">
+            <div class="note">Activation: sigmoid σ(z)</div>
+            <div class="activation">
+              <svg viewBox="0 0 100 100"><path d="M8 82 C35 82,35 18,92 18" fill="none" stroke="#1f45a0" stroke-width="3"/><path d="M50 4V96M4 50H96" stroke="#999" stroke-width="1"/></svg>
+            </div>
+            <div><div class="cap" style="text-align:center">OUTPUT a₂</div><div id="a2" class="led green mini-led">0.42</div></div>
+          </div>
+        </div>
+
+        <div class="error">
+          <b>ERROR</b> &nbsp; <span class="formula">E = ½(y − ŷ)²</span>
+          <div id="err" class="led green">0.045</div>
+        </div>
+      </section>
+
+      <section class="box output-panel">
+        <div>
+          <div class="section-title">OUTPUT NEURON (ŷ)</div>
+          <div class="weights-grid">
+            <div class="control"><div class="cap">v₁</div><span class="weight-readout" id="rv1">2.80</span><div class="knob" id="kv1"></div><input id="v1" type="range" min="-8" max="8" step=".05" value="2.8"></div>
+            <div class="control"><div class="cap">v₂</div><span class="weight-readout" id="rv2">−1.80</span><div class="knob" id="kv2"></div><input id="v2" type="range" min="-8" max="8" step=".05" value="-1.8"></div>
+          </div>
+
+          <div style="margin:20px auto;width:74px" class="sum">Σ</div>
+
+          <div class="control">
+            <div class="cap">BIAS b<sub>out</sub></div><span class="weight-readout" id="rbout">40.80</span>
+            <div class="knob" id="kbout"></div>
+            <input id="bout" type="range" min="25" max="55" step=".05" value="40.8">
+          </div>
+
+          <div class="output-equation">Activation f(z) = z (linear)</div>
+          <div class="cap" style="text-align:center;font-weight:bold">PREDICTED SHOE SIZE (ŷ)</div>
+          <div id="yhat" class="led">41.3</div>
+
+          <div class="box note" style="margin-top:24px">
+            <b>How to use</b><br><br>
+            Adjust inputs, weights and biases. Hidden units use sigmoid; output is linear. Displays update live.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div class="box note wire-legend">
+        <b>LEGEND</b><br><br>
+        <span style="background:#143d8f"></span> Input → hidden parameters<br>
+        <span style="background:#145b2a"></span> Hidden → output parameters<br>
+        <span style="background:#4c267f"></span> Biases<br><br>
+        Age, hand size and height are normalized before hidden-layer weighting.
+      </div>
+      <div class="box note">
+        <b>RETRO CONTROL PANEL</b><br><br>
+        Sliders rotate their knobs. All calculations run locally in the browser.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ids = ["x1","x2","x3","y","w11","w12","w13","b1","w21","w22","w23","b2","v1","v2","bout"];
+const $ = id => document.getElementById(id);
+const val = id => parseFloat($(id).value);
+const sigmoid = z => 1/(1+Math.exp(-z));
+
+function knob(id, value, min, max){
+  const deg = -135 + (value-min)/(max-min)*270;
+  $(id).style.setProperty("--a", deg+"deg");
+}
+function fmt(n,d=2){ return Number(n).toFixed(d); }
+
+function update(){
+  // normalized inputs
+  const n1=(val("x1")-35)/25;
+  const n2=(val("x2")-20)/15;
+  const n3=(val("x3")-160)/60;
+
+  const z1 = val("w11")*n1 + val("w12")*n2 + val("w13")*n3 + val("b1");
+  const z2 = val("w21")*n1 + val("w22")*n2 + val("w23")*n3 + val("b2");
+  const a1 = sigmoid(z1), a2 = sigmoid(z2);
+  const yhat = val("v1")*a1 + val("v2")*a2 + val("bout");
+  const err = 0.5*Math.pow(val("y")-yhat,2);
+
+  $("x1v").textContent = fmt(val("x1"),1);
+  $("x2v").textContent = fmt(val("x2"),1);
+  $("x3v").textContent = fmt(val("x3"),0);
+  $("yv").textContent = fmt(val("y"),1);
+  $("a1").textContent = fmt(a1,2);
+  $("a2").textContent = fmt(a2,2);
+  $("yhat").textContent = fmt(yhat,2);
+  $("err").textContent = fmt(err,3);
+
+  // mirror LED values into the always-visible ANN bar
+  $("sx1v").textContent = fmt(val("x1"),1);
+  $("sx2v").textContent = fmt(val("x2"),1);
+  $("sx3v").textContent = fmt(val("x3"),0);
+  $("sa1v").textContent = fmt(a1,2);
+  $("sa2v").textContent = fmt(a2,2);
+  $("syhatv").textContent = fmt(yhat,2);
+  $("syv").textContent = fmt(val("y"),1);
+  $("serrv").textContent = fmt(err,3);
+
+  const signed = (n,d=2) => (n < 0 ? "−" : "") + Math.abs(n).toFixed(d);
+  [["rw11","w11"],["rw12","w12"],["rw13","w13"],["rw21","w21"],["rw22","w22"],["rw23","w23"],["rb1","b1"],["rb2","b2"],["rv1","v1"],["rv2","v2"],["rbout","bout"]]
+    .forEach(([out,id]) => $(out).textContent = signed(val(id),2));
+  [["sw11","w₁₁","w11"],["sw12","w₁₂","w12"],["sw13","w₁₃","w13"],["sw21","w₂₁","w21"],["sw22","w₂₂","w22"],["sw23","w₂₃","w23"],["sv1","v₁","v1"],["sv2","v₂","v2"],["sb1","b₁","b1"],["sb2","b₂","b2"],["sbout","bₒ","bout"]]
+    .forEach(([out,label,id]) => $(out).textContent = label + "=" + signed(val(id),2));
+
+  knob("kw11",val("w11"),-2,2); knob("kw12",val("w12"),-2,2); knob("kw13",val("w13"),-2,2);
+  knob("kw21",val("w21"),-2,2); knob("kw22",val("w22"),-2,2); knob("kw23",val("w23"),-2,2);
+  knob("kb1",val("b1"),-2,2); knob("kb2",val("b2"),-2,2);
+  knob("kv1",val("v1"),-8,8); knob("kv2",val("v2"),-8,8);
+  knob("kbout",val("bout"),25,55);
+}
+
+ids.forEach(id => $(id).addEventListener("input",update));
+update();
+</script>
+</body>
+</html>
