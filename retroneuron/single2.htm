@@ -1,0 +1,1321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Retro Single Neuron Apparatus</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+:root{
+  --wood1:#5a2d18;
+  --wood2:#2d140b;
+  --panel:#ded9cc;
+  --ink:#171512;
+  --blue:#173b7a;
+  --red:#8f211b;
+  --green:#1d5a31;
+  --purple:#51306f;
+  --led:#82ff8b;
+  --cyan:#96efff;
+  --redled:#ff7768;
+  --amber:#ffd36b;
+}
+
+*{box-sizing:border-box}
+
+html{
+  -webkit-text-size-adjust:100%;
+  background:#151311;
+}
+
+body{
+  margin:0;
+  background:#1b1714;
+  color:var(--ink);
+  font-family:Georgia,"Times New Roman",serif;
+  overflow-x:hidden;
+}
+
+input[type=range]{
+  width:100%;
+  accent-color:#40516f;
+  touch-action:pan-y;
+}
+
+/* TOP SUMMARY */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  padding:max(5px,env(safe-area-inset-top)) 6px 6px;
+  background:linear-gradient(#342319,#1b120d);
+  border-bottom:3px ridge #8b5937;
+  box-shadow:0 5px 14px #000a;
+}
+
+.topinner{
+  max-width:1100px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:1.3fr .8fr 1.6fr;
+  gap:7px;
+  align-items:center;
+}
+
+.top-inputs{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:4px;
+}
+
+.meter{
+  min-width:0;
+  padding:3px 4px;
+  border:2px inset #4e4a42;
+  border-radius:4px;
+  background:#050706;
+  box-shadow:inset 0 0 8px #000,0 1px 2px #000;
+  text-align:center;
+}
+
+.meter .lab{
+  display:block;
+  font:700 8px Arial,sans-serif;
+  letter-spacing:.08em;
+  color:#d8d1c5;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.meter .num{
+  display:block;
+  font:700 25px/1 "Share Tech Mono",monospace;
+  color:var(--cyan);
+  text-shadow:0 0 4px currentColor;
+  white-space:nowrap;
+}
+
+.meter.actual .num{color:var(--redled)}
+.meter.pred .num{color:var(--led)}
+
+.top-neuron{
+  position:relative;
+  height:56px;
+  display:grid;
+  place-items:center;
+}
+
+.top-neuron:before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:50%;
+  border-top:2px solid #9d937e;
+  opacity:.7;
+}
+
+.neuron-disc{
+  z-index:2;
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  border:3px ridge #5d5a51;
+  background:
+    radial-gradient(circle at 35% 28%,#f5f0df,#b9b4a6 55%,#777 100%);
+  font:bold 18px Georgia,serif;
+  box-shadow:0 2px 6px #0007;
+}
+
+.top-output{
+  display:grid;
+  grid-template-columns:1fr 42px 1fr;
+  gap:4px;
+  align-items:center;
+}
+
+.compare{
+  height:44px;
+  position:relative;
+  display:grid;
+  place-items:center;
+}
+
+.compare:before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:50%;
+  border-top:2px dashed #c7b98e;
+}
+
+.errpill{
+  position:relative;
+  z-index:2;
+  background:#211911;
+  border:1px solid #c7b98e;
+  border-radius:4px;
+  padding:2px 3px;
+  font:700 12px/1 "Share Tech Mono",monospace;
+  color:var(--amber);
+}
+
+/* OUTER APPARATUS */
+.frame{
+  margin:10px auto;
+  max-width:1250px;
+  padding:12px;
+  background:
+    linear-gradient(90deg,#ffffff0d,#0002),
+    repeating-linear-gradient(
+      0deg,
+      var(--wood1) 0 8px,
+      var(--wood2) 9px 11px,
+      var(--wood1) 12px 17px
+    );
+  border:4px ridge #7e4a2b;
+  box-shadow:0 12px 45px #000b;
+}
+
+.panel{
+  position:relative;
+  overflow:hidden;
+  padding:16px;
+  background:
+    radial-gradient(circle at 20% 10%,#fff8 0 1px,transparent 2px),
+    radial-gradient(circle at 80% 70%,#0001 0 1px,transparent 2px),
+    linear-gradient(#e9e5d8,#d7d1c2);
+  border:2px solid #89877f;
+  box-shadow:inset 0 0 28px #0002;
+}
+
+h1{
+  position:relative;
+  margin:0;
+  text-align:center;
+  font:900 clamp(22px,3vw,38px)/1 Arial,sans-serif;
+  letter-spacing:.11em;
+}
+
+.subtitle{
+  position:relative;
+  text-align:center;
+  font:bold clamp(12px,1.5vw,18px) Arial,sans-serif;
+  color:var(--blue);
+  letter-spacing:.07em;
+  margin:4px 0 12px;
+}
+
+/* MAIN LAYOUT */
+.apparatus{
+  position:relative;
+  display:grid;
+  grid-template-columns:220px 220px 1fr 250px;
+  gap:10px;
+  align-items:stretch;
+}
+
+.box{
+  border:1px solid #68708c;
+  border-radius:8px;
+  background:#ffffff38;
+  box-shadow:inset 0 1px #fff9;
+  padding:10px;
+}
+
+.title{
+  text-align:center;
+  font:bold 14px Arial,sans-serif;
+  color:#20357e;
+  letter-spacing:.045em;
+  margin-bottom:7px;
+}
+
+.input-card{
+  border:1px solid #7d87aa;
+  border-radius:7px;
+  margin-bottom:8px;
+  padding:7px;
+  background:#fff2;
+}
+
+.input-card label{
+  display:block;
+  text-align:center;
+  font:bold 12px Arial,sans-serif;
+  color:#1d3b7d;
+  margin-bottom:3px;
+}
+
+.led{
+  margin:4px auto 0;
+  padding:3px 7px 2px;
+  min-width:78px;
+  width:max-content;
+  border:3px inset #111;
+  border-radius:3px;
+  background:#020503;
+  color:var(--cyan);
+  font:700 24px/1.05 "Share Tech Mono",monospace;
+  text-align:right;
+  text-shadow:0 0 5px currentColor;
+}
+
+.led.red{color:var(--redled)}
+.led.green{color:var(--led)}
+.led.amber{color:var(--amber)}
+
+/* SCALING PANEL */
+.scaling-panel{
+  border-color:#786342;
+  background:#fff7df50;
+}
+
+.scale-warning{
+  margin-bottom:10px;
+  padding:8px;
+  border:1px solid #a9823d;
+  border-radius:6px;
+  background:#fff8d5;
+  font:11px/1.35 Arial,sans-serif;
+  text-align:center;
+}
+
+.scale-warning strong{
+  color:#70490f;
+}
+
+.scale-card{
+  border:1px solid #94805d;
+  border-radius:7px;
+  background:#fff8;
+  padding:7px;
+  margin-bottom:8px;
+  text-align:center;
+}
+
+.scale-name{
+  font:bold 11px Arial,sans-serif;
+  color:#604e30;
+}
+
+.scale-formula{
+  margin:4px 0;
+  font:12px/1.3 "Share Tech Mono",monospace;
+  color:#423b2c;
+}
+
+.scaled-led{
+  margin:4px auto;
+  min-width:76px;
+  padding:3px 6px;
+  background:#110e08;
+  border:2px inset #292115;
+  border-radius:3px;
+  color:var(--amber);
+  font:700 19px/1 "Share Tech Mono",monospace;
+}
+
+.scale-caption{
+  font:10px Arial,sans-serif;
+  color:#675e4f;
+}
+
+.scale-arrow{
+  text-align:center;
+  font:bold 20px Arial,sans-serif;
+  color:#816228;
+  line-height:1;
+}
+
+/* NEURON */
+.neuron-stage{
+  border:1px solid #62745f;
+  border-radius:9px;
+  padding:10px;
+  background:#ffffff28;
+}
+
+.formula{
+  text-align:center;
+  font:italic 17px Georgia,serif;
+  margin-bottom:5px;
+}
+
+.formula-note{
+  text-align:center;
+  font:11px Arial,sans-serif;
+  color:#555;
+  margin-bottom:7px;
+}
+
+.calculation{
+  margin:0 auto 9px;
+  padding:6px 8px;
+  border:1px dashed #777;
+  border-radius:5px;
+  background:#fff6;
+  text-align:center;
+  font:11px/1.4 "Share Tech Mono",monospace;
+}
+
+.network{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr 105px 1fr;
+  gap:10px;
+  align-items:center;
+  min-height:210px;
+}
+
+.inputs-mini{
+  display:grid;
+  gap:17px;
+}
+
+.node{
+  width:62px;
+  height:62px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  margin:auto;
+  border:3px ridge #5c5b56;
+  background:
+    radial-gradient(circle at 35% 28%,#fff,#c7c4b8 58%,#888 100%);
+  box-shadow:0 3px 8px #0006;
+  font:bold 15px Arial,sans-serif;
+  text-align:center;
+}
+
+.node.big{
+  width:92px;
+  height:92px;
+  font:bold 18px Arial,sans-serif;
+  background:
+    radial-gradient(circle at 35% 28%,#f8f3df,#c8bb96 58%,#81775f 100%);
+}
+
+.node .small{
+  display:block;
+  font:10px Arial,sans-serif;
+  color:#4b463d;
+}
+
+.node .scaled{
+  display:block;
+  font:700 11px "Share Tech Mono",monospace;
+  color:#7a4e00;
+}
+
+.wires{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+
+.weights{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  margin-top:10px;
+}
+
+.control{
+  text-align:center;
+  border:1px solid #8b8b82;
+  border-radius:6px;
+  padding:5px;
+  background:#fff2;
+}
+
+.control .cap{
+  font:bold 11px Arial,sans-serif;
+  color:#333;
+}
+
+.weightval{
+  font:700 17px "Share Tech Mono",monospace;
+  color:#1e4a36;
+  margin:1px 0 3px;
+}
+
+.knob{
+  --a:0deg;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  margin:3px auto;
+  background:
+    radial-gradient(circle at 35% 30%,#666 0 7%,#111 33%,#030303 58%,#333 60%,#0a0a0a 72%);
+  border:3px ridge #555;
+  position:relative;
+  box-shadow:0 2px 5px #0008;
+}
+
+.knob:after{
+  content:"";
+  position:absolute;
+  left:20px;
+  top:3px;
+  width:3px;
+  height:18px;
+  background:#ddd;
+  border-radius:2px;
+  transform-origin:1.5px 20px;
+  transform:rotate(var(--a));
+  box-shadow:0 0 3px #fff;
+}
+
+/* OUTPUT */
+.outputbox{
+  display:grid;
+  align-content:start;
+  gap:10px;
+}
+
+.eq{
+  text-align:center;
+  font:italic 16px Georgia,serif;
+}
+
+.errorpanel{
+  text-align:center;
+  border:1px dashed #7d6448;
+  border-radius:6px;
+  padding:8px;
+  background:#fff4e33d;
+}
+
+.errorpanel .comparetext{
+  font:bold 11px Arial,sans-serif;
+  letter-spacing:.06em;
+}
+
+/* FOOTER */
+.footer{
+  position:relative;
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.note{
+  font:12px/1.45 Arial,sans-serif;
+}
+
+.flow{
+  margin-top:9px;
+  padding:7px;
+  text-align:center;
+  border:1px solid #aaa;
+  background:#ffffff55;
+  font:bold 12px "Share Tech Mono",monospace;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+  .apparatus{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .neuron-stage,
+  .outputbox{
+    grid-column:auto;
+  }
+}
+
+@media(max-width:760px){
+
+  .topinner{
+    grid-template-columns:1.1fr 52px 1.65fr;
+    gap:4px;
+  }
+
+  .meter{padding:2px}
+
+  .meter .lab{font-size:6.5px}
+
+  .meter .num{font-size:21px}
+
+  .top-neuron{height:50px}
+
+  .neuron-disc{
+    width:44px;
+    height:44px;
+    font-size:16px;
+  }
+
+  .top-output{
+    grid-template-columns:1fr 34px 1fr;
+    gap:2px;
+  }
+
+  .errpill{
+    font-size:10px;
+    padding:2px;
+  }
+
+  .frame{
+    margin:5px;
+    padding:5px;
+    border-width:3px;
+  }
+
+  .panel{padding:8px}
+
+  h1{
+    font-size:18px;
+    letter-spacing:.08em;
+  }
+
+  .subtitle{
+    font-size:10px;
+    margin-bottom:8px;
+  }
+
+  .apparatus{
+    grid-template-columns:1fr;
+    gap:7px;
+  }
+
+  .box{padding:7px}
+
+  .title{
+    font-size:11px;
+    margin-bottom:5px;
+  }
+
+  .network{
+    grid-template-columns:60px 82px 1fr;
+    min-height:164px;
+    gap:5px;
+  }
+
+  .inputs-mini{gap:8px}
+
+  .node{
+    width:45px;
+    height:45px;
+    font-size:11px;
+  }
+
+  .node.big{
+    width:68px;
+    height:68px;
+    font-size:14px;
+  }
+
+  .node .small{font-size:8px}
+  .node .scaled{font-size:8px}
+
+  .formula{
+    font-size:12px;
+    margin-bottom:3px;
+  }
+
+  .formula-note{font-size:9px}
+
+  .calculation{font-size:9px}
+
+  .weights{
+    grid-template-columns:repeat(4,1fr);
+    gap:4px;
+  }
+
+  .control{padding:3px}
+
+  .control .cap{font-size:8px}
+
+  .weightval{font-size:14px}
+
+  .knob{
+    width:34px;
+    height:34px;
+    border-width:2px;
+  }
+
+  .knob:after{
+    left:15px;
+    top:2px;
+    width:2px;
+    height:13px;
+    transform-origin:1px 15px;
+  }
+
+  .outputbox{
+    grid-template-columns:repeat(3,1fr);
+    gap:5px;
+    align-items:center;
+  }
+
+  .eq{
+    grid-column:1/-1;
+    font-size:12px;
+  }
+
+  .outputbox .led{
+    font-size:21px;
+    min-width:0;
+    width:100%;
+  }
+
+  .errorpanel{padding:4px}
+
+  .footer{
+    grid-template-columns:1fr;
+    gap:5px;
+  }
+
+  .note{font-size:10px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ALWAYS-VISIBLE SUMMARY -->
+<div class="topbar">
+  <div class="topinner">
+
+    <div class="top-inputs">
+      <div class="meter">
+        <span class="lab">RAW AGE</span>
+        <span class="num" id="tx1">25</span>
+      </div>
+
+      <div class="meter">
+        <span class="lab">RAW HAND</span>
+        <span class="num" id="tx2">15.0</span>
+      </div>
+
+      <div class="meter">
+        <span class="lab">RAW HEIGHT</span>
+        <span class="num" id="tx3">165</span>
+      </div>
+    </div>
+
+    <div class="top-neuron">
+      <div class="neuron-disc">Σ</div>
+    </div>
+
+    <div class="top-output">
+      <div class="meter actual">
+        <span class="lab">ACTUAL y</span>
+        <span class="num" id="ty">41.0</span>
+      </div>
+
+      <div class="compare">
+        <span class="errpill" id="terr">E .045</span>
+      </div>
+
+      <div class="meter pred">
+        <span class="lab">PREDICTED ŷ</span>
+        <span class="num" id="tyhat">41.3</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="frame">
+<div class="panel">
+
+<h1>SINGLE NEURON APPARATUS</h1>
+
+<div class="subtitle">
+  RAW MEASUREMENTS → INPUT SCALING → LINEAR NEURON → SHOE SIZE
+</div>
+
+
+<div class="apparatus">
+
+<!-- RAW INPUTS -->
+<section class="box inputs-panel">
+
+  <div class="title">1 — RAW INPUTS</div>
+
+  <div class="input-card">
+    <label>AGE (years) x₁</label>
+    <input id="x1" type="range" min="10" max="60" step="1" value="25">
+    <div id="x1v" class="led">25</div>
+  </div>
+
+  <div class="input-card">
+    <label>HAND SIZE (cm) x₂</label>
+    <input id="x2" type="range" min="5" max="35" step=".5" value="15">
+    <div id="x2v" class="led">15.0</div>
+  </div>
+
+  <div class="input-card">
+    <label>HEIGHT (cm) x₃</label>
+    <input id="x3" type="range" min="100" max="220" step="1" value="165">
+    <div id="x3v" class="led">165</div>
+  </div>
+
+  <div class="input-card" style="border-color:#a65f59">
+    <label style="color:#842820">ACTUAL SHOE SIZE y</label>
+    <input id="y" type="range" min="28" max="55" step=".1" value="41">
+    <div id="yv" class="led red">41.0</div>
+  </div>
+
+</section>
+
+
+<!-- INPUT SCALING -->
+<section class="box scaling-panel">
+
+  <div class="title">2 — INPUT SCALING</div>
+
+  <div class="scale-warning">
+    <strong>WHY SCALE?</strong><br><br>
+    Height is around 100–220, while age and hand size use much smaller numbers.
+    Without scaling, large numerical values can dominate the calculation simply
+    because of their units.
+    <br><br>
+    Each input is therefore mapped approximately to <strong>−1 to +1</strong>.
+  </div>
+
+  <div class="scale-card">
+    <div class="scale-name">AGE</div>
+    <div class="scale-formula">
+      x₁′ = (x₁ − 35) / 25
+    </div>
+    <div id="n1panel" class="scaled-led">−0.40</div>
+    <div class="scale-caption">10 → −1 &nbsp;&nbsp; 35 → 0 &nbsp;&nbsp; 60 → +1</div>
+  </div>
+
+  <div class="scale-arrow">↓</div>
+
+  <div class="scale-card">
+    <div class="scale-name">HAND SIZE</div>
+    <div class="scale-formula">
+      x₂′ = (x₂ − 20) / 15
+    </div>
+    <div id="n2panel" class="scaled-led">−0.33</div>
+    <div class="scale-caption">5 → −1 &nbsp;&nbsp; 20 → 0 &nbsp;&nbsp; 35 → +1</div>
+  </div>
+
+  <div class="scale-arrow">↓</div>
+
+  <div class="scale-card">
+    <div class="scale-name">HEIGHT</div>
+    <div class="scale-formula">
+      x₃′ = (x₃ − 160) / 60
+    </div>
+    <div id="n3panel" class="scaled-led">0.08</div>
+    <div class="scale-caption">100 → −1 &nbsp;&nbsp; 160 → 0 &nbsp;&nbsp; 220 → +1</div>
+  </div>
+
+</section>
+
+
+<!-- NEURON -->
+<section class="neuron-stage">
+
+  <div class="title">3 — LINEAR NEURON</div>
+
+  <div class="formula">
+    ŷ = w₁x₁′ + w₂x₂′ + w₃x₃′ + b
+  </div>
+
+  <div class="formula-note">
+    The neuron receives the <b>scaled values x′</b>, not the raw measurements.
+  </div>
+
+  <div id="calculation" class="calculation"></div>
+
+
+  <div class="network">
+
+    <svg class="wires"
+         viewBox="0 0 600 220"
+         preserveAspectRatio="none"
+         aria-hidden="true">
+
+      <line x1="90" y1="40"
+            x2="300" y2="110"
+            stroke="#173b7a"
+            stroke-width="2"/>
+
+      <line x1="90" y1="110"
+            x2="300" y2="110"
+            stroke="#173b7a"
+            stroke-width="2"/>
+
+      <line x1="90" y1="180"
+            x2="300" y2="110"
+            stroke="#173b7a"
+            stroke-width="2"/>
+
+      <line x1="345" y1="110"
+            x2="520" y2="110"
+            stroke="#1d5a31"
+            stroke-width="3"/>
+
+      <text x="170" y="52"
+            fill="#173b7a"
+            font-size="13">w₁</text>
+
+      <text x="170" y="103"
+            fill="#173b7a"
+            font-size="13">w₂</text>
+
+      <text x="170" y="170"
+            fill="#173b7a"
+            font-size="13">w₃</text>
+
+      <text x="390" y="98"
+            fill="#1d5a31"
+            font-size="13">prediction</text>
+
+    </svg>
+
+
+    <div class="inputs-mini">
+
+      <div class="node">
+        x₁′
+        <span class="small">scaled age</span>
+        <span class="scaled" id="n1v">−0.40</span>
+      </div>
+
+      <div class="node">
+        x₂′
+        <span class="small">scaled hand</span>
+        <span class="scaled" id="n2v">−0.33</span>
+      </div>
+
+      <div class="node">
+        x₃′
+        <span class="small">scaled height</span>
+        <span class="scaled" id="n3v">0.08</span>
+      </div>
+
+    </div>
+
+
+    <div class="node big">
+      Σ
+      <br>
+      <span class="small">weighted sum<br>+ bias</span>
+    </div>
+
+
+    <div class="node">
+      ŷ
+      <span class="small">shoe size</span>
+    </div>
+
+  </div>
+
+
+  <div class="weights">
+
+    <div class="control">
+      <div class="cap">WEIGHT w₁</div>
+      <div id="w1val" class="weightval">0.80</div>
+      <div class="knob" id="kw1"></div>
+      <input id="w1"
+             type="range"
+             min="-6"
+             max="6"
+             step=".05"
+             value=".8">
+    </div>
+
+
+    <div class="control">
+      <div class="cap">WEIGHT w₂</div>
+      <div id="w2val" class="weightval">3.20</div>
+      <div class="knob" id="kw2"></div>
+      <input id="w2"
+             type="range"
+             min="-6"
+             max="6"
+             step=".05"
+             value="3.2">
+    </div>
+
+
+    <div class="control">
+      <div class="cap">WEIGHT w₃</div>
+      <div id="w3val" class="weightval">2.00</div>
+      <div class="knob" id="kw3"></div>
+      <input id="w3"
+             type="range"
+             min="-6"
+             max="6"
+             step=".05"
+             value="2">
+    </div>
+
+
+    <div class="control">
+      <div class="cap">BIAS b</div>
+      <div id="bval" class="weightval">40.00</div>
+      <div class="knob" id="kb"></div>
+      <input id="b"
+             type="range"
+             min="25"
+             max="55"
+             step=".05"
+             value="40">
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- OUTPUT -->
+<section class="box outputbox">
+
+  <div class="title">4 — OUTPUT & ERROR</div>
+
+  <div>
+    <div class="title" style="color:#842820">
+      ACTUAL y
+    </div>
+    <div id="yout" class="led red">41.0</div>
+  </div>
+
+  <div>
+    <div class="title" style="color:#24542f">
+      PREDICTED ŷ
+    </div>
+    <div id="yhat" class="led green">41.3</div>
+  </div>
+
+  <div class="errorpanel">
+    <div class="comparetext">
+      ERROR E = ½(y − ŷ)²
+    </div>
+    <div id="err" class="led amber">0.045</div>
+  </div>
+
+  <div class="eq">
+    Activation f(z) = z
+  </div>
+
+</section>
+
+</div>
+
+
+<div class="flow">
+  RAW MEASUREMENTS
+  &nbsp; → &nbsp;
+  SCALE TO −1...+1
+  &nbsp; → &nbsp;
+  APPLY WEIGHTS
+  &nbsp; → &nbsp;
+  ADD BIAS
+  &nbsp; → &nbsp;
+  PREDICTION ŷ
+</div>
+
+
+<div class="footer">
+
+  <div class="box note">
+
+    <b>WHY SCALE THE INPUTS?</b>
+    <br><br>
+
+    The three measurements use very different numerical ranges.
+    Height can be around 160 cm while hand size may be around 20 cm.
+    Feeding those raw numbers directly into a learning algorithm makes
+    their numerical scales very different.
+
+    <br><br>
+
+    Here each slider range is transformed approximately to
+    <b>−1 to +1</b>. This puts the inputs on comparable numerical scales.
+
+    <br><br>
+
+    Scaling does <b>not</b> decide which variable is important.
+    The learned <b>weights</b> determine that.
+
+  </div>
+
+
+  <div class="box note">
+
+    <b>WHAT THE NEURON ACTUALLY RECEIVES</b>
+    <br><br>
+
+    The raw measurements are transformed as:
+
+    <br><br>
+
+    <b>x₁′ = (age − 35) / 25</b><br>
+    <b>x₂′ = (hand − 20) / 15</b><br>
+    <b>x₃′ = (height − 160) / 60</b>
+
+    <br><br>
+
+    The neuron then calculates:
+
+    <br><br>
+
+    <b>ŷ = w₁x₁′ + w₂x₂′ + w₃x₃′ + b</b>
+
+    <br><br>
+
+    A scaled value of <b>0</b> corresponds to the midpoint of that
+    input range. A negative value is below the midpoint and a positive
+    value is above it.
+
+  </div>
+
+</div>
+
+</div>
+</div>
+
+
+<script>
+
+const $ = id => document.getElementById(id);
+
+const val = id => parseFloat($(id).value);
+
+const fmt = (n,d=2) => Number(n).toFixed(d);
+
+
+function signed(n,d=2){
+  const x = Number(n).toFixed(d);
+  return n > 0 ? "+" + x : x;
+}
+
+
+function knob(id,value,min,max){
+
+  const deg =
+    -135 +
+    (value-min)/(max-min)*270;
+
+  $(id).style.setProperty(
+    "--a",
+    deg+"deg"
+  );
+
+}
+
+
+function update(){
+
+  /* ------------------------------------------------
+     INPUT SCALING
+
+     Each slider range is mapped approximately
+     from its raw range to -1 ... +1.
+
+     age:    10 ... 60   →  -1 ... +1
+     hand:    5 ... 35   →  -1 ... +1
+     height:100 ... 220  →  -1 ... +1
+  ------------------------------------------------ */
+
+  const n1 =
+    (val("x1") - 35) / 25;
+
+  const n2 =
+    (val("x2") - 20) / 15;
+
+  const n3 =
+    (val("x3") - 160) / 60;
+
+
+  /* NEURON RECEIVES SCALED INPUTS */
+
+  const c1 =
+    val("w1") * n1;
+
+  const c2 =
+    val("w2") * n2;
+
+  const c3 =
+    val("w3") * n3;
+
+
+  const yhat =
+    c1 +
+    c2 +
+    c3 +
+    val("b");
+
+
+  const err =
+    .5 *
+    Math.pow(
+      val("y") - yhat,
+      2
+    );
+
+
+  /* RAW INPUT DISPLAYS */
+
+  $("x1v").textContent =
+    fmt(val("x1"),0);
+
+  $("tx1").textContent =
+    fmt(val("x1"),0);
+
+
+  $("x2v").textContent =
+    fmt(val("x2"),1);
+
+  $("tx2").textContent =
+    fmt(val("x2"),1);
+
+
+  $("x3v").textContent =
+    fmt(val("x3"),0);
+
+  $("tx3").textContent =
+    fmt(val("x3"),0);
+
+
+  /* SCALED INPUT DISPLAYS */
+
+  $("n1v").textContent =
+    signed(n1,2);
+
+  $("n2v").textContent =
+    signed(n2,2);
+
+  $("n3v").textContent =
+    signed(n3,2);
+
+
+  $("n1panel").textContent =
+    signed(n1,2);
+
+  $("n2panel").textContent =
+    signed(n2,2);
+
+  $("n3panel").textContent =
+    signed(n3,2);
+
+
+  /* ACTUAL OUTPUT */
+
+  $("yv").textContent =
+    fmt(val("y"),1);
+
+  $("yout").textContent =
+    fmt(val("y"),1);
+
+  $("ty").textContent =
+    fmt(val("y"),1);
+
+
+  /* PREDICTION */
+
+  $("yhat").textContent =
+    fmt(yhat,2);
+
+  $("tyhat").textContent =
+    fmt(yhat,2);
+
+
+  /* ERROR */
+
+  $("err").textContent =
+    fmt(err,3);
+
+  $("terr").textContent =
+    "E " + fmt(err,2);
+
+
+  /* SHOW THE ACTUAL ARITHMETIC */
+
+  $("calculation").innerHTML =
+    `${fmt(val("w1"),2)} × (${signed(n1,2)})` +
+    ` + ${fmt(val("w2"),2)} × (${signed(n2,2)})` +
+    ` + ${fmt(val("w3"),2)} × (${signed(n3,2)})` +
+    ` + ${fmt(val("b"),2)}` +
+    ` = <b>${fmt(yhat,2)}</b>`;
+
+
+  /* WEIGHTS */
+
+  ["w1","w2","w3"].forEach(
+    id =>
+      $(id+"val").textContent =
+      fmt(val(id),2)
+  );
+
+  $("bval").textContent =
+    fmt(val("b"),2);
+
+
+  /* KNOBS */
+
+  knob(
+    "kw1",
+    val("w1"),
+    -6,
+    6
+  );
+
+  knob(
+    "kw2",
+    val("w2"),
+    -6,
+    6
+  );
+
+  knob(
+    "kw3",
+    val("w3"),
+    -6,
+    6
+  );
+
+  knob(
+    "kb",
+    val("b"),
+    25,
+    55
+  );
+
+}
+
+
+[
+  "x1",
+  "x2",
+  "x3",
+  "y",
+  "w1",
+  "w2",
+  "w3",
+  "b"
+].forEach(
+  id =>
+    $(id).addEventListener(
+      "input",
+      update
+    )
+);
+
+
+update();
+
+</script>
+
+</body>
+</html>
