@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Jobs4Biotech — La communauté des talents et professionnels de la biotech. Offres, technologies et services pour les sciences de la vie." />
+  <title>Jobs4Biotech — La communauté biotech</title>
+
+  <style>
+    :root{
+      --ink:#102033;
+      --muted:#64748b;
+      --blue:#0a66c2;
+      --blue2:#2487e8;
+      --pale:#eef6ff;
+      --bg:#f7f9fc;
+      --white:#fff;
+      --line:#e2e8f0;
+      --green:#147d64;
+      --green-pale:#eaf8f3;
+      --violet:#6d4aff;
+      --violet-pale:#f1eeff;
+      --shadow:0 16px 46px rgba(23,50,82,.10);
+      --radius:24px;
+      --max:1160px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 90% 0%, rgba(36,135,232,.09), transparent 28%),
+        var(--bg);
+      line-height:1.55;
+    }
+    a{text-decoration:none;color:inherit}
+    .container{width:min(var(--max),calc(100% - 40px));margin:auto}
+
+    /* NAV */
+    .nav{
+      position:sticky;top:0;z-index:20;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(226,232,240,.95);
+    }
+    .nav-inner{
+      min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px;
+    }
+    .brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:-.025em}
+    .brand-mark{
+      width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;font-weight:900;
+      box-shadow:0 8px 20px rgba(10,102,194,.2);
+    }
+    nav{display:flex;align-items:center;gap:23px;color:var(--muted);font-size:.93rem}
+    nav a:hover{color:var(--blue)}
+    .linkedin{
+      background:var(--blue);color:#fff!important;padding:10px 15px;border-radius:12px;font-weight:750;
+    }
+
+    /* HERO */
+    .hero{padding:86px 0 54px}
+    .hero-copy{max-width:920px}
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 11px;border-radius:999px;background:var(--pale);color:var(--blue);
+      font-size:.8rem;font-weight:850;letter-spacing:.055em;text-transform:uppercase;
+    }
+    h1{
+      margin:20px 0 22px;font-size:clamp(3rem,7vw,5.9rem);line-height:.95;
+      letter-spacing:-.06em;max-width:1000px;
+    }
+    .hero p{font-size:1.18rem;color:var(--muted);max-width:760px;margin:0 0 28px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{
+      min-height:48px;padding:0 19px;border-radius:13px;display:inline-flex;align-items:center;
+      justify-content:center;font-weight:780;border:1px solid transparent;transition:.18s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--blue);color:#fff;box-shadow:0 10px 24px rgba(10,102,194,.18)}
+    .btn-ghost{background:#fff;border-color:var(--line);color:#29435e}
+
+    .stats{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:34px;
+    }
+    .stat{
+      background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:14px;padding:13px 15px;
+    }
+    .stat strong{display:block;font-size:1.45rem;line-height:1.05;letter-spacing:-.035em}
+    .stat span{display:block;color:var(--muted);font-size:.78rem;margin-top:3px;line-height:1.25}
+
+    section{padding:54px 0}
+    .section-title{
+      display:flex;align-items:end;justify-content:space-between;gap:25px;margin-bottom:25px;
+    }
+    .section-title h2{margin:0;font-size:clamp(2rem,4vw,3rem);letter-spacing:-.045em;line-height:1.05}
+    .section-title p{margin:0;color:var(--muted);max-width:600px}
+
+    /* FEED */
+    .feed-shell{
+      background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(23,50,82,.06)
+    }
+    .feed-shell-clean{padding:0}
+    iframe{width:100%;height:1000px;border:0;display:block;background:#fff}
+
+
+
+    .hero-grid-top{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 340px;
+      gap:42px;
+      align-items:start;
+    }
+    .hero-widget{
+      background:#fff;
+      border:1px solid #e3e8ee;
+      border-radius:18px;
+      padding:15px;
+      box-shadow:0 8px 24px rgba(23,50,82,.055);
+      margin-top:4px;
+    }
+    .widget-head{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:12px;
+      padding:2px 2px 11px;
+      border-bottom:1px solid var(--line);
+      margin-bottom:12px;
+    }
+    .widget-head span{
+      font-size:.78rem;
+      font-weight:800;
+      text-transform:none;
+      letter-spacing:.01em;
+      color:#4e5d6c;
+    }
+    .widget-head small{
+      color:#8a98a8;
+      font-size:.7rem;
+    }
+    .widget-pick{
+      border-radius:14px;
+      border:1px solid #e1e6ec;
+      padding:14px;
+      box-shadow:none;
+    }
+    .widget-pick + .widget-pick{margin-top:10px}
+    .widget-job{background:#fbfcfd;border-left:3px solid #c9d7e5}
+    .widget-service{background:#fbfcfd;border-left:3px solid #d3ddd7}
+    .widget-pick h3{
+      margin:11px 0 6px;
+      font-size:1rem;
+      line-height:1.15;
+      letter-spacing:-.02em;
+    }
+    .widget-pick p{
+      margin:0;
+      font-size:.8rem;
+      line-height:1.4;
+      color:var(--muted);
+    }
+
+    .widget-cta{
+      display:inline-flex;
+      align-items:center;
+      margin-top:12px;
+      font-size:.78rem;
+      font-weight:800;
+      color:#31475d;
+      border-bottom:1px solid #cfd8e1;
+      padding-bottom:2px;
+    }
+    .widget-cta:hover{
+      color:var(--blue);
+      border-bottom-color:var(--blue);
+    }
+
+    /* MAIN CONTENT + RIGHT RAIL */
+    .content-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 250px;
+      gap:24px;
+      align-items:start;
+    }
+    .right-rail{
+      display:grid;
+      gap:14px;
+      position:sticky;
+      top:92px;
+    }
+    .rail-title{
+      font-size:.78rem;
+      font-weight:900;
+      letter-spacing:.07em;
+      text-transform:uppercase;
+      color:#7c8ca0;
+      padding:0 2px 2px;
+    }
+    .mini-pick{
+      border-radius:20px;
+      border:1px solid var(--line);
+      padding:18px;
+      box-shadow:0 10px 28px rgba(23,50,82,.08);
+    }
+    .mini-job{background:linear-gradient(145deg,#fff,#eaf6ff)}
+    .mini-service{background:linear-gradient(145deg,#fff,#f2edff)}
+    .mini-pick h3{
+      margin:14px 0 8px;
+      font-size:1.15rem;
+      line-height:1.12;
+      letter-spacing:-.025em;
+    }
+    .mini-pick p{
+      margin:0;
+      color:var(--muted);
+      font-size:.86rem;
+      line-height:1.45;
+    }
+    .mini-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:13px;
+    }
+    .mini-tags span{
+      font-size:.71rem;
+      font-weight:700;
+      padding:4px 7px;
+      border-radius:999px;
+      background:#f6f7f9;
+      border:1px solid #e5e9ee;
+      color:#667381;
+    }
+    .mini-note{
+      margin-top:13px;
+      font-size:.72rem;
+      color:#8b98a8;
+      font-weight:700;
+    }
+    .mini-cta{
+      display:inline-flex;
+      align-items:center;
+      margin-top:13px;
+      font-size:.78rem;
+      font-weight:800;
+      color:#31475d;
+      border-bottom:1px solid #cfd8e1;
+      padding-bottom:2px;
+    }
+    .mini-cta:hover{
+      color:var(--blue);
+      border-bottom-color:var(--blue);
+    }
+    .community-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:16px;
+    }
+    .community-kicker{
+      font-size:.76rem;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.07em;
+      color:var(--blue);
+      margin-bottom:10px;
+    }
+    .community-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px 12px;
+    }
+    .community-grid div{
+      min-width:0;
+    }
+    .community-grid strong{
+      display:block;
+      font-size:1.05rem;
+      line-height:1.05;
+      letter-spacing:-.025em;
+    }
+    .community-grid span{
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-size:.68rem;
+      line-height:1.25;
+    }
+
+    /* ABOUT */
+    .about-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px}
+    .about-card{
+      background:#fff;border:1px solid var(--line);border-radius:23px;padding:26px;
+    }
+    .about-card h3{margin:0 0 12px;font-size:1.35rem;letter-spacing:-.02em}
+    .about-card p{margin:0;color:var(--muted)}
+    .metrics{margin-top:18px}
+    .metric{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+    .metric:last-child{border-bottom:0}
+    .metric span{color:var(--muted)}
+
+    /* DISCREET PARTNERS */
+    .partners{
+      margin-top:18px;background:#f0f4f8;border:1px solid var(--line);border-radius:22px;padding:25px 28px;
+      display:flex;align-items:center;justify-content:space-between;gap:28px;
+    }
+    .partners h3{font-size:1.15rem;margin:0 0 6px}
+    .partners p{margin:0;color:var(--muted);font-size:.93rem;max-width:760px}
+    .partners a{
+      flex:none;font-size:.9rem;font-weight:800;color:var(--blue);
+      border-bottom:1px solid rgba(10,102,194,.3);padding-bottom:2px;
+    }
+
+    footer{padding:36px 0 46px;color:#7b8a9c;font-size:.86rem}
+    .footer-in{display:flex;align-items:center;justify-content:space-between;gap:20px}
+
+    @media(max-width:860px){
+      nav a:not(.linkedin){display:none}
+      .hero-grid-top{grid-template-columns:1fr}
+      .hero-widget{max-width:none;margin-top:8px}
+      .content-grid{grid-template-columns:1fr}
+      .right-rail{position:static;grid-template-columns:1fr 1fr}
+      .rail-title{grid-column:1/-1}
+      .community-card{grid-column:1/-1}
+      .stats{grid-template-columns:repeat(4,1fr)}
+      .selection,.about-grid{grid-template-columns:1fr}
+      .partners{align-items:flex-start;flex-direction:column}
+    }
+    @media(max-width:560px){
+      .right-rail{grid-template-columns:1fr}
+      .hero-widget{padding:13px}
+      .container{width:min(var(--max),calc(100% - 24px))}
+      .hero{padding-top:56px}
+      h1{font-size:3.15rem}
+      .stats{grid-template-columns:1fr 1fr;gap:8px;margin-top:26px}
+      .stat{padding:11px 12px}
+      .stat strong{font-size:1.25rem}
+      .section-title{display:block}
+      .section-title p{margin-top:10px}
+      .pick{min-height:290px;padding:22px}
+      iframe{height:830px}
+      .footer-in{align-items:flex-start;flex-direction:column}
+    }
+  </style>
+</head>
+
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#">
+      <span class="brand-mark">J4B</span>
+      <span>Jobs4Biotech</span>
+    </a>
+    <nav>
+      <a href="#posts">À la une</a>
+      <a href="#posts">Derniers posts</a>
+      <a href="#communaute">La communauté</a>
+      <a class="linkedin" href="https://www.linkedin.com/showcase/jobs4biotech" target="_blank" rel="noopener">LinkedIn ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-copy">
+        <span class="kicker">Biotech • Recherche • Sciences de la vie</span>
+        <h1>Jobs4Biotech — La biotech en direct.</h1>
+        <p>
+          Jobs4Biotech relaie les opportunités, technologies et services utiles à celles et ceux
+          qui font la biotech : chercheurs, ingénieurs, techniciens, étudiants, doctorants,
+          entrepreneurs et professionnels de l'industrie.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#posts">Voir les derniers posts</a>
+          <a class="btn btn-ghost" href="https://www.linkedin.com/showcase/jobs4biotech" target="_blank" rel="noopener">Suivre Jobs4Biotech ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="posts">
+    <div class="container">
+      <div class="section-title">
+        <div>
+          <span class="kicker">En direct de LinkedIn</span>
+          <h2>Les derniers posts.</h2>
+        </div>
+        <p>Le flux reste là où vit la communauté : sur LinkedIn. Ici, vous pouvez parcourir les publications les plus récentes.</p>
+      </div>
+
+      <div class="content-grid">
+        <div class="feed-shell feed-shell-clean">
+          <iframe
+            src="https://widgets.sociablekit.com/linkedin-page-posts/iframe/25706121"
+            title="Flux LinkedIn Jobs4Biotech"
+            loading="lazy">
+          </iframe>
+        </div>
+
+        <aside class="right-rail">
+          <div class="rail-title">À la une</div>
+
+          <article class="mini-pick mini-job">
+            <span class="gimmick gimmick-job"><span class="spark">⚗</span> Job pick</span>
+            <h3>Senior Scientist — Organoïdes tumoraux</h3>
+            <p>Orakl Oncology recherche un·e Senior Scientist pour développer sa biobanque d’organoïdes dérivés de patients, avec un premier focus sur le NSCLC.</p>
+            <div class="mini-tags">
+              <span>Oncologie</span><span>Organoïdes</span><span>Culture 3D</span>
+            </div>
+            <a class="mini-cta" href="https://www.welcometothejungle.com/fr/companies-v1/orakl-oncology" target="_blank" rel="noopener">Voir l’offre →</a>
+          </article>
+
+          <article class="mini-pick mini-service">
+            <span class="gimmick gimmick-service"><span class="spark">✦</span> Lab find</span>
+            <h3>Plateforme iPSC — Nantes Université</h3>
+            <p>Reprogrammation, édition du génome, différenciation, banking et culture d’organoïdes : une plateforme experte des cellules souches pluripotentes humaines.</p>
+            <div class="mini-tags">
+              <span>iPSC</span><span>Genome editing</span><span>Organoïdes</span>
+            </div>
+            <a class="mini-cta" href="https://biocore.univ-nantes.fr/fr/plateformes/ipsc" target="_blank" rel="noopener">Découvrir la plateforme →</a>
+          </article>
+
+          <div class="community-card" id="communaute">
+            <div class="community-kicker">La communauté</div>
+            <div class="community-grid">
+              <div><strong>33 000+</strong><span>abonnés</span></div>
+              <div><strong>1 000+</strong><span>opportunités relayées</span></div>
+              <div><strong>40 %</strong><span>recherche biotech & services de recherche</span></div>
+              <div><strong>+531</strong><span>nouveaux abonnés / 30 jours observés</span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <div>
+          <span class="kicker">La communauté</span>
+          <h2>Des professionnels, pas du trafic générique.</h2>
+        </div>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-card">
+          <h3>Une communauté biotech qualifiée</h3>
+          <p>
+            Jobs4Biotech est consacré à la biotechnologie et aux sciences de la vie.
+            La communauté rassemble chercheurs, ingénieurs, techniciens, étudiants,
+            doctorants, entrepreneurs et professionnels de l'industrie — principalement en France.
+          </p>
+        </div>
+
+        <div class="about-card">
+          <h3>Quelques repères</h3>
+          <div class="metrics">
+            <div class="metric"><span>Recherche en biotechnologie</span><strong>26,0 %</strong></div>
+            <div class="metric"><span>Services de recherche</span><strong>14,4 %</strong></div>
+            <div class="metric"><span>Enseignement supérieur</span><strong>9,6 %</strong></div>
+            <div class="metric"><span>Industrie pharmaceutique</span><strong>7,1 %</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="partners" id="partenaires">
+        <div>
+          <h3>Vous avez quelque chose d'utile à montrer à la communauté ?</h3>
+          <p>
+            Jobs4Biotech peut ponctuellement mettre en avant une technologie, un service,
+            une plateforme ou un événement pertinent pour les professionnels des sciences de la vie.
+            Les partenariats restent clairement identifiés et sélectionnés pour leur intérêt éditorial.
+          </p>
+        </div>
+        <a href="https://www.linkedin.com/showcase/jobs4biotech" target="_blank" rel="noopener">Parler partenariat ↗</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-in">
+    <div>© Jobs4Biotech</div>
+    <a href="https://www.linkedin.com/showcase/jobs4biotech" target="_blank" rel="noopener">Retrouvez Jobs4Biotech sur LinkedIn ↗</a>
+  </div>
+</footer>
+</body>
+</html>
