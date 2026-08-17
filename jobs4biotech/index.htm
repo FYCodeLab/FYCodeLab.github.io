@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Jobs4Biotech — La communauté des talents et professionnels de la biotech. Offres, technologies et services pour les sciences de la vie." />
+  <title>Jobs4Biotech — La communauté biotech</title>
+
+  <style>
+    :root{
+      --ink:#102033;
+      --muted:#64748b;
+      --blue:#0a66c2;
+      --blue2:#2487e8;
+      --pale:#eef6ff;
+      --bg:#f7f9fc;
+      --white:#fff;
+      --line:#e2e8f0;
+      --green:#147d64;
+      --green-pale:#eaf8f3;
+      --violet:#6d4aff;
+      --violet-pale:#f1eeff;
+      --shadow:0 16px 46px rgba(23,50,82,.10);
+      --radius:24px;
+      --max:1160px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 90% 0%, rgba(36,135,232,.09), transparent 28%),
+        var(--bg);
+      line-height:1.55;
+    }
+    a{text-decoration:none;color:inherit}
+    .container{width:min(var(--max),calc(100% - 40px));margin:auto}
+
+    /* NAV */
+    .nav{
+      position:sticky;top:0;z-index:20;
+      background:rgba(255,255,255,.88);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(226,232,240,.95);
+    }
+    .nav-inner{
+      min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px;
+    }
+    .brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:-.025em}
+    .brand-mark{
+      width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;font-weight:900;
+      box-shadow:0 8px 20px rgba(10,102,194,.2);
+    }
+    nav{display:flex;align-items:center;gap:23px;color:var(--muted);font-size:.93rem}
+    nav a:hover{color:var(--blue)}
+    .linkedin{
+      background:var(--blue);color:#fff!important;padding:10px 15px;border-radius:12px;font-weight:750;
+    }
+
+    /* HERO */
+    .hero{padding:86px 0 54px}
+    .hero-copy{max-width:920px}
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 11px;border-radius:999px;background:var(--pale);color:var(--blue);
+      font-size:.8rem;font-weight:850;letter-spacing:.055em;text-transform:uppercase;
+    }
+    h1{
+      margin:20px 0 22px;font-size:clamp(3rem,7vw,5.9rem);line-height:.95;
+      letter-spacing:-.06em;max-width:1000px;
+    }
+    .hero p{font-size:1.18rem;color:var(--muted);max-width:760px;margin:0 0 28px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{
+      min-height:48px;padding:0 19px;border-radius:13px;display:inline-flex;align-items:center;
+      justify-content:center;font-weight:780;border:1px solid transparent;transition:.18s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--blue);color:#fff;box-shadow:0 10px 24px rgba(10,102,194,.18)}
+    .btn-ghost{background:#fff;border-color:var(--line);color:#29435e}
+
+    .stats{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:34px;
+    }
+    .stat{
+      background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:14px;padding:13px 15px;
+    }
+    .stat strong{display:block;font-size:1.45rem;line-height:1.05;letter-spacing:-.035em}
+    .stat span{display:block;color:var(--muted);font-size:.78rem;margin-top:3px;line-height:1.25}
+
+    section{padding:54px 0}
+    .section-title{
+      display:flex;align-items:end;justify-content:space-between;gap:25px;margin-bottom:25px;
+    }
+    .section-title h2{margin:0;font-size:clamp(2rem,4vw,3rem);letter-spacing:-.045em;line-height:1.05}
+    .section-title p{margin:0;color:var(--muted);max-width:600px}
+
+    /* SELECTION */
+    .selection{
+      display:grid;grid-template-columns:1fr 1fr;gap:24px;width:100%;
+    }
+    .pick{
+      aspect-ratio:1/1;border-radius:28px;padding:30px;position:relative;overflow:hidden;
+      display:flex;flex-direction:column;justify-content:space-between;border:2px solid rgba(16,32,51,.12);
+      box-shadow:0 18px 48px rgba(23,50,82,.12);
+    }
+    .pick:after{
+      content:"";position:absolute;width:230px;height:230px;border-radius:50%;
+      right:-95px;top:-90px;opacity:.65;
+    }
+    .pick-job{background:linear-gradient(145deg,#fafdff,#dff1ff)}
+    .pick-job:after{background:#cae9ff}
+    .pick-service{background:linear-gradient(145deg,#fcfbff,#e8e1ff)}
+    .pick-service:after{background:#ddd5ff}
+    .pick-top,.pick-bottom{position:relative;z-index:2}
+    .gimmick{
+      display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:7px 10px;
+      font-size:.78rem;font-weight:900;letter-spacing:.045em;text-transform:uppercase;
+    }
+    .gimmick-job{background:#dff3ff;color:#0873b9}
+    .gimmick-service{background:var(--violet-pale);color:var(--violet)}
+    .spark{
+      display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff;
+      box-shadow:0 3px 10px rgba(0,0,0,.06);font-size:.85rem;
+    }
+    .pick h3{font-size:1.85rem;letter-spacing:-.035em;line-height:1.05;margin:18px 0 10px;max-width:470px}
+    .pick p{color:var(--muted);margin:0;max-width:500px}
+    .pick-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .pill{
+      background:rgba(255,255,255,.8);border:1px solid rgba(148,163,184,.25);
+      border-radius:999px;padding:6px 9px;color:#506176;font-size:.8rem;font-weight:700;
+    }
+    .pick-label{display:inline-flex;align-items:center;gap:8px;margin-top:25px;font-weight:850;color:var(--blue)}
+    .pick-service .pick-label{color:var(--violet)}
+    .tiny-note{font-size:.78rem;color:#8a98aa;margin-top:10px}
+
+    /* FEED */
+    .feed-shell{
+      background:#fff;border:1px solid var(--line);border-radius:26px;overflow:hidden;box-shadow:var(--shadow)
+    }
+    .feed-head{
+      padding:21px 24px;display:flex;align-items:center;justify-content:space-between;
+      gap:20px;border-bottom:1px solid var(--line)
+    }
+    .feed-head strong{font-size:1.04rem}
+    .feed-head span{font-size:.88rem;color:var(--muted)}
+    iframe{width:100%;height:1000px;border:0;display:block;background:#fff}
+
+    /* ABOUT */
+    .about-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px}
+    .about-card{
+      background:#fff;border:1px solid var(--line);border-radius:23px;padding:26px;
+    }
+    .about-card h3{margin:0 0 12px;font-size:1.35rem;letter-spacing:-.02em}
+    .about-card p{margin:0;color:var(--muted)}
+    .metrics{margin-top:18px}
+    .metric{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+    .metric:last-child{border-bottom:0}
+    .metric span{color:var(--muted)}
+
+    /* DISCREET PARTNERS */
+    .partners{
+      margin-top:18px;background:#f0f4f8;border:1px solid var(--line);border-radius:22px;padding:25px 28px;
+      display:flex;align-items:center;justify-content:space-between;gap:28px;
+    }
+    .partners h3{font-size:1.15rem;margin:0 0 6px}
+    .partners p{margin:0;color:var(--muted);font-size:.93rem;max-width:760px}
+    .partners a{
+      flex:none;font-size:.9rem;font-weight:800;color:var(--blue);
+      border-bottom:1px solid rgba(10,102,194,.3);padding-bottom:2px;
+    }
+
+    footer{padding:36px 0 46px;color:#7b8a9c;font-size:.86rem}
+    .footer-in{display:flex;align-items:center;justify-content:space-between;gap:20px}
+
+    @media(max-width:860px){
+      nav a:not(.linkedin){display:none}
+      .stats{grid-template-columns:repeat(4,1fr)}
+      .selection,.about-grid{grid-template-columns:1fr}
+      .partners{align-items:flex-start;flex-direction:column}
+    }
+    @media(max-width:560px){
+      .container{width:min(var(--max),calc(100% - 24px))}
+      .hero{padding-top:56px}
+      h1{font-size:3.15rem}
+      .stats{grid-template-columns:1fr 1fr;gap:8px;margin-top:26px}
+      .stat{padding:11px 12px}
+      .stat strong{font-size:1.25rem}
+      .section-title{display:block}
+      .section-title p{margin-top:10px}
+      .pick{min-height:290px;padding:22px}
+      iframe{height:830px}
+      .footer-in{align-items:flex-start;flex-direction:column}
+    }
+  </style>
+</head>
+
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#">
+      <span class="brand-mark">J4B</span>
+      <span>Jobs4Biotech</span>
+    </a>
+    <nav>
+      <a href="#selection">La sélection</a>
+      <a href="#posts">Derniers posts</a>
+      <a href="#communaute">La communauté</a>
+      <a class="linkedin" href="https://www.linkedin.com/showcase/jobs4biotech" target="_blank" rel="noopener">LinkedIn ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-copy">
+        <span class="kicker">Biotech • Recherche • Sciences de la vie</span>
+        <h1>Jobs4Biotech — La biotech en direct.</h1>
+        <p>
+          Jobs4Biotech relaie les opportunités, technologies et services utiles à celles et ceux
+          qui font la biotech : chercheurs, ingénieurs, techniciens, étudiants, doctorants,
+          entrepreneurs et professionnels de l'industrie.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#posts">Voir les derniers posts</a>
+          <a class="btn btn-ghost" href="https://www.linkedin.com/showcase/jobs4biotech" target="_blank" rel="noopener">Suivre Jobs4Biotech ↗</a>
+        </div>
+      </div>
+
+      <div class="stats" id="communaute">
+        <div class="stat"><strong>33 000+</strong><span>abonnés</span></div>
+        <div class="stat"><strong>1 000+</strong><span>opportunités relayées</span></div>
+        <div class="stat"><strong>40 %</strong><span>recherche biotech & services de recherche</span></div>
+        <div class="stat"><strong>+531</strong><span>nouveaux abonnés sur 30 jours observés</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="selection" style="background:#eef3f8;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
+    <div class="container">
+      <div class="section-title">
+        <div>
+          <span class="kicker">Le pick Jobs4Biotech</span>
+          <h2>Deux choses à ne pas rater.</h2>
+        </div>
+        <p>Deux formats éditoriaux simples : un job mis en avant et un service ou une technologie à découvrir.</p>
+      </div>
+
+      <div class="selection">
+        <article class="pick pick-job">
+          <div class="pick-top">
+            <span class="gimmick gimmick-job"><span class="spark">⚗</span> JOB PICK</span>
+            <h3>Scientist — Cell Biology</h3>
+            <p>
+              Une offre repérée pour son intérêt scientifique, son équipe ou son projet.
+              Le format reste volontairement très visuel et immédiatement lisible.
+            </p>
+            <div class="pick-meta">
+              <span class="pill">🔬 R&D</span>
+              <span class="pill">📍 Paris</span>
+              <span class="pill">🧬 Cell Biology</span>
+            </div>
+          </div>
+          <div class="pick-bottom">
+            <div class="pick-label">Exemple de mise en avant</div>
+            <div class="tiny-note">#JobUnderTheMicroscope</div>
+          </div>
+        </article>
+
+        <article class="pick pick-service">
+          <div class="pick-top">
+            <span class="gimmick gimmick-service"><span class="spark">✦</span> LAB FIND</span>
+            <h3>Single-cell analysis service</h3>
+            <p>
+              Un service, une technologie ou un outil présenté pour ce qu'il apporte
+              concrètement aux chercheurs et aux équipes R&D.
+            </p>
+            <div class="pick-meta">
+              <span class="pill">⚡ Technology</span>
+              <span class="pill">🧪 Service</span>
+              <span class="pill">🧬 Single-cell</span>
+            </div>
+          </div>
+          <div class="pick-bottom">
+            <div class="pick-label">Exemple de mise en avant</div>
+            <div class="tiny-note">#WorthATryInTheLab</div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="posts">
+    <div class="container">
+      <div class="section-title">
+        <div>
+          <span class="kicker">En direct de LinkedIn</span>
+          <h2>Les derniers posts.</h2>
+        </div>
+        <p>Le flux reste là où vit la communauté : sur LinkedIn. Ici, vous pouvez simplement parcourir les publications les plus récentes.</p>
+      </div>
+
+      <div class="feed-shell">
+        <div class="feed-head">
+          <div><strong>Jobs4Biotech</strong><br><span>Dernières publications LinkedIn</span></div>
+          <a class="btn btn-ghost" href="https://www.linkedin.com/showcase/jobs4biotech" target="_blank" rel="noopener">Ouvrir LinkedIn ↗</a>
+        </div>
+        <iframe
+          src="https://widgets.sociablekit.com/linkedin-page-posts/iframe/25706121"
+          title="Flux LinkedIn Jobs4Biotech"
+          loading="lazy">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <div>
+          <span class="kicker">La communauté</span>
+          <h2>Des professionnels, pas du trafic générique.</h2>
+        </div>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-card">
+          <h3>Une communauté biotech qualifiée</h3>
+          <p>
+            Jobs4Biotech est consacré à la biotechnologie et aux sciences de la vie.
+            La communauté rassemble chercheurs, ingénieurs, techniciens, étudiants,
+            doctorants, entrepreneurs et professionnels de l'industrie — principalement en France.
+          </p>
+        </div>
+
+        <div class="about-card">
+          <h3>Quelques repères</h3>
+          <div class="metrics">
+            <div class="metric"><span>Recherche en biotechnologie</span><strong>26,0 %</strong></div>
+            <div class="metric"><span>Services de recherche</span><strong>14,4 %</strong></div>
+            <div class="metric"><span>Enseignement supérieur</span><strong>9,6 %</strong></div>
+            <div class="metric"><span>Industrie pharmaceutique</span><strong>7,1 %</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="partners" id="partenaires">
+        <div>
+          <h3>Vous avez quelque chose d'utile à montrer à la communauté ?</h3>
+          <p>
+            Jobs4Biotech peut ponctuellement mettre en avant une technologie, un service,
+            une plateforme ou un événement pertinent pour les professionnels des sciences de la vie.
+            Les partenariats restent clairement identifiés et sélectionnés pour leur intérêt éditorial.
+          </p>
+        </div>
+        <a href="https://www.linkedin.com/showcase/jobs4biotech" target="_blank" rel="noopener">Parler partenariat ↗</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-in">
+    <div>© Jobs4Biotech</div>
+    <a href="https://www.linkedin.com/showcase/jobs4biotech" target="_blank" rel="noopener">Retrouvez Jobs4Biotech sur LinkedIn ↗</a>
+  </div>
+</footer>
+</body>
+</html>
