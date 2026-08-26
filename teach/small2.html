@@ -775,7 +775,7 @@ async function addExample(classId) {
   refreshCounts();
 
   statusEl.textContent = `Added an example to ${classId === 0 ? nameA.value : nameB.value}.`;
-  networkPulse(0.45);
+  photoCapturePulse();
 
   if (examples[0].length >= 3 && examples[1].length >= 3) {
     statusEl.textContent = "Enough examples collected. You can train the model.";
@@ -873,7 +873,7 @@ async function trainModel() {
   testBtn.disabled = true;
   saveBtn.disabled = true;
   progressBar.style.width = "0%";
-  networkCaption.textContent = "Each epoch is shown as a back-and-forth cycle. The two small italic numbers to the left of each trainable neuron are representative incoming weights; they highlight when backpropagation changes them.";
+  networkCaption.textContent = "Each epoch is shown as a back-and-forth cycle. The two small italic numbers above each trainable neuron are representative incoming weights; they highlight when backpropagation changes them.";
 
   const xsList = [];
   const ysList = [];
@@ -1031,7 +1031,7 @@ function resetAll() {
   trainingStage = "idle";
   backPulses = [];
   nodes.forEach(n => {
-    n.repWeights = [null, null];
+    n.repWeights = [0, 0];
     n.repWeightDelta = [0, 0];
     n.repWeightFlash = [0, 0];
   });
@@ -1116,7 +1116,7 @@ function buildNetwork(w,h) {
         y,
         value:Math.random()*0.25 + 0.05,
         target:Math.random()*0.25 + 0.05,
-        repWeights:[null, null],
+        repWeights:[0, 0],
         repWeightDelta:[0, 0],
         repWeightFlash:[0, 0]
       });
@@ -1232,10 +1232,11 @@ function updateVisualWeightsFromClassifier() {
       ];
 
       newWeights.forEach((value, i) => {
+        const scaledValue = value * 12;
         const previous = n.repWeights[i];
-        n.repWeights[i] = value;
-        n.repWeightDelta[i] = previous === null ? Math.abs(value) : Math.abs(value - previous);
-        n.repWeightFlash[i] = Math.min(1, 0.18 + n.repWeightDelta[i] * 22);
+        n.repWeights[i] = scaledValue;
+        n.repWeightDelta[i] = Math.abs(scaledValue - previous);
+        n.repWeightFlash[i] = Math.min(1, 0.22 + n.repWeightDelta[i] * 0.9);
       });
     });
 
@@ -1249,10 +1250,11 @@ function updateVisualWeightsFromClassifier() {
       ];
 
       newWeights.forEach((value, i) => {
+        const scaledValue = value * 12;
         const previous = n.repWeights[i];
-        n.repWeights[i] = value;
-        n.repWeightDelta[i] = previous === null ? Math.abs(value) : Math.abs(value - previous);
-        n.repWeightFlash[i] = Math.min(1, 0.18 + n.repWeightDelta[i] * 22);
+        n.repWeights[i] = scaledValue;
+        n.repWeightDelta[i] = Math.abs(scaledValue - previous);
+        n.repWeightFlash[i] = Math.min(1, 0.22 + n.repWeightDelta[i] * 0.9);
       });
     });
 
@@ -1265,12 +1267,10 @@ function updateVisualWeightsFromClassifier() {
 function networkPulse(strength=0.7) {
   animLevel = Math.min(1, Math.max(animLevel, strength));
 
-  // Emit fewer pulses overall so the network feels calmer.
+  // Background activity remains intentionally sparse.
   if (Math.random() > 0.45) return;
 
   const starts = nodes.filter(n=>n.layer===0);
-
-  // Only start from a small random subset of input neurons.
   const shuffled = [...starts].sort(() => Math.random() - 0.5);
   const selected = shuffled.slice(0, Math.max(1, Math.ceil(starts.length * 0.4)));
 
@@ -1282,6 +1282,25 @@ function networkPulse(strength=0.7) {
       t:-i*.12,
       speed:.007 + Math.random()*.004
     });
+  });
+}
+
+function photoCapturePulse() {
+  animLevel = Math.max(animLevel, 0.72);
+
+  // Every captured photo must create a visible forward signal.
+  // Start from one random input node so each capture is clearly identifiable.
+  const starts = nodes.filter(n=>n.layer===0);
+  if (!starts.length) return;
+
+  const start = starts[Math.floor(Math.random() * starts.length)];
+
+  pulses.push({
+    layer:0,
+    from:start,
+    to:null,
+    t:0,
+    speed:.018 + Math.random()*.004
   });
 }
 
@@ -1463,31 +1482,33 @@ function drawNetwork() {
     ctx.fillText(label, tx, ty + 1);
 
     // Pedagogical weight display:
-    // show only two representative incoming weights to the LEFT of each
-    // trainable hidden/output neuron. These are sampled/aggregated from the
-    // real classifier weights so students can see them change during training.
-    if ((n.layer === 2 || n.layer === 3) && n.repWeights[0] !== null) {
-      const weightX = n.x - (n.layer === 3 ? 44 : 38);
-      const baseY = n.y - 8;
+    // show two representative incoming weights ABOVE each trainable neuron.
+    // These are sampled/aggregated from the real classifier weights so
+    // students can see them change during training.
+    if (n.layer === 2 || n.layer === 3) {
+      const centerX = n.x;
+      const topBase = n.y - (n.layer === 3 ? 24 : 22);
 
       n.repWeights.forEach((w, wi) => {
-        const wLabel = (w >= 0 ? "+" : "") + w.toFixed(2);
-        const wy = baseY + wi * 12;
+        const wLabel = w.toFixed(2);
+        const wy = topBase - (1 - wi) * 11;
         const flash = Math.max(0, Math.min(1, n.repWeightFlash[wi] || 0));
 
         ctx.font = "italic 8px Inter, system-ui, sans-serif";
-        ctx.textAlign = "right";
+        ctx.textAlign = "center";
 
         const measuredW = ctx.measureText(wLabel).width;
-        ctx.fillStyle = flash > 0.20
-          ? `rgba(255,244,247,${0.78 + flash * 0.18})`
-          : "rgba(255,255,255,.76)";
-        ctx.fillRect(weightX - measuredW - 4, wy - 7, measuredW + 7, 10);
+        const boxW = measuredW + 8;
 
         ctx.fillStyle = flash > 0.20
-          ? "rgba(190,55,89,.96)"
-          : "rgba(90,99,119,.80)";
-        ctx.fillText(wLabel, weightX, wy);
+          ? `rgba(255,244,247,${0.78 + flash * 0.18})`
+          : "rgba(255,255,255,.82)";
+        ctx.fillRect(centerX - boxW / 2, wy - 7, boxW, 10);
+
+        ctx.fillStyle = flash > 0.20
+          ? "rgba(190,55,89,.98)"
+          : "rgba(90,99,119,.84)";
+        ctx.fillText(wLabel, centerX, wy);
 
         n.repWeightFlash[wi] *= 0.93;
       });
