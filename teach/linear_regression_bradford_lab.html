@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Interactive Linear Regression Lab</title>
+<style>
+:root{
+  --navy:#13213a;--text:#17233b;--muted:#69748a;--blue:#5869ff;--blue-soft:#eef0ff;
+  --border:#dfe4ed;--panel:#ffffff;--soft:#f7f8fb;--orange:#d46a13;--green:#42a27c;--red:#dc6267;
+}
+*{box-sizing:border-box} body{margin:0;background:#eef2f8;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.lab-shell{width:100%;min-height:100vh;margin:0;padding:14px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(360px,.65fr);gap:14px;align-items:stretch}
+@media(min-width:1100px){body{overflow:hidden}.lab-shell{height:100vh}.panel{height:100%;overflow:hidden}.lab-shell>section.panel{display:flex;flex-direction:column}.activity{flex:1;min-height:0;display:flex}.chart-wrap{flex:1;display:flex;min-height:0}.chart-wrap svg{height:100%;width:100%;object-fit:contain}.lab-shell>aside.panel{overflow:auto}}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:26px;padding:18px;min-width:0}
+.title-row{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.main-title{margin:0;font-size:clamp(26px,3.5vw,42px);line-height:1;font-weight:900;letter-spacing:-.045em;color:var(--navy)}
+.subtitle{margin:7px 0 0;font-size:14px;color:var(--muted)}
+.status-pill{display:inline-flex;align-items:center;gap:8px;background:var(--blue-soft);color:#3445cb;font-size:13px;font-weight:900;border-radius:999px;padding:10px 14px;white-space:nowrap}
+.status-dot{width:11px;height:11px;background:var(--blue);border-radius:50%;box-shadow:0 0 0 5px rgba(88,105,255,.12)}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:14px}
+.step{min-height:50px;padding:10px 12px;border:1px solid var(--border);background:var(--soft);border-radius:13px;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800;color:#778198}
+.step.active{color:#3647d7;background:#f0f2ff;border-color:#cbd1ff}.step.done{color:#328568;background:#eff9f5;border-color:#cfeade}
+.step-num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:#e3e7ef;color:#657087;font-weight:900}
+.step.active .step-num{background:var(--blue);color:white}.step.done .step-num{background:#59b58a;color:white}
+.activity{margin-top:12px;border-radius:21px;background:var(--navy);padding:14px;overflow:hidden}.chart-wrap{border-radius:15px;background:#fff;padding:8px}
+svg{display:block;width:100%;height:auto;touch-action:none;user-select:none;cursor:crosshair}
+.grid-line{stroke:#e6e9ef;stroke-width:1}.axis-line{stroke:#69748a;stroke-width:1.4}.tick-text{font-size:12px;fill:#707b90}.axis-title{font-size:13px;font-weight:800;fill:#28344c}
+.data-dot{fill:#5869ff;stroke:#fff;stroke-width:3}.ghost-dot{fill:#5869ff;opacity:.12}.user-line{stroke:#d46a13;stroke-width:5.5;stroke-linecap:round}.user-line.result{stroke-width:8;opacity:.42}.preview-line{stroke:#d46a13;stroke-width:5.5;stroke-linecap:round;opacity:.8}.theory-line{stroke:#42a27c;stroke-width:5.5;stroke-linecap:round}.residual{stroke:#d23b46;stroke-width:1.35;stroke-dasharray:1 3;stroke-linecap:round;opacity:1}.plot-note{font-size:12px;fill:#6c778c;font-weight:700}
+.controls{margin-top:12px;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;border:1px solid var(--border);border-radius:16px;padding:12px 14px;background:#fafbfc}
+.control-title{font-weight:900;color:var(--navy);font-size:16px}.control-copy{margin-top:2px;color:var(--muted);font-size:12px}
+button{min-height:44px;border-radius:12px;border:1px solid transparent;padding:0 18px;font:inherit;font-weight:900;cursor:pointer}.check-btn{color:white;background:#878d9d}.check-btn.ready{background:#59b58a}.check-btn:disabled{cursor:not-allowed;opacity:.55}.reset-btn{color:#8e2834;background:#fff;border-color:#f0c9cf}
+.score-strip{display:grid;margin-top:12px;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;border-top:5px solid var(--blue);border-radius:17px;padding:14px 16px;background:#fff;border-left:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);visibility:hidden;opacity:0;pointer-events:none}.score-strip.visible{visibility:visible;opacity:1;pointer-events:auto}
+.score-label{font-size:13px;font-weight:900;color:#636f86;text-transform:uppercase;letter-spacing:.08em}.score-copy{margin-top:4px;font-size:14px;color:#5c6679}.score-number{font-family:"Arial Black",Impact,ui-rounded,sans-serif;font-size:clamp(42px,6vw,66px);line-height:.9;font-weight:1000;letter-spacing:-.07em;color:#3445d2;text-shadow:2px 2px 0 #dce0ff}
+.right-title{margin:2px 0 0;font-size:22px;line-height:1.1;font-weight:900;color:var(--navy)}.right-copy{margin:6px 0 0;color:#657088;font-size:14px;line-height:1.55}.concept-box{margin-top:12px;border:1px solid var(--border);border-radius:20px;padding:16px;background:linear-gradient(180deg,#fbfcff,#fff)}
+.tip-grid{display:grid;gap:10px;margin-top:12px}.tip-card{border:1px solid var(--border);border-radius:16px;padding:13px;background:#fff}.tip-card h3{margin:0 0 5px;font-size:14px;color:var(--navy)}.tip-card p{margin:0;font-size:12px;line-height:1.5;color:var(--muted)}.residual-visual{height:116px;margin-top:10px;border-radius:12px;background:#f8f9fc;overflow:hidden;border:1px solid #edf0f5}.residual-visual svg{width:100%;height:100%;display:block;cursor:default;touch-action:auto}.tips-list{margin:7px 0 0;padding-left:17px;color:var(--muted);font-size:12px;line-height:1.55}
+.concept-title{font-size:12px;font-weight:900;letter-spacing:.12em;color:#5e6b83;text-transform:uppercase}.diagram{margin-top:14px;display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center}.mini-node{min-height:84px;border:1px solid var(--border);border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:9px;background:white}.mini-node strong{font-size:14px;color:var(--navy)}.mini-node span{margin-top:4px;font-size:11px;color:var(--muted)}.arrow{color:#a2aabc;font-size:23px;font-weight:900}.formula{margin-top:12px;border:1px solid var(--border);border-radius:14px;padding:12px;font-size:13px;color:#3f4a60;background:white}.bottom-note{margin-top:13px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;line-height:1.5;color:#6d778b}.legend{margin-top:9px;display:flex;gap:14px;flex-wrap:wrap;color:#617088;font-size:11px;font-weight:800}.legend-item{display:flex;align-items:center;gap:6px}.legend-line{width:25px;height:0;border-top:4px solid;border-radius:2px}.legend-line.user{border-color:var(--orange)}.legend-line.theory{border-color:var(--green)}.legend-line.resid{border-color:#d23b46;border-top-style:dotted;border-top-width:2px}
+@media(max-width:880px){.lab-shell{grid-template-columns:1fr}}@media(max-width:620px){.steps{grid-template-columns:1fr 1fr}.controls{grid-template-columns:1fr}.diagram{grid-template-columns:1fr}.arrow{transform:rotate(90deg);justify-self:center}.score-strip{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="lab-shell">
+<section class="panel">
+<div class="title-row"><div><h1 class="main-title">Interactive Linear Regression Lab</h1><p class="subtitle">Inspect data → draw a line → reveal residuals → compare with least squares</p></div><div class="status-pill"><span class="status-dot"></span><span id="topStatus">DRAW</span></div></div>
+<div class="steps" aria-label="Activity steps"><div class="step active" id="step1"><span class="step-num">1</span><span>Inspect data</span></div><div class="step" id="step2"><span class="step-num">2</span><span>Draw your line</span></div><div class="step" id="step3"><span class="step-num">3</span><span>Check residuals</span></div><div class="step" id="step4"><span class="step-num">4</span><span>Compare fit</span></div></div>
+<div class="activity"><div class="chart-wrap"><svg id="regChart" viewBox="0 0 800 500" role="img" aria-labelledby="chartTitle chartDesc"><title id="chartTitle">Bradford protein calibration data</title><desc id="chartDesc">Scatter plot of optical density versus protein concentration. Press and hold to start your estimated line, drag to position it, then release to finish it.</desc><rect x="0" y="0" width="800" height="500" rx="14" fill="#ffffff"></rect><g id="gridLayer"></g><g id="axisLayer"></g><g id="theoryLayer"></g><g id="residualLayer"></g><g id="pointLayer"></g><g id="userLayer"></g><g id="previewLayer"></g><g id="graphLegend"></g><text id="plotPrompt" x="400" y="33" text-anchor="middle" class="plot-note">Click and hold, move the mouse, then release to finish the line.</text></svg></div></div>
+<div class="controls"><div><div class="control-title" id="controlTitle">Draw the best-fit line</div><div class="control-copy" id="controlCopy">Click and keep the mouse button held down, move the mouse to draw the line, then release. You may redraw before pressing OK.</div></div><button id="checkBtn" class="check-btn" type="button" disabled>OK</button><button id="resetBtn" class="reset-btn" type="button">Reset</button></div>
+<div class="score-strip" id="scoreStrip" aria-live="polite"><div><div class="score-label">How close were you?</div><div class="score-copy" id="scoreMessage">Your line is compared with the least-squares solution.</div><div class="legend"><span class="legend-item"><span class="legend-line user"></span>Your line</span><span class="legend-item"><span class="legend-line theory"></span>Theoretical line</span><span class="legend-item"><span class="legend-line resid"></span>Residuals</span></div></div><div class="score-number" id="scoreNumber">0%</div></div>
+</section>
+<aside class="panel"><h2 class="right-title">What is happening mathematically?</h2><p class="right-copy">A Bradford calibration relates known protein concentration to measured optical density. Your job is to estimate the straight line that best represents the trend.</p><div class="concept-box"><div class="concept-title">From measurements to a prediction</div><div class="diagram"><div class="mini-node"><strong>Protein</strong><span>mg/L<br>known concentration</span></div><div class="arrow">→</div><div class="mini-node"><strong>Your line</strong><span>ŷ = ax + b<br>predicted OD</span></div><div class="arrow">→</div><div class="mini-node"><strong>Error</strong><span>observed OD<br>minus predicted OD</span></div></div></div><div class="tip-grid"><div class="tip-card"><h3>What is a residual?</h3><p>A residual is the vertical difference between a measured point and the OD predicted by your line at the same concentration.</p><div class="residual-visual" aria-label="Diagram showing a measured point, a manual line, and the vertical residual between them">
+<svg viewBox="0 0 360 116" role="img" aria-label="Residual is the vertical distance from the measured point to the manual line at the same x position">
+  <rect x="0" y="0" width="360" height="116" fill="#f8f9fc"/>
+  <line x1="34" y1="91" x2="326" y2="46" stroke="#d46a13" stroke-width="5" stroke-linecap="round"/>
+  <line x1="230" y1="30" x2="230" y2="61" stroke="#d23b46" stroke-width="1.4" stroke-dasharray="1 2" stroke-linecap="round"/>
+  <circle cx="230" cy="30" r="7" fill="#5869ff" stroke="#ffffff" stroke-width="3"/>
+  <text x="242" y="27" font-size="11" fill="#516078" font-weight="700">measured point</text>
+  <text x="242" y="49" font-size="10" fill="#d23b46" font-weight="800">residual</text>
+  <text x="38" y="105" font-size="10" fill="#d46a13" font-weight="800">manual line</text>
+</svg>
+</div></div><div class="tip-card"><h3>How should you place the line?</h3><ul class="tips-list"><li>Try to pass through the centre of the cloud.</li><li>Avoid putting nearly all points on the same side.</li><li>Large vertical errors matter more than small ones.</li><li>Do not simply connect the first and last data points.</li></ul></div><div class="tip-card"><h3>What does least squares do?</h3><p>It chooses the slope and intercept that minimize <strong>Σ(y − ŷ)²</strong>. Squaring makes large residuals count strongly.</p></div><div class="tip-card"><h3>Bradford assay context</h3><p>The calibration line converts optical density into an estimate of protein concentration. A poor calibration line therefore produces poor concentration estimates.</p></div></div><div class="bottom-note" id="rightNote">Press and hold on the graph, drag across it, and release to draw your line. Then press OK to compare it with least squares.</div></aside>
+</div>
+<script>
+(()=>{
+const svg=document.getElementById('regChart'),gridLayer=document.getElementById('gridLayer'),axisLayer=document.getElementById('axisLayer'),residualLayer=document.getElementById('residualLayer'),theoryLayer=document.getElementById('theoryLayer'),pointLayer=document.getElementById('pointLayer'),userLayer=document.getElementById('userLayer'),previewLayer=document.getElementById('previewLayer');
+const checkBtn=document.getElementById('checkBtn'),resetBtn=document.getElementById('resetBtn'),scoreStrip=document.getElementById('scoreStrip'),scoreNumber=document.getElementById('scoreNumber'),scoreMessage=document.getElementById('scoreMessage'),controlTitle=document.getElementById('controlTitle'),controlCopy=document.getElementById('controlCopy'),plotPrompt=document.getElementById('plotPrompt'),topStatus=document.getElementById('topStatus'),rightNote=document.getElementById('rightNote'),steps=[1,2,3,4].map(n=>document.getElementById('step'+n));
+const NS='http://www.w3.org/2000/svg',W=800,H=500,M={l:76,r:28,t:52,b:70},xMin=0,xMax=1000,yMin=0,yMax=1.15;
+const X=x=>M.l+(x-xMin)/(xMax-xMin)*(W-M.l-M.r),Y=y=>H-M.b-(y-yMin)/(yMax-yMin)*(H-M.t-M.b),invX=px=>xMin+(px-M.l)/(W-M.l-M.r)*(xMax-xMin),invY=py=>yMin+(H-M.b-py)/(H-M.t-M.b)*(yMax-yMin),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const make=(tag,a={})=>{const n=document.createElementNS(NS,tag);Object.entries(a).forEach(([k,v])=>n.setAttribute(k,String(v)));return n};const addText=(p,x,y,t,c,a='middle')=>{const n=make('text',{x,y,class:c,'text-anchor':a});n.textContent=t;p.appendChild(n);return n};
+const data=[{x:50,y:.030},{x:135,y:.205},{x:225,y:.190},{x:315,y:.385},{x:405,y:.385},{x:500,y:.590},{x:595,y:.545},{x:690,y:.775},{x:790,y:.715},{x:890,y:.995},{x:975,y:.930}];
+const mean=a=>a.reduce((s,v)=>s+v,0)/a.length,mx=mean(data.map(d=>d.x)),my=mean(data.map(d=>d.y)),regSlope=data.reduce((s,d)=>s+(d.x-mx)*(d.y-my),0)/data.reduce((s,d)=>s+(d.x-mx)*(d.x-mx),0),regIntercept=my-regSlope*mx;
+let dragStart=null,userLine=null,checked=false,pointerPos=null,isDrawing=false,activePointerId=null;
+function setupAxes(){gridLayer.replaceChildren();axisLayer.replaceChildren();pointLayer.replaceChildren();for(let x=0;x<=1000;x+=200){gridLayer.appendChild(make('line',{x1:X(x),y1:M.t,x2:X(x),y2:H-M.b,class:'grid-line'}));addText(axisLayer,X(x),H-M.b+23,String(x),'tick-text')}for(let y=0;y<=1.01;y+=.2){gridLayer.appendChild(make('line',{x1:M.l,y1:Y(y),x2:W-M.r,y2:Y(y),class:'grid-line'}));addText(axisLayer,M.l-11,Y(y)+4,y.toFixed(1),'tick-text','end')}axisLayer.appendChild(make('line',{x1:M.l,y1:H-M.b,x2:W-M.r,y2:H-M.b,class:'axis-line'}));axisLayer.appendChild(make('line',{x1:M.l,y1:M.t,x2:M.l,y2:H-M.b,class:'axis-line'}));addText(axisLayer,(M.l+W-M.r)/2,H-20,'Protein concentration (mg/L)','axis-title');const yt=addText(axisLayer,22,(M.t+H-M.b)/2,'Optical density (OD)','axis-title');yt.setAttribute('transform',`rotate(-90 22 ${(M.t+H-M.b)/2})`);data.forEach(d=>{pointLayer.appendChild(make('circle',{cx:X(d.x),cy:Y(d.y),r:12,class:'ghost-dot'}));pointLayer.appendChild(make('circle',{cx:X(d.x),cy:Y(d.y),r:6.5,class:'data-dot'}))})}
+function setStep(active){steps.forEach((e,i)=>{e.classList.remove('active','done');const n=i+1;if(n<active)e.classList.add('done');else if(n===active)e.classList.add('active')})}
+function localPoint(evt){const pt=svg.createSVGPoint();pt.x=evt.clientX;pt.y=evt.clientY;const ctm=svg.getScreenCTM();if(!ctm)return{px:0,py:0};const local=pt.matrixTransform(ctm.inverse());return{px:local.x,py:local.y}}function insidePlot(p){return p.px>=M.l&&p.px<=W-M.r&&p.py>=M.t&&p.py<=H-M.b}
+function lineFromClicks(a,b){const x1=invX(a.px),y1=invY(a.py),x2=invX(b.px),y2=invY(b.py);if(Math.abs(x2-x1)<5)return null;const slope=(y2-y1)/(x2-x1);return{slope,intercept:y1-slope*x1}}
+function clippedEnds(line){const c=[];const add=(x,y)=>{if(x>=xMin-1e-6&&x<=xMax+1e-6&&y>=yMin-1e-6&&y<=yMax+1e-6)c.push({x,y})};add(xMin,line.intercept+line.slope*xMin);add(xMax,line.intercept+line.slope*xMax);if(Math.abs(line.slope)>1e-10){add((yMin-line.intercept)/line.slope,yMin);add((yMax-line.intercept)/line.slope,yMax)}const u=[];c.forEach(p=>{if(!u.some(q=>Math.abs(q.x-p.x)<.01&&Math.abs(q.y-p.y)<.0001))u.push(p)});return u.slice(0,2)}
+function drawLine(layer,line,cls){const e=clippedEnds(line);if(e.length<2)return;layer.appendChild(make('line',{x1:X(e[0].x),y1:Y(e[0].y),x2:X(e[1].x),y2:Y(e[1].y),class:cls}))}
+function renderUser(){userLayer.replaceChildren();if(userLine)drawLine(userLayer,userLine,'user-line')}function renderPreview(){previewLayer.replaceChildren();if(!dragStart||!pointerPos||checked||!isDrawing)return;const t=lineFromClicks(dragStart,pointerPos);if(t)drawLine(previewLayer,t,'preview-line')}
+function revealSolution(){theoryLayer.replaceChildren();residualLayer.replaceChildren();if(graphLegend)graphLegend.replaceChildren();drawLine(theoryLayer,{slope:regSlope,intercept:regIntercept},'theory-line');data.forEach(d=>{const userPred=userLine.intercept+userLine.slope*d.x;const x=X(d.x),yObs=Y(d.y),yUser=Y(userPred);residualLayer.appendChild(make('line',{x1:x,y1:yObs,x2:x,y2:yUser,class:'residual'}))});const lines=userLayer.querySelectorAll('.user-line');lines.forEach(l=>l.classList.add('result'));const box=make('rect',{x:505,y:54,width:245,height:62,rx:10,fill:'#ffffff',stroke:'#dfe4ed','stroke-width':1,opacity:.96});if(graphLegend){graphLegend.appendChild(box);graphLegend.appendChild(make('line',{x1:522,y1:75,x2:558,y2:75,stroke:'#d46a13','stroke-width':7,'stroke-linecap':'round',opacity:.48}));addText(graphLegend,569,79,'Orange: manual line','tick-text','start');graphLegend.appendChild(make('line',{x1:522,y1:99,x2:558,y2:99,stroke:'#42a27c','stroke-width':5.5,'stroke-linecap':'round'}));addText(graphLegend,569,103,'Green: theoretical (least squares)','tick-text','start')}}
+function calculateScore(){if(!userLine)return 0;const rmse=Math.sqrt(data.reduce((s,d)=>{const u=userLine.intercept+userLine.slope*d.x,t=regIntercept+regSlope*d.x;return s+(u-t)**2},0)/data.length);return clamp(Math.round(100*(1-rmse/.25)),0,100)}
+function pointerDown(evt){
+  if(checked || evt.button!==0) return;
+  const p=localPoint(evt);
+  if(!insidePlot(p)) return;
+  isDrawing=true;
+  activePointerId=evt.pointerId;
+  dragStart=p;
+  pointerPos=p;
+  userLine=null;
+  userLayer.replaceChildren();
+  checkBtn.disabled=true;
+  checkBtn.classList.remove('ready');
+  svg.setPointerCapture(evt.pointerId);
+  setStep(2);
+  topStatus.textContent='DRAWING';
+  controlTitle.textContent='Draw your line';
+  controlCopy.textContent='Keep holding while you drag. Release when the line is where you want it.';
+  plotPrompt.textContent='Hold and drag — release to finish.';
+  renderPreview();
+  evt.preventDefault();
+}
+function pointerMove(evt){
+  if(!isDrawing || checked || evt.pointerId!==activePointerId) return;
+  const p=localPoint(evt);
+  pointerPos={px:clamp(p.px,M.l,W-M.r),py:clamp(p.py,M.t,H-M.b)};
+  renderPreview();
+  evt.preventDefault();
+}
+function pointerUp(evt){
+  if(!isDrawing || checked || evt.pointerId!==activePointerId) return;
+  const p=localPoint(evt);
+  const end={px:clamp(p.px,M.l,W-M.r),py:clamp(p.py,M.t,H-M.b)};
+  const dx=end.px-dragStart.px, dy=end.py-dragStart.py;
+  const longEnough=Math.hypot(dx,dy)>=25;
+  const candidate=longEnough ? lineFromClicks(dragStart,end) : null;
+  isDrawing=false;
+  activePointerId=null;
+  pointerPos=null;
+  previewLayer.replaceChildren();
+  try{svg.releasePointerCapture(evt.pointerId)}catch(e){}
+  if(candidate){
+    userLine=candidate;
+    renderUser();
+    checkBtn.disabled=false;
+    checkBtn.classList.add('ready');
+    topStatus.textContent='READY';
+    controlTitle.textContent='Line drawn';
+    controlCopy.textContent='Press OK to reveal the least-squares line and residuals, or press-drag-release again to redraw.';
+    plotPrompt.textContent='Press, drag and release anywhere in the graph to redraw your estimate.';
+  }else{
+    userLine=null;
+    userLayer.replaceChildren();
+    topStatus.textContent='DRAW';
+    controlTitle.textContent='Draw the best-fit line';
+    controlCopy.textContent='The stroke was too short. Press and hold, drag across the graph, then release.';
+    plotPrompt.textContent='Click and hold, move the mouse, then release to finish the line.';
+  }
+  evt.preventDefault();
+}
+function pointerCancel(evt){
+  if(evt.pointerId!==activePointerId) return;
+  isDrawing=false; activePointerId=null; dragStart=null; pointerPos=null;
+  previewLayer.replaceChildren();
+}
+function check(){if(!userLine||checked)return;checked=true;revealSolution();const s=calculateScore();scoreNumber.textContent=s+'%';scoreMessage.textContent=s>=95?'Excellent visual estimate.':s>=85?'Very close to least squares.':s>=70?'Good estimate. Inspect the residuals.':'Your line differs substantially from the least-squares fit.';scoreStrip.classList.add('visible');checkBtn.disabled=true;checkBtn.classList.remove('ready');checkBtn.textContent='Checked';topStatus.textContent='RESULT';controlTitle.textContent='Residuals revealed';controlCopy.textContent='Thin red dotted segments show the vertical error from each measured point to your line.';plotPrompt.textContent='Green = least-squares line · orange = your line · red dots = residuals to your line';rightNote.textContent='Each red dotted residual is drawn vertically from a measured point to your own line. The green least-squares line is shown only for comparison; no extra points are added to it.';setStep(4)}
+function reset(){dragStart=null;userLine=null;pointerPos=null;isDrawing=false;activePointerId=null;checked=false;userLayer.replaceChildren();previewLayer.replaceChildren();theoryLayer.replaceChildren();residualLayer.replaceChildren();if(graphLegend)graphLegend.replaceChildren();checkBtn.disabled=true;checkBtn.classList.remove('ready');checkBtn.textContent='OK';scoreStrip.classList.remove('visible');scoreNumber.textContent='0%';topStatus.textContent='DRAW';controlTitle.textContent='Draw the best-fit line';controlCopy.textContent='Click and keep the mouse button held down, move the mouse to draw the line, then release. You may redraw before pressing OK.';plotPrompt.textContent='Click and hold, move the mouse, then release to finish the line.';rightNote.textContent='Start by looking at the cloud of points. Estimate the line passing through the centre of the data before seeing the mathematical solution.';setStep(1)}
+svg.addEventListener('pointerdown',pointerDown);svg.addEventListener('pointermove',pointerMove);svg.addEventListener('pointerup',pointerUp);svg.addEventListener('pointercancel',pointerCancel);checkBtn.addEventListener('click',check);resetBtn.addEventListener('click',reset);setupAxes();reset();
+})();
+</script>
+</body>
+</html>
