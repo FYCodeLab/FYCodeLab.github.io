@@ -375,6 +375,42 @@
       opacity:.75;
     }
 
+    
+    .training-visual{
+      position:absolute;
+      top:34px;
+      right:12px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      align-items:flex-end;
+      z-index:2;
+      pointer-events:none;
+    }
+    .epoch-pill,
+    .flow-pill{
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(210,216,230,.95);
+      backdrop-filter:blur(5px);
+      color:#4e5870;
+      font-size:.74rem;
+      font-weight:800;
+      white-space:nowrap;
+      box-shadow:0 8px 20px rgba(24,32,51,.08);
+    }
+    .epoch-pill.active{
+      background:rgba(243,245,255,.95);
+      border-color:#cfd4ff;
+      color:#3d49c9;
+    }
+    .flow-pill.active{
+      background:rgba(255,248,250,.95);
+      border-color:#f3c8d2;
+      color:#a03a53;
+    }
+
     @media(max-width:980px){
       html, body{height:auto}
       body{overflow:auto}
@@ -501,6 +537,10 @@
         <div class="network-labels">
           <span>image</span><span>features</span><span>neurons</span><span>output</span>
         </div>
+        <div class="training-visual" id="trainingVisual">
+          <div class="epoch-pill" id="epochPill">No training yet</div>
+          <div class="flow-pill" id="flowPill">Forward pass → loss → backpropagation</div>
+        </div>
         <div class="network-caption" id="networkCaption">
           Add examples to wake up the network. During training, the small numbers next to each neuron will evolve to illustrate changing activations.
         </div>
@@ -524,6 +564,10 @@ let trainingProgress = 0;
 let trainingAccuracy = 0;
 let liveProbs = [0.5, 0.5];
 let networkTick = 0;
+let currentEpoch = 0;
+let totalEpochs = 0;
+let backPulses = [];
+let flowMessage = "Forward pass → loss → backpropagation";
 
 const examples = [[], []];
 const thumbs = [document.getElementById("thumbsA"), document.getElementById("thumbsB")];
@@ -547,6 +591,8 @@ const cameraText = document.getElementById("cameraText");
 const networkCaption = document.getElementById("networkCaption");
 const startBtn = document.getElementById("startBtn");
 const startScreen = document.getElementById("startScreen");
+const epochPill = document.getElementById("epochPill");
+const flowPill = document.getElementById("flowPill");
 
 async function startApp() {
   if (appStarted) return;
@@ -646,6 +692,36 @@ async function addExample(classId) {
   }
 }
 
+
+function updateTrainingVisual() {
+  if (phase === "training") {
+    epochPill.textContent = `Epoch ${currentEpoch} / ${totalEpochs}`;
+    epochPill.classList.add("active");
+    flowPill.classList.add("active");
+    flowPill.textContent = flowMessage;
+  } else if (phase === "trained") {
+    epochPill.textContent = `Training complete — ${totalEpochs} epochs`;
+    epochPill.classList.remove("active");
+    flowPill.classList.remove("active");
+    flowPill.textContent = "Weights learned — ready to test";
+  } else if (phase === "testing") {
+    epochPill.textContent = `Trained in ${totalEpochs} epochs`;
+    epochPill.classList.remove("active");
+    flowPill.classList.remove("active");
+    flowPill.textContent = "Inference only — no backpropagation";
+  } else if (phase === "collect") {
+    epochPill.textContent = "No training yet";
+    epochPill.classList.remove("active");
+    flowPill.classList.remove("active");
+    flowPill.textContent = "Collect examples before training";
+  } else {
+    epochPill.textContent = "Waiting to start";
+    epochPill.classList.remove("active");
+    flowPill.classList.remove("active");
+    flowPill.textContent = "Forward pass → loss → backpropagation";
+  }
+}
+
 function updateWorkflow(current) {
   for (let i = 1; i <= 5; i++) {
     const el = document.getElementById("wf" + i);
@@ -678,6 +754,7 @@ function setPhase(next) {
   if (next === "testing") updateWorkflow(4);
 
   if (next !== "testing") prediction.classList.remove("show");
+  updateTrainingVisual();
 }
 
 function buildClassifier(inputDim) {
@@ -709,7 +786,7 @@ async function trainModel() {
   testBtn.disabled = true;
   saveBtn.disabled = true;
   progressBar.style.width = "0%";
-  networkCaption.textContent = "Training phase: the small classifier adjusts its trainable weights while MobileNet stays fixed.";
+  networkCaption.textContent = "Training phase: the same stored examples are reused over multiple epochs. Each epoch performs a forward pass, computes the loss, then applies backpropagation while MobileNet stays fixed.";
 
   const xsList = [];
   const ysList = [];
@@ -730,12 +807,23 @@ async function trainModel() {
   classifier = buildClassifier(xs.shape[1]);
 
   const epochs = 28;
+  totalEpochs = epochs;
+  currentEpoch = 0;
+  flowMessage = "Forward pass → loss → backpropagation";
+  updateTrainingVisual();
 
   await classifier.fit(xs, ys, {
     epochs,
     shuffle:true,
     batchSize:Math.min(8, xs.shape[0]),
     callbacks:{
+      onEpochBegin: async (epoch) => {
+        currentEpoch = epoch + 1;
+        flowMessage = "Forward pass — examples enter the classifier";
+        updateTrainingVisual();
+        trainingForwardPulse(0.82);
+        await tf.nextFrame();
+      },
       onEpochEnd: async (epoch, logs) => {
         const pct = Math.round(((epoch + 1) / epochs) * 100);
         progressBar.style.width = pct + "%";
@@ -743,8 +831,10 @@ async function trainModel() {
         trainingProgress = (epoch + 1) / epochs;
         trainingAccuracy = acc;
         liveProbs = [Math.max(0.05, acc), Math.max(0.05, 1 - acc)];
-        statusEl.textContent = `Training ${pct}% — loss ${logs.loss.toFixed(3)} — accuracy ${Math.round(acc*100)}%`;
-        if (epoch % 2 === 0) networkPulse(0.65);
+        flowMessage = "Loss computed → backpropagation updates weights";
+        updateTrainingVisual();
+        statusEl.textContent = `Epoch ${epoch + 1}/${epochs} — loss ${logs.loss.toFixed(3)} — accuracy ${Math.round(acc*100)}%`;
+        backpropPulse(0.82);
         await tf.nextFrame();
       }
     }
@@ -754,10 +844,11 @@ async function trainModel() {
   ys.dispose();
 
   trainingProgress = 1;
+  flowMessage = "Training finished — weights stored";
   setPhase("trained");
   testBtn.disabled = false;
   saveBtn.disabled = false;
-  statusEl.textContent = "Training complete. Now test the model with new examples.";
+  statusEl.textContent = `Training complete after ${epochs} epochs. Now test the model with new examples.`;
   networkCaption.textContent = "Training complete: classifier weights are now fixed. Next, testing changes activations and output probabilities, not the learned weights.";
 }
 
@@ -842,6 +933,10 @@ function resetAll() {
   trainingProgress = 0;
   trainingAccuracy = 0;
   liveProbs = [0.5, 0.5];
+  currentEpoch = 0;
+  totalEpochs = 0;
+  flowMessage = "Forward pass → loss → backpropagation";
+  backPulses = [];
 
   if (classifier) {
     classifier.dispose();
@@ -953,6 +1048,33 @@ function networkPulse(strength=0.7) {
       to:null,
       t:-i*.12,
       speed:.007 + Math.random()*.004
+    });
+  });
+}
+
+function trainingForwardPulse(strength=0.85) {
+  animLevel = Math.min(1, Math.max(animLevel, strength));
+  const starts = nodes.filter(n=>n.layer===0);
+  starts.forEach((n,i)=>{
+    pulses.push({
+      layer:0,
+      from:n,
+      to:null,
+      t:-i*.10,
+      speed:.009 + Math.random()*.003
+    });
+  });
+}
+
+function backpropPulse(strength=0.85) {
+  animLevel = Math.min(1, Math.max(animLevel, strength));
+  const outputs = nodes.filter(n=>n.layer===3);
+  outputs.forEach((n,i)=>{
+    backPulses.push({
+      layer:3,
+      from:n,
+      t:-i*.10,
+      speed:.009 + Math.random()*.003
     });
   });
 }
@@ -1121,6 +1243,34 @@ function drawNetwork() {
     }
   });
 
+  backPulses = backPulses.filter(p=>p.t<1.15);
+  backPulses.forEach(p=>{
+    p.t += p.speed;
+    if(p.t < 0) return;
+
+    const startLayer = p.layer;
+    const toNodes = nodes.filter(n=>n.layer===startLayer-1);
+    if(!toNodes.length) return;
+
+    const from = p.from;
+    const to = toNodes[Math.floor((from.y/h)*toNodes.length) % toNodes.length];
+    const t = Math.min(1,p.t);
+
+    const x = from.x + (to.x-from.x)*t;
+    const y = from.y + (to.y-from.y)*t;
+
+    ctx.beginPath();
+    ctx.arc(x,y,3.3,0,Math.PI*2);
+    ctx.fillStyle = "rgba(242,95,122,.82)";
+    ctx.fill();
+
+    if(p.t>=1 && startLayer>1){
+      p.layer--;
+      p.from=to;
+      p.t=0;
+    }
+  });
+
   animLevel *= .988;
   if(animLevel < .07) animLevel=.07;
   requestAnimationFrame(drawNetwork);
@@ -1129,6 +1279,7 @@ function drawNetwork() {
 window.addEventListener("resize", resizeNetwork);
 resizeNetwork();
 updateWorkflow(1);
+updateTrainingVisual();
 drawNetwork();
 </script>
 </body>
