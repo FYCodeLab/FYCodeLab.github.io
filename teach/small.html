@@ -1,184 +1,828 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mini Teachable Machine</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 30px;
-      background: #f6f7fb;
-      color: #172033;
+    :root{
+      --bg:#f4f6fb;
+      --card:#fff;
+      --ink:#162033;
+      --muted:#667085;
+      --border:#e4e7ec;
+      --accent:#5967ff;
+      --accent2:#f25f7a;
+      --ok:#2e9d63;
+      --shadow:0 16px 50px rgba(24,32,51,.10);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left,rgba(89,103,255,.12),transparent 32%),
+        var(--bg);
+    }
+    button,input{font:inherit}
+    button{cursor:pointer}
+    button:disabled{cursor:not-allowed;opacity:.5}
+
+    .app{
+      width:min(1480px,calc(100% - 28px));
+      margin:0 auto;
+      padding:20px 0 34px;
+      display:grid;
+      grid-template-columns:minmax(360px,1.15fr) minmax(330px,.9fr);
+      gap:18px;
+      min-height:100vh;
     }
 
-    h1 {
-      margin-top: 0;
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:22px;
+      box-shadow:var(--shadow);
     }
 
-    video {
-      width: 420px;
-      max-width: 100%;
-      border-radius: 18px;
-      background: #ddd;
+    .main{
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
     }
 
-    button {
-      margin: 8px 5px 8px 0;
-      padding: 12px 18px;
-      border: 0;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:center;
     }
 
-    .class-a {
-      background: #5865f2;
-      color: white;
+    h1{
+      margin:0;
+      font-size:clamp(1.5rem,3vw,2.2rem);
+      letter-spacing:-.035em;
     }
 
-    .class-b {
-      background: #e75a7c;
-      color: white;
+    .phase{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 11px;
+      border-radius:999px;
+      background:#eef0ff;
+      color:#3d49c9;
+      font-weight:800;
+      font-size:.82rem;
+      white-space:nowrap;
+    }
+    .phase-dot{
+      width:9px;height:9px;border-radius:50%;
+      background:currentColor;
+      box-shadow:0 0 0 5px rgba(89,103,255,.10);
     }
 
-    .result {
-      margin-top: 20px;
-      padding: 20px;
-      background: white;
-      border-radius: 16px;
-      font-size: 22px;
+    .video-wrap{
+      position:relative;
+      overflow:hidden;
+      border-radius:18px;
+      background:#111827;
+      aspect-ratio:16/10;
+      min-height:300px;
+    }
+    video{
+      width:100%;height:100%;object-fit:cover;display:block;
+      transform:scaleX(-1);
+    }
+    .video-overlay{
+      position:absolute;left:14px;bottom:14px;
+      padding:8px 10px;border-radius:10px;
+      background:rgba(17,24,39,.7);backdrop-filter:blur(6px);
+      color:#fff;font-size:.82rem;font-weight:700;
+    }
+
+    .classes{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .class-card{
+      position:relative;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+      overflow:hidden;
+      min-width:0;
+    }
+    .class-card.a{border-top:5px solid var(--accent)}
+    .class-card.b{border-top:5px solid var(--accent2)}
+    .class-head{
+      display:flex;justify-content:space-between;gap:12px;align-items:center;
+      margin-bottom:10px;
+    }
+    .class-name{
+      width:100%;
+      border:0;
+      background:transparent;
+      color:var(--ink);
+      font-weight:850;
+      font-size:1rem;
+      outline:none;
+    }
+    .count{
+      font-size:.78rem;color:var(--muted);font-weight:700;white-space:nowrap;
+    }
+    .thumbs{
+      min-height:74px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      align-content:flex-start;
+      margin-bottom:10px;
+    }
+    .thumb{
+      width:54px;height:54px;object-fit:cover;border-radius:10px;
+      border:2px solid #fff;
+      box-shadow:0 3px 12px rgba(0,0,0,.12);
+      animation:pop .26s cubic-bezier(.2,.9,.3,1.25);
+    }
+    @keyframes pop{
+      0%{transform:scale(.3) rotate(-10deg);opacity:0}
+      100%{transform:scale(1) rotate(0);opacity:1}
+    }
+    .photo-pop{
+      position:absolute;
+      right:16px;top:48px;
+      font-size:24px;
+      pointer-events:none;
+      animation:floatPhoto .7s ease-out forwards;
+    }
+    @keyframes floatPhoto{
+      0%{transform:translateY(16px) scale(.4);opacity:0}
+      40%{opacity:1}
+      100%{transform:translateY(-28px) scale(1.15);opacity:0}
+    }
+
+    .add-btn{
+      width:100%;
+      border:0;
+      border-radius:12px;
+      padding:11px 12px;
+      color:#fff;
+      font-weight:800;
+    }
+    .a .add-btn{background:var(--accent)}
+    .b .add-btn{background:var(--accent2)}
+
+    .train-box{
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+      background:#fafbfe;
+    }
+    .train-row{
+      display:flex;gap:10px;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .train-btn,.test-btn,.save-btn,.reset-btn{
+      border:0;border-radius:12px;padding:11px 15px;font-weight:850;
+    }
+    .train-btn{background:#172033;color:#fff}
+    .test-btn{background:var(--ok);color:#fff}
+    .save-btn{background:#eef0ff;color:#3d49c9}
+    .reset-btn{background:#fff;color:#7a2535;border:1px solid #f2ccd4}
+    .progress{
+      margin-top:12px;height:10px;border-radius:999px;background:#e8ebf3;overflow:hidden;
+    }
+    .progress > div{
+      height:100%;width:0;background:linear-gradient(90deg,#5967ff,#8d95ff);
+      transition:width .18s ease;
+    }
+    .status{
+      margin-top:8px;color:var(--muted);font-size:.86rem;min-height:20px;
+    }
+
+    .prediction{
+      display:none;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+    }
+    .prediction.show{display:block}
+    .pred-title{font-weight:850;margin-bottom:12px}
+    .bar-row{display:grid;grid-template-columns:90px 1fr 52px;gap:8px;align-items:center;margin:10px 0}
+    .bar-shell{height:14px;background:#edf0f5;border-radius:999px;overflow:hidden}
+    .bar-fill{height:100%;width:0;transition:width .15s linear}
+    .bar-a{background:var(--accent)}
+    .bar-b{background:var(--accent2)}
+    .pct{text-align:right;font-variant-numeric:tabular-nums;font-weight:800}
+
+    .side{
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      overflow:hidden;
+    }
+
+    .side h2{margin:0;font-size:1.15rem}
+    .side p{margin:0;color:var(--muted);line-height:1.55;font-size:.92rem}
+
+    .tech-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .tech{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      background:#fbfcfe;
+    }
+    .tech strong{display:block;margin-bottom:5px;font-size:.9rem}
+    .tech span{font-size:.8rem;color:var(--muted);line-height:1.4;display:block}
+
+    .network{
+      position:relative;
+      flex:1;
+      min-height:360px;
+      border:1px solid var(--border);
+      border-radius:18px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 15% 50%,rgba(89,103,255,.11),transparent 24%),
+        radial-gradient(circle at 85% 50%,rgba(242,95,122,.10),transparent 24%),
+        #fafbfe;
+    }
+    canvas#networkCanvas{width:100%;height:100%;display:block}
+    .network-labels{
+      position:absolute;inset:10px 14px auto 14px;
+      display:flex;justify-content:space-between;
+      color:var(--muted);font-size:.72rem;font-weight:800;
+      letter-spacing:.04em;text-transform:uppercase;
+      pointer-events:none;
+    }
+    .network-caption{
+      position:absolute;left:14px;right:14px;bottom:12px;
+      padding:9px 10px;border-radius:10px;
+      background:rgba(255,255,255,.82);backdrop-filter:blur(5px);
+      color:#4d576d;font-size:.8rem;line-height:1.4;
+    }
+
+    .tiny{
+      font-size:.76rem;color:var(--muted);line-height:1.4;
+    }
+
+    @media(max-width:980px){
+      .app{grid-template-columns:1fr}
+      .network{min-height:320px}
+    }
+    @media(max-width:620px){
+      .classes{grid-template-columns:1fr}
+      .tech-grid{grid-template-columns:1fr}
+      .bar-row{grid-template-columns:72px 1fr 46px}
     }
   </style>
 </head>
-
 <body>
+  <main class="app">
+    <section class="card main">
+      <div class="topbar">
+        <div>
+          <h1>Mini Teachable Machine</h1>
+          <div class="tiny">Collect examples → train → test your model</div>
+        </div>
+        <div class="phase"><span class="phase-dot"></span><span id="phaseText">COLLECT DATA</span></div>
+      </div>
 
-<h1>Mini Teachable Machine</h1>
+      <div class="video-wrap">
+        <video id="webcam" autoplay muted playsinline></video>
+        <div class="video-overlay" id="cameraText">Starting camera…</div>
+      </div>
 
-<p>
-  Show examples to the camera, add them to Class A or Class B,
-  and then let the computer classify what it sees.
-</p>
+      <div class="classes">
+        <article class="class-card a" id="classA">
+          <div class="class-head">
+            <input class="class-name" id="nameA" value="Class A" maxlength="24" />
+            <span class="count"><span id="countA">0</span> photos</span>
+          </div>
+          <div class="thumbs" id="thumbsA"></div>
+          <button class="add-btn" id="addA">📷 Add photo</button>
+        </article>
 
-<video id="webcam" autoplay playsinline></video>
+        <article class="class-card b" id="classB">
+          <div class="class-head">
+            <input class="class-name" id="nameB" value="Class B" maxlength="24" />
+            <span class="count"><span id="countB">0</span> photos</span>
+          </div>
+          <div class="thumbs" id="thumbsB"></div>
+          <button class="add-btn" id="addB">📷 Add photo</button>
+        </article>
+      </div>
 
-<div>
-  <button class="class-a" onclick="addExample(0)">
-    Add example to Class A
-  </button>
+      <div class="train-box">
+        <div class="train-row">
+          <div>
+            <strong id="trainTitle">Ready to train?</strong>
+            <div class="tiny">Add at least 3 examples to each class first.</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="train-btn" id="trainBtn" disabled>Train model</button>
+            <button class="test-btn" id="testBtn" disabled>Test your model</button>
+            <button class="save-btn" id="saveBtn" disabled>Save model</button>
+            <button class="reset-btn" id="resetBtn">Reset</button>
+          </div>
+        </div>
+        <div class="progress"><div id="progressBar"></div></div>
+        <div class="status" id="status">Waiting for examples.</div>
+      </div>
 
-  <button class="class-b" onclick="addExample(1)">
-    Add example to Class B
-  </button>
-</div>
+      <div class="prediction" id="prediction">
+        <div class="pred-title">Live prediction</div>
+        <div class="bar-row">
+          <span id="labelA">Class A</span>
+          <div class="bar-shell"><div class="bar-fill bar-a" id="barA"></div></div>
+          <span class="pct" id="pctA">0%</span>
+        </div>
+        <div class="bar-row">
+          <span id="labelB">Class B</span>
+          <div class="bar-shell"><div class="bar-fill bar-b" id="barB"></div></div>
+          <span class="pct" id="pctB">0%</span>
+        </div>
+      </div>
+    </section>
 
-<p>
-  Class A examples: <span id="countA">0</span><br>
-  Class B examples: <span id="countB">0</span>
-</p>
+    <aside class="card side">
+      <div>
+        <h2>What is happening inside?</h2>
+        <p>
+          Your camera image first passes through <strong>MobileNet</strong>, a convolutional neural network
+          already trained to recognize useful visual patterns. We reuse its internal features instead of
+          training a large vision network from scratch.
+        </p>
+      </div>
 
-<div class="result" id="result">
-  Waiting for examples…
-</div>
+      <div class="tech-grid">
+        <div class="tech">
+          <strong>1. Pixels</strong>
+          <span>The webcam supplies an image made of RGB pixel values.</span>
+        </div>
+        <div class="tech">
+          <strong>2. MobileNet</strong>
+          <span>Convolutional layers transform the image into a compact feature vector.</span>
+        </div>
+        <div class="tech">
+          <strong>3. Neurons</strong>
+          <span>A small trainable neural network learns how your two classes differ.</span>
+        </div>
+        <div class="tech">
+          <strong>4. Softmax</strong>
+          <span>The final layer converts scores into probabilities that sum to 100%.</span>
+        </div>
+      </div>
+
+      <div class="network" id="network">
+        <canvas id="networkCanvas"></canvas>
+        <div class="network-labels">
+          <span>image</span><span>features</span><span>neurons</span><span>output</span>
+        </div>
+        <div class="network-caption" id="networkCaption">
+          Add examples to wake up the network. During training, signals will flow through the layers.
+        </div>
+      </div>
+
+      <div class="tiny">
+        Saving downloads the small classifier trained by the student. MobileNet remains the reusable feature extractor
+        and is loaded separately when the app starts.
+      </div>
+    </aside>
+  </main>
 
 <script>
+let featureModel = null;
+let classifier = null;
+let stream = null;
+let phase = "collect";
+let predictionLoop = null;
 
-const classifier = knnClassifier.create();
+const examples = [[], []];
+const thumbs = [document.getElementById("thumbsA"), document.getElementById("thumbsB")];
 
-let mobilenetModel;
-let webcam;
+const video = document.getElementById("webcam");
+const countA = document.getElementById("countA");
+const countB = document.getElementById("countB");
+const addA = document.getElementById("addA");
+const addB = document.getElementById("addB");
+const trainBtn = document.getElementById("trainBtn");
+const testBtn = document.getElementById("testBtn");
+const saveBtn = document.getElementById("saveBtn");
+const resetBtn = document.getElementById("resetBtn");
+const phaseText = document.getElementById("phaseText");
+const statusEl = document.getElementById("status");
+const progressBar = document.getElementById("progressBar");
+const prediction = document.getElementById("prediction");
+const nameA = document.getElementById("nameA");
+const nameB = document.getElementById("nameB");
+const cameraText = document.getElementById("cameraText");
+const networkCaption = document.getElementById("networkCaption");
 
-let countA = 0;
-let countB = 0;
+async function init() {
+  try {
+    statusEl.textContent = "Loading MobileNet feature extractor…";
+    featureModel = await mobilenet.load({version: 2, alpha: 1.0});
 
-async function setup() {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user", width: {ideal: 640}, height: {ideal: 480} },
+      audio: false
+    });
+    video.srcObject = stream;
+    await video.play();
 
-  mobilenetModel = await mobilenet.load();
-
-  webcam = document.getElementById("webcam");
-
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: false
-  });
-
-  webcam.srcObject = stream;
-
-  webcam.onloadeddata = () => {
-    predict();
-  };
+    cameraText.textContent = "Camera ready";
+    statusEl.textContent = "Add examples to both classes.";
+    drawNetwork();
+  } catch (err) {
+    console.error(err);
+    cameraText.textContent = "Camera unavailable";
+    statusEl.textContent = "Could not start the camera or load MobileNet. Use HTTPS and allow camera access.";
+  }
 }
 
-function getActivation() {
+function currentCounts() {
+  return [examples[0].length, examples[1].length];
+}
 
+function refreshCounts() {
+  countA.textContent = examples[0].length;
+  countB.textContent = examples[1].length;
+  trainBtn.disabled = !(examples[0].length >= 3 && examples[1].length >= 3) || phase !== "collect";
+}
+
+function makeThumbnail(classId) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 120;
+  canvas.height = 90;
+  const ctx = canvas.getContext("2d");
+
+  ctx.save();
+  ctx.translate(canvas.width, 0);
+  ctx.scale(-1, 1);
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  ctx.restore();
+
+  const img = new Image();
+  img.className = "thumb";
+  img.src = canvas.toDataURL("image/jpeg", 0.72);
+  thumbs[classId].appendChild(img);
+
+  const pop = document.createElement("div");
+  pop.className = "photo-pop";
+  pop.textContent = "📸";
+  document.getElementById(classId === 0 ? "classA" : "classB").appendChild(pop);
+  setTimeout(() => pop.remove(), 750);
+}
+
+function captureEmbedding() {
   return tf.tidy(() => {
-
-    const image = tf.browser.fromPixels(webcam);
-
-    return mobilenetModel.infer(image, true);
-
+    const img = tf.browser.fromPixels(video);
+    const resized = tf.image.resizeBilinear(img, [224,224]);
+    const activation = featureModel.infer(resized, true);
+    return activation.clone();
   });
 }
 
-function addExample(classId) {
+async function addExample(classId) {
+  if (!featureModel || phase !== "collect") return;
 
-  const activation = getActivation();
+  const embedding = captureEmbedding();
+  examples[classId].push(embedding);
+  makeThumbnail(classId);
+  refreshCounts();
 
-  classifier.addExample(activation, classId);
+  statusEl.textContent = `Added an example to ${classId === 0 ? nameA.value : nameB.value}.`;
+  networkPulse(0.45);
 
-  activation.dispose();
-
-  if (classId === 0) {
-    countA++;
-    document.getElementById("countA").textContent = countA;
-  }
-
-  if (classId === 1) {
-    countB++;
-    document.getElementById("countB").textContent = countB;
+  if (examples[0].length >= 3 && examples[1].length >= 3) {
+    statusEl.textContent = "Enough examples collected. You can train the model.";
   }
 }
 
-async function predict() {
+function setPhase(next) {
+  phase = next;
+  const labels = {
+    collect: "COLLECT DATA",
+    training: "TRAINING",
+    trained: "MODEL TRAINED",
+    testing: "TEST YOUR MODEL"
+  };
+  phaseText.textContent = labels[next];
 
-  if (
-    classifier.getNumClasses() > 0 &&
-    countA > 0 &&
-    countB > 0
-  ) {
+  const locked = next !== "collect";
+  addA.disabled = locked;
+  addB.disabled = locked;
+  nameA.disabled = locked;
+  nameB.disabled = locked;
 
-    const activation = getActivation();
-
-    const prediction =
-      await classifier.predictClass(activation);
-
-    activation.dispose();
-
-    const name =
-      prediction.label === "0"
-      ? "Class A"
-      : "Class B";
-
-    const confidence =
-      prediction.confidences[prediction.label];
-
-    document.getElementById("result").innerHTML =
-      "<strong>" + name + "</strong><br>" +
-      Math.round(confidence * 100) + "% confidence";
-  }
-
-  requestAnimationFrame(predict);
+  if (next !== "testing") prediction.classList.remove("show");
 }
 
-setup();
+function buildClassifier(inputDim) {
+  const model = tf.sequential();
+  model.add(tf.layers.dense({
+    inputShape:[inputDim],
+    units:32,
+    activation:"relu",
+    kernelInitializer:"glorotUniform"
+  }));
+  model.add(tf.layers.dropout({rate:0.15}));
+  model.add(tf.layers.dense({
+    units:2,
+    activation:"softmax"
+  }));
+  model.compile({
+    optimizer: tf.train.adam(0.0015),
+    loss:"categoricalCrossentropy",
+    metrics:["accuracy"]
+  });
+  return model;
+}
 
+async function trainModel() {
+  if (examples[0].length < 3 || examples[1].length < 3) return;
+
+  setPhase("training");
+  trainBtn.disabled = true;
+  testBtn.disabled = true;
+  saveBtn.disabled = true;
+  progressBar.style.width = "0%";
+  networkCaption.textContent = "Training: the small classifier is adjusting its neuron weights to separate your two classes.";
+
+  const xsList = [];
+  const ysList = [];
+
+  examples.forEach((classExamples, classId) => {
+    classExamples.forEach(t => {
+      xsList.push(t);
+      ysList.push(classId);
+    });
+  });
+
+  const xs = tf.concat(xsList, 0);
+  const yTensor = tf.tensor1d(ysList, "int32");
+  const ys = tf.oneHot(yTensor, 2);
+  yTensor.dispose();
+
+  if (classifier) classifier.dispose();
+  classifier = buildClassifier(xs.shape[1]);
+
+  const epochs = 28;
+
+  await classifier.fit(xs, ys, {
+    epochs,
+    shuffle:true,
+    batchSize:Math.min(8, xs.shape[0]),
+    callbacks:{
+      onEpochEnd: async (epoch, logs) => {
+        const pct = Math.round(((epoch + 1) / epochs) * 100);
+        progressBar.style.width = pct + "%";
+        const acc = logs.acc ?? logs.accuracy ?? 0;
+        statusEl.textContent = `Training ${pct}% — loss ${logs.loss.toFixed(3)} — accuracy ${Math.round(acc*100)}%`;
+        networkPulse(0.8);
+        await tf.nextFrame();
+      }
+    }
+  });
+
+  xs.dispose();
+  ys.dispose();
+
+  setPhase("trained");
+  testBtn.disabled = false;
+  saveBtn.disabled = false;
+  statusEl.textContent = "Training complete. Now test the model with new examples.";
+  networkCaption.textContent = "Training complete. The neuron weights now encode a boundary between the two classes.";
+}
+
+async function predictOnce() {
+  if (!classifier || !featureModel || phase !== "testing") return;
+
+  const embedding = captureEmbedding();
+  const output = classifier.predict(embedding);
+  const probs = await output.data();
+
+  const a = probs[0] * 100;
+  const b = probs[1] * 100;
+
+  document.getElementById("labelA").textContent = nameA.value;
+  document.getElementById("labelB").textContent = nameB.value;
+  document.getElementById("barA").style.width = a + "%";
+  document.getElementById("barB").style.width = b + "%";
+  document.getElementById("pctA").textContent = Math.round(a) + "%";
+  document.getElementById("pctB").textContent = Math.round(b) + "%";
+
+  embedding.dispose();
+  output.dispose();
+
+  networkPulse(Math.max(a,b)/100);
+  predictionLoop = requestAnimationFrame(predictOnce);
+}
+
+function startTesting() {
+  if (!classifier) return;
+  if (predictionLoop) cancelAnimationFrame(predictionLoop);
+
+  setPhase("testing");
+  prediction.classList.add("show");
+  testBtn.textContent = "Testing live…";
+  testBtn.disabled = true;
+  saveBtn.disabled = false;
+  statusEl.textContent = "Show the camera something new. The bars update continuously.";
+  networkCaption.textContent = "Inference: a new image flows through MobileNet and the trained classifier to produce probabilities.";
+  predictOnce();
+}
+
+async function saveModel() {
+  if (!classifier) return;
+
+  statusEl.textContent = "Saving classifier…";
+  await classifier.save("downloads://mini-teachable-machine-classifier");
+
+  const meta = {
+    createdAt: new Date().toISOString(),
+    labels: [nameA.value, nameB.value],
+    featureExtractor: "MobileNet v2 alpha 1.0",
+    input: "MobileNet embedding",
+    note: "Reload MobileNet separately, then load this classifier model."
+  };
+
+  const blob = new Blob([JSON.stringify(meta, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "mini-teachable-machine-labels.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  statusEl.textContent = "Model saved. Your browser downloaded the classifier plus label metadata.";
+}
+
+function resetAll() {
+  if (predictionLoop) {
+    cancelAnimationFrame(predictionLoop);
+    predictionLoop = null;
+  }
+
+  examples.flat().forEach(t => t.dispose());
+  examples[0].length = 0;
+  examples[1].length = 0;
+
+  if (classifier) {
+    classifier.dispose();
+    classifier = null;
+  }
+
+  thumbs[0].innerHTML = "";
+  thumbs[1].innerHTML = "";
+  progressBar.style.width = "0%";
+  testBtn.disabled = true;
+  saveBtn.disabled = true;
+  testBtn.textContent = "Test your model";
+  prediction.classList.remove("show");
+
+  setPhase("collect");
+  refreshCounts();
+  statusEl.textContent = "Reset complete. Add new examples to both classes.";
+  networkCaption.textContent = "Add examples to wake up the network. During training, signals will flow through the layers.";
+}
+
+addA.addEventListener("click", () => addExample(0));
+addB.addEventListener("click", () => addExample(1));
+trainBtn.addEventListener("click", trainModel);
+testBtn.addEventListener("click", startTesting);
+saveBtn.addEventListener("click", saveModel);
+resetBtn.addEventListener("click", resetAll);
+
+/* ---------- animated network ---------- */
+
+const canvas = document.getElementById("networkCanvas");
+const ctx = canvas.getContext("2d");
+let nodes = [];
+let links = [];
+let pulses = [];
+let animLevel = 0.12;
+
+function resizeNetwork() {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+  canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  buildNetwork(rect.width, rect.height);
+}
+
+function buildNetwork(w,h) {
+  nodes = [];
+  links = [];
+  const layers = [5, 8, 6, 2];
+  const xs = [w*.10, w*.36, w*.66, w*.90];
+
+  layers.forEach((count, li) => {
+    for(let i=0;i<count;i++){
+      const y = h*(i+1)/(count+1);
+      nodes.push({layer:li, x:xs[li], y});
+    }
+  });
+
+  for(let li=0;li<layers.length-1;li++){
+    const left = nodes.filter(n=>n.layer===li);
+    const right = nodes.filter(n=>n.layer===li+1);
+    left.forEach(a=>right.forEach(b=>links.push({a,b})));
+  }
+}
+
+function networkPulse(strength=0.7) {
+  animLevel = Math.min(1, Math.max(animLevel, strength));
+  const starts = nodes.filter(n=>n.layer===0);
+  starts.forEach((n,i)=>{
+    pulses.push({
+      layer:0,
+      from:n,
+      to:null,
+      t:-i*.06,
+      speed:.016 + Math.random()*.01
+    });
+  });
+}
+
+function drawNetwork() {
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width, h = rect.height;
+  ctx.clearRect(0,0,w,h);
+
+  ctx.lineWidth = 1;
+  links.forEach(l=>{
+    ctx.strokeStyle = "rgba(120,130,155,.14)";
+    ctx.beginPath();
+    ctx.moveTo(l.a.x,l.a.y);
+    ctx.lineTo(l.b.x,l.b.y);
+    ctx.stroke();
+  });
+
+  nodes.forEach(n=>{
+    const active = 0.25 + animLevel*0.75;
+    ctx.beginPath();
+    ctx.arc(n.x,n.y, n.layer===3 ? 9 : 6, 0, Math.PI*2);
+    if(n.layer===0) ctx.fillStyle = `rgba(89,103,255,${active})`;
+    else if(n.layer===3) ctx.fillStyle = `rgba(242,95,122,${active})`;
+    else ctx.fillStyle = `rgba(70,81,110,${0.28+animLevel*.45})`;
+    ctx.fill();
+  });
+
+  pulses = pulses.filter(p=>p.t<1.15);
+  pulses.forEach(p=>{
+    p.t += p.speed;
+    if(p.t < 0) return;
+
+    const startLayer = p.layer;
+    const fromNodes = nodes.filter(n=>n.layer===startLayer);
+    const toNodes = nodes.filter(n=>n.layer===startLayer+1);
+    if(!toNodes.length) return;
+
+    const from = p.from;
+    const to = toNodes[Math.floor((from.y/h)*toNodes.length) % toNodes.length];
+    const t = Math.min(1,p.t);
+
+    const x = from.x + (to.x-from.x)*t;
+    const y = from.y + (to.y-from.y)*t;
+    ctx.beginPath();
+    ctx.arc(x,y,3.5,0,Math.PI*2);
+    ctx.fillStyle = "rgba(89,103,255,.85)";
+    ctx.fill();
+
+    if(p.t>=1 && startLayer<2){
+      p.layer++;
+      p.from=to;
+      p.t=0;
+    }
+  });
+
+  animLevel *= .985;
+  if(animLevel < .08) animLevel=.08;
+  requestAnimationFrame(drawNetwork);
+}
+
+window.addEventListener("resize", resizeNetwork);
+resizeNetwork();
+init();
 </script>
-
 </body>
 </html>
