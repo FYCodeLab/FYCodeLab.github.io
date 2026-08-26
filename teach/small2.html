@@ -269,8 +269,8 @@
       pointer-events:none;
     }
     .network-caption{
-      position:absolute;left:14px;right:14px;bottom:12px;
-      padding:9px 10px;border-radius:10px;
+      position:absolute;left:14px;right:14px;bottom:8px;
+      padding:7px 9px;border-radius:10px;
       background:rgba(255,255,255,.82);backdrop-filter:blur(5px);
       color:#4d576d;font-size:.8rem;line-height:1.4;
     }
@@ -376,14 +376,35 @@
     }
 
     
+
+    .direction-key{
+      position:absolute;
+      left:14px;
+      right:14px;
+      bottom:38px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      color:#667085;
+      font-size:.70rem;
+      font-weight:800;
+      pointer-events:none;
+      z-index:2;
+    }
+    .dir-blue{color:#5967ff}
+    .dir-red{color:#d84f6a}
+    .dir-arrow{color:#8b94a7;font-size:.9rem}
+
     .training-visual{
       position:absolute;
-      top:34px;
+      left:12px;
       right:12px;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      align-items:flex-end;
+      bottom:58px;
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:8px;
+      align-items:center;
       z-index:2;
       pointer-events:none;
     }
@@ -391,14 +412,19 @@
     .flow-pill{
       padding:7px 10px;
       border-radius:999px;
-      background:rgba(255,255,255,.82);
+      background:rgba(255,255,255,.88);
       border:1px solid rgba(210,216,230,.95);
       backdrop-filter:blur(5px);
       color:#4e5870;
-      font-size:.74rem;
+      font-size:.72rem;
       font-weight:800;
       white-space:nowrap;
       box-shadow:0 8px 20px rgba(24,32,51,.08);
+    }
+    .flow-pill{
+      text-align:center;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .epoch-pill.active{
       background:rgba(243,245,255,.95);
@@ -540,6 +566,13 @@
         <div class="training-visual" id="trainingVisual">
           <div class="epoch-pill" id="epochPill">No training yet</div>
           <div class="flow-pill" id="flowPill">Forward pass → loss → backpropagation</div>
+        </div>
+        <div class="direction-key">
+          <span class="dir-blue">● Forward</span>
+          <span class="dir-arrow">→</span>
+          <span>prediction / loss</span>
+          <span class="dir-arrow">←</span>
+          <span class="dir-red">● Backpropagation</span>
         </div>
         <div class="network-caption" id="networkCaption">
           Add examples to wake up the network. During training, the small numbers next to each neuron will evolve to illustrate changing activations.
@@ -708,7 +741,7 @@ function updateTrainingVisual() {
     epochPill.textContent = `Trained in ${totalEpochs} epochs`;
     epochPill.classList.remove("active");
     flowPill.classList.remove("active");
-    flowPill.textContent = "Inference only — no backpropagation";
+    flowPill.textContent = "Inference only — weights stay fixed";
   } else if (phase === "collect") {
     epochPill.textContent = "No training yet";
     epochPill.classList.remove("active");
@@ -786,7 +819,7 @@ async function trainModel() {
   testBtn.disabled = true;
   saveBtn.disabled = true;
   progressBar.style.width = "0%";
-  networkCaption.textContent = "Training phase: the same stored examples are reused over multiple epochs. Each epoch performs a forward pass, computes the loss, then applies backpropagation while MobileNet stays fixed.";
+  networkCaption.textContent = "Each epoch is shown as a back-and-forth cycle: blue activations move forward, then red gradient signals move backward to update the classifier weights.";
 
   const xsList = [];
   const ysList = [];
@@ -819,9 +852,10 @@ async function trainModel() {
     callbacks:{
       onEpochBegin: async (epoch) => {
         currentEpoch = epoch + 1;
-        flowMessage = "Forward pass — examples enter the classifier";
+        flowMessage = "BLUE → forward pass through the network";
         updateTrainingVisual();
         trainingForwardPulse(0.82);
+        await new Promise(resolve => setTimeout(resolve, 420));
         await tf.nextFrame();
       },
       onEpochEnd: async (epoch, logs) => {
@@ -831,10 +865,11 @@ async function trainModel() {
         trainingProgress = (epoch + 1) / epochs;
         trainingAccuracy = acc;
         liveProbs = [Math.max(0.05, acc), Math.max(0.05, 1 - acc)];
-        flowMessage = "Loss computed → backpropagation updates weights";
+        flowMessage = "RED ← backpropagation: gradients update weights";
         updateTrainingVisual();
         statusEl.textContent = `Epoch ${epoch + 1}/${epochs} — loss ${logs.loss.toFixed(3)} — accuracy ${Math.round(acc*100)}%`;
         backpropPulse(0.82);
+        await new Promise(resolve => setTimeout(resolve, 420));
         await tf.nextFrame();
       }
     }
@@ -1054,27 +1089,32 @@ function networkPulse(strength=0.7) {
 
 function trainingForwardPulse(strength=0.85) {
   animLevel = Math.min(1, Math.max(animLevel, strength));
+  // Clear any old backward wave: training should read visually as forward THEN backward.
+  backPulses = [];
   const starts = nodes.filter(n=>n.layer===0);
-  starts.forEach((n,i)=>{
+  const selected = starts.filter((_, i) => i % 2 === 0);
+  selected.forEach((n,i)=>{
     pulses.push({
       layer:0,
       from:n,
       to:null,
-      t:-i*.10,
-      speed:.009 + Math.random()*.003
+      t:-i*.06,
+      speed:.055 + Math.random()*.008
     });
   });
 }
 
 function backpropPulse(strength=0.85) {
   animLevel = Math.min(1, Math.max(animLevel, strength));
+  // Clear any remaining forward wave before showing the reverse gradient flow.
+  pulses = [];
   const outputs = nodes.filter(n=>n.layer===3);
   outputs.forEach((n,i)=>{
     backPulses.push({
       layer:3,
       from:n,
-      t:-i*.10,
-      speed:.009 + Math.random()*.003
+      t:-i*.08,
+      speed:.055 + Math.random()*.008
     });
   });
 }
