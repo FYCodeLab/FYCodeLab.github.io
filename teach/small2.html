@@ -656,6 +656,7 @@ let currentEpoch = 0;
 let totalEpochs = 0;
 let backPulses = [];
 let trainingStage = "idle";
+let visualWeightVersion = 0;
 
 const examples = [[], []];
 const thumbs = [document.getElementById("thumbsA"), document.getElementById("thumbsB")];
@@ -891,6 +892,7 @@ async function trainModel() {
 
   if (classifier) classifier.dispose();
   classifier = buildClassifier(xs.shape[1]);
+  updateVisualWeightsFromClassifier();
 
   const epochs = 28;
   totalEpochs = epochs;
@@ -918,6 +920,7 @@ async function trainModel() {
         trainingProgress = (epoch + 1) / epochs;
         trainingAccuracy = acc;
         liveProbs = [Math.max(0.05, acc), Math.max(0.05, 1 - acc)];
+        updateVisualWeightsFromClassifier();
         trainingStage = "backward";
         updateTrainingVisual();
         statusEl.textContent = `Epoch ${epoch + 1}/${epochs} — loss ${logs.loss.toFixed(3)} — accuracy ${Math.round(acc*100)}%`;
@@ -932,6 +935,7 @@ async function trainModel() {
   ys.dispose();
 
   trainingProgress = 1;
+  updateVisualWeightsFromClassifier();
   trainingStage = "idle";
   setPhase("trained");
   testBtn.disabled = false;
@@ -1026,6 +1030,11 @@ function resetAll() {
   totalEpochs = 0;
   trainingStage = "idle";
   backPulses = [];
+  links.forEach(link => {
+    link.weightValue = null;
+    link.weightDelta = 0;
+    link.weightFlash = 0;
+  });
 
   if (classifier) {
     classifier.dispose();
@@ -1114,7 +1123,21 @@ function buildNetwork(w,h) {
   for(let li=0;li<layers.length-1;li++){
     const left = nodes.filter(n=>n.layer===li);
     const right = nodes.filter(n=>n.layer===li+1);
-    left.forEach(a=>right.forEach(b=>links.push({a,b})));
+
+    left.forEach(a=>right.forEach(b=>{
+      const showWeight =
+        (li === 1 && [1, 4, 6].includes(a.index) && [1, 4].includes(b.index)) ||
+        (li === 2 && [1, 4].includes(a.index));
+
+      links.push({
+        a,
+        b,
+        showWeight,
+        weightValue: null,
+        weightDelta: 0,
+        weightFlash: 0
+      });
+    }));
   }
 }
 
@@ -1165,6 +1188,61 @@ function chooseBackwardTarget(pulse, h) {
     .map(x => x.node);
 
   return pickWeightedNode(scored);
+}
+
+function groupBounds(total, groups, index) {
+  const start = Math.floor(index * total / groups);
+  const end = Math.max(start + 1, Math.floor((index + 1) * total / groups));
+  return [start, end];
+}
+
+function meanBlock(matrix, rowStart, rowEnd, colStart, colEnd) {
+  let sum = 0;
+  let count = 0;
+
+  for (let r = rowStart; r < rowEnd; r++) {
+    for (let c = colStart; c < colEnd; c++) {
+      sum += matrix[r][c];
+      count++;
+    }
+  }
+
+  return count ? sum / count : 0;
+}
+
+function updateVisualWeightsFromClassifier() {
+  if (!classifier) return;
+
+  try {
+    const dense1Weights = classifier.layers[0].getWeights()[0].arraySync(); // [inputDim, 32]
+    const dense2Weights = classifier.layers[2].getWeights()[0].arraySync(); // [32, 2]
+
+    links.forEach(link => {
+      if (!link.showWeight) return;
+
+      let newValue = null;
+
+      if (link.a.layer === 1 && link.b.layer === 2) {
+        const [rowStart, rowEnd] = groupBounds(dense1Weights.length, 8, link.a.index);
+        const [colStart, colEnd] = groupBounds(dense1Weights[0].length, 6, link.b.index);
+        newValue = meanBlock(dense1Weights, rowStart, rowEnd, colStart, colEnd);
+      } else if (link.a.layer === 2 && link.b.layer === 3) {
+        const [rowStart, rowEnd] = groupBounds(dense2Weights.length, 6, link.a.index);
+        newValue = meanBlock(dense2Weights, rowStart, rowEnd, link.b.index, link.b.index + 1);
+      }
+
+      if (newValue !== null) {
+        const previous = link.weightValue;
+        link.weightValue = newValue;
+        link.weightDelta = previous === null ? Math.abs(newValue) : Math.abs(newValue - previous);
+        link.weightFlash = Math.min(1, 0.15 + link.weightDelta * 18);
+      }
+    });
+
+    visualWeightVersion++;
+  } catch (err) {
+    console.warn("Could not update visual weights", err);
+  }
 }
 
 function networkPulse(strength=0.7) {
@@ -1327,6 +1405,40 @@ function drawNetwork() {
     ctx.moveTo(l.a.x,l.a.y);
     ctx.lineTo(l.b.x,l.b.y);
     ctx.stroke();
+  });
+
+  links.forEach(l => {
+    if (!l.showWeight || l.weightValue === null) return;
+
+    const midX = l.a.x + (l.b.x - l.a.x) * 0.54;
+    const midY = l.a.y + (l.b.y - l.a.y) * 0.54;
+
+    const dx = l.b.x - l.a.x;
+    const dy = l.b.y - l.a.y;
+    const len = Math.max(1, Math.hypot(dx, dy));
+    const nx = -dy / len;
+    const ny = dx / len;
+
+    const offsetDir = ((l.a.index + l.b.index) % 2 === 0) ? 1 : -1;
+    const labelX = midX + nx * 8 * offsetDir;
+    const labelY = midY + ny * 8 * offsetDir;
+
+    const label = l.weightValue >= 0 ? `+${l.weightValue.toFixed(2)}` : l.weightValue.toFixed(2);
+    ctx.font = "italic 9px Inter, system-ui, sans-serif";
+    const width = ctx.measureText(label).width;
+    const padX = 3;
+    const boxH = 11;
+
+    const flash = Math.max(0, Math.min(1, l.weightFlash || 0));
+    const bgAlpha = 0.70 + flash * 0.18;
+
+    ctx.fillStyle = flash > 0.22 ? `rgba(255,248,250,${bgAlpha})` : `rgba(255,255,255,${bgAlpha})`;
+    ctx.fillRect(labelX - padX, labelY - 8, width + padX * 2, boxH);
+
+    ctx.fillStyle = flash > 0.22 ? "rgba(176,62,92,.92)" : "rgba(102,111,131,.88)";
+    ctx.fillText(label, labelX, labelY);
+
+    l.weightFlash *= 0.94;
   });
 
   nodes.forEach(n=>{
