@@ -1118,6 +1118,55 @@ function buildNetwork(w,h) {
   }
 }
 
+
+function pickWeightedNode(candidates) {
+  if (!candidates || !candidates.length) return null;
+
+  const total = candidates.reduce((sum, n) => sum + (0.15 + (n.value || 0.2)), 0);
+  let r = Math.random() * total;
+
+  for (const n of candidates) {
+    r -= (0.15 + (n.value || 0.2));
+    if (r <= 0) return n;
+  }
+  return candidates[candidates.length - 1];
+}
+
+function chooseForwardTarget(pulse, h) {
+  const nextNodes = nodes.filter(n => n.layer === pulse.layer + 1);
+  if (!nextNodes.length) return null;
+
+  // Prefer nearby neurons but allow randomness so routes vary from epoch to epoch.
+  const anchor = pulse.from.y / Math.max(1, h);
+  const scored = nextNodes
+    .map(n => {
+      const closeness = 1 - Math.min(1, Math.abs((n.y / Math.max(1, h)) - anchor));
+      return { node: n, score: 0.35 + closeness + Math.random() * 0.75 };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, Math.max(2, Math.ceil(nextNodes.length * 0.65)))
+    .map(x => x.node);
+
+  return pickWeightedNode(scored);
+}
+
+function chooseBackwardTarget(pulse, h) {
+  const prevNodes = nodes.filter(n => n.layer === pulse.layer - 1);
+  if (!prevNodes.length) return null;
+
+  const anchor = pulse.from.y / Math.max(1, h);
+  const scored = prevNodes
+    .map(n => {
+      const closeness = 1 - Math.min(1, Math.abs((n.y / Math.max(1, h)) - anchor));
+      return { node: n, score: 0.35 + closeness + Math.random() * 0.75 };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, Math.max(2, Math.ceil(prevNodes.length * 0.65)))
+    .map(x => x.node);
+
+  return pickWeightedNode(scored);
+}
+
 function networkPulse(strength=0.7) {
   animLevel = Math.min(1, Math.max(animLevel, strength));
 
@@ -1167,6 +1216,7 @@ function backpropPulse(strength=0.85) {
     backPulses.push({
       layer:3,
       from:n,
+      to:null,
       t:-i*.08,
       speed:.055 + Math.random()*.008
     });
@@ -1323,11 +1373,11 @@ function drawNetwork() {
     if(p.t < 0) return;
 
     const startLayer = p.layer;
-    const toNodes = nodes.filter(n=>n.layer===startLayer+1);
-    if(!toNodes.length) return;
+    if (!p.to) p.to = chooseForwardTarget(p, h);
+    if(!p.to) return;
 
     const from = p.from;
-    const to = toNodes[Math.floor((from.y/h)*toNodes.length) % toNodes.length];
+    const to = p.to;
     const t = Math.min(1,p.t);
 
     const x = from.x + (to.x-from.x)*t;
@@ -1340,8 +1390,9 @@ function drawNetwork() {
 
     if(p.t>=1 && startLayer<2){
       p.layer++;
-      p.from=to;
-      p.t=0;
+      p.from = to;
+      p.to = null;
+      p.t = 0;
     }
   });
 
@@ -1351,11 +1402,11 @@ function drawNetwork() {
     if(p.t < 0) return;
 
     const startLayer = p.layer;
-    const toNodes = nodes.filter(n=>n.layer===startLayer-1);
-    if(!toNodes.length) return;
+    if (!p.to) p.to = chooseBackwardTarget(p, h);
+    if(!p.to) return;
 
     const from = p.from;
-    const to = toNodes[Math.floor((from.y/h)*toNodes.length) % toNodes.length];
+    const to = p.to;
     const t = Math.min(1,p.t);
 
     const x = from.x + (to.x-from.x)*t;
@@ -1368,8 +1419,9 @@ function drawNetwork() {
 
     if(p.t>=1 && startLayer>1){
       p.layer--;
-      p.from=to;
-      p.t=0;
+      p.from = to;
+      p.to = null;
+      p.t = 0;
     }
   });
 
