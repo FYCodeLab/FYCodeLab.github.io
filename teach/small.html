@@ -193,9 +193,10 @@
 
     .train-box{
       border:1px solid var(--border);
-      border-radius:18px;
-      padding:14px;
+      border-radius:16px;
+      padding:10px 12px;
       background:#fafbfe;
+      flex:0 0 auto;
     }
     .train-row{
       display:flex;gap:10px;align-items:center;justify-content:space-between;
@@ -209,26 +210,28 @@
     .save-btn{background:#eef0ff;color:#3d49c9}
     .reset-btn{background:#fff;color:#7a2535;border:1px solid #f2ccd4}
     .progress{
-      margin-top:12px;height:10px;border-radius:999px;background:#e8ebf3;overflow:hidden;
+      margin-top:8px;height:8px;border-radius:999px;background:#e8ebf3;overflow:hidden;
     }
     .progress > div{
       height:100%;width:0;background:linear-gradient(90deg,#5967ff,#8d95ff);
       transition:width .18s ease;
     }
     .status{
-      margin-top:8px;color:var(--muted);font-size:.86rem;min-height:20px;
+      margin-top:5px;color:var(--muted);font-size:.82rem;min-height:18px;
     }
 
     .prediction{
       display:none;
       border:1px solid var(--border);
-      border-radius:18px;
-      padding:14px;
+      border-radius:16px;
+      padding:10px 12px;
+      flex:0 0 auto;
+      overflow:hidden;
     }
     .prediction.show{display:block}
-    .pred-title{font-weight:850;margin-bottom:12px}
-    .bar-row{display:grid;grid-template-columns:90px 1fr 52px;gap:8px;align-items:center;margin:10px 0}
-    .bar-shell{height:14px;background:#edf0f5;border-radius:999px;overflow:hidden}
+    .pred-title{font-weight:850;margin-bottom:6px;font-size:.95rem}
+    .bar-row{display:grid;grid-template-columns:80px 1fr 48px;gap:7px;align-items:center;margin:6px 0}
+    .bar-shell{height:11px;background:#edf0f5;border-radius:999px;overflow:hidden}
     .bar-fill{height:100%;width:0;transition:width .15s linear}
     .bar-a{background:var(--accent)}
     .bar-b{background:var(--accent2)}
@@ -291,6 +294,102 @@
       font-size:.76rem;color:var(--muted);line-height:1.4;
     }
 
+
+    .workflow{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+      flex:0 0 auto;
+    }
+    .workflow-step{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      min-width:0;
+      padding:7px 9px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fafbfe;
+      color:#8a93a5;
+      font-size:.75rem;
+    }
+    .workflow-step span{
+      width:24px;height:24px;flex:0 0 24px;
+      display:grid;place-items:center;
+      border-radius:50%;
+      background:#e8ebf3;
+      color:#697386;
+      font-weight:900;
+    }
+    .workflow-step b{
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+    }
+    .workflow-step.active{
+      border-color:#cfd4ff;
+      background:#f2f3ff;
+      color:#3e49c7;
+    }
+    .workflow-step.active span{
+      background:var(--accent);
+      color:#fff;
+    }
+    .workflow-step.done{
+      border-color:#cfe7d9;
+      background:#f4fbf7;
+      color:#28784f;
+    }
+    .workflow-step.done span{
+      background:var(--ok);
+      color:#fff;
+    }
+
+    .start-screen{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(circle at center,rgba(89,103,255,.18),transparent 35%),
+        linear-gradient(145deg,#182033,#101624);
+      z-index:3;
+    }
+    .start-screen.hidden{display:none}
+    .webcam-start{
+      width:min(300px,78%);
+      aspect-ratio:1.55/1;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:24px;
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      box-shadow:0 20px 60px rgba(0,0,0,.25);
+      backdrop-filter:blur(10px);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      transition:transform .18s ease, background .18s ease;
+    }
+    .webcam-start:hover{
+      transform:translateY(-2px) scale(1.015);
+      background:rgba(255,255,255,.12);
+    }
+    .webcam-icon{
+      font-size:3.8rem;
+      line-height:1;
+      filter:drop-shadow(0 8px 18px rgba(0,0,0,.25));
+    }
+    .start-title{
+      font-size:1.15rem;
+      font-weight:900;
+    }
+    .start-sub{
+      font-size:.78rem;
+      opacity:.75;
+    }
+
     @media(max-width:980px){
       html, body{height:auto}
       body{overflow:auto}
@@ -309,6 +408,8 @@
         aspect-ratio:16/10;
       }
       .network{min-height:320px}
+      .workflow{grid-template-columns:1fr 1fr}
+      .workflow-step:last-child{grid-column:1/-1}
     }
     @media(max-width:620px){
       .classes{grid-template-columns:1fr}
@@ -323,14 +424,29 @@
       <div class="topbar">
         <div>
           <h1>Mini Teachable Machine</h1>
-          <div class="tiny">Collect examples → train → test your model</div>
+          <div class="tiny">Start webcam → acquire images → train → test → save</div>
         </div>
-        <div class="phase"><span class="phase-dot"></span><span id="phaseText">COLLECT DATA</span></div>
+        <div class="phase"><span class="phase-dot"></span><span id="phaseText">START</span></div>
       </div>
 
-      <div class="video-wrap">
+      <div class="workflow" id="workflow">
+        <div class="workflow-step active" id="wf1"><span>1</span><b>Start webcam</b></div>
+        <div class="workflow-step" id="wf2"><span>2</span><b>Acquire images</b></div>
+        <div class="workflow-step" id="wf3"><span>3</span><b>Train model</b></div>
+        <div class="workflow-step" id="wf4"><span>4</span><b>Test model</b></div>
+        <div class="workflow-step" id="wf5"><span>5</span><b>Save model</b></div>
+      </div>
+
+      <div class="video-wrap" id="videoWrap">
         <video id="webcam" autoplay muted playsinline></video>
-        <div class="video-overlay" id="cameraText">Starting camera…</div>
+        <div class="start-screen" id="startScreen">
+          <button class="webcam-start" id="startBtn" aria-label="Start webcam">
+            <span class="webcam-icon">📷</span>
+            <span class="start-title">Start webcam</span>
+            <span class="start-sub">Click to begin the activity</span>
+          </button>
+        </div>
+        <div class="video-overlay" id="cameraText">Webcam not started</div>
       </div>
 
       <div class="classes">
@@ -340,7 +456,7 @@
             <span class="count"><span id="countA">0</span> photos</span>
           </div>
           <div class="thumbs" id="thumbsA"></div>
-          <button class="add-btn" id="addA">📷 Add photo</button>
+          <button class="add-btn" id="addA" disabled>📷 Add photo</button>
         </article>
 
         <article class="class-card b" id="classB">
@@ -349,7 +465,7 @@
             <span class="count"><span id="countB">0</span> photos</span>
           </div>
           <div class="thumbs" id="thumbsB"></div>
-          <button class="add-btn" id="addB">📷 Add photo</button>
+          <button class="add-btn" id="addB" disabled>📷 Add photo</button>
         </article>
       </div>
 
@@ -362,7 +478,7 @@
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="train-btn" id="trainBtn" disabled>Train model</button>
             <button class="test-btn" id="testBtn" disabled>Test your model</button>
-            <button class="save-btn" id="saveBtn" disabled>Save model</button>
+            <button class="save-btn" id="saveBtn" disabled>⬇ Save model</button>
             <button class="reset-btn" id="resetBtn">Reset</button>
           </div>
         </div>
@@ -435,8 +551,9 @@
 let featureModel = null;
 let classifier = null;
 let stream = null;
-let phase = "collect";
+let phase = "start";
 let predictionLoop = null;
+let appStarted = false;
 
 const examples = [[], []];
 const thumbs = [document.getElementById("thumbsA"), document.getElementById("thumbsB")];
@@ -458,24 +575,43 @@ const nameA = document.getElementById("nameA");
 const nameB = document.getElementById("nameB");
 const cameraText = document.getElementById("cameraText");
 const networkCaption = document.getElementById("networkCaption");
+const startBtn = document.getElementById("startBtn");
+const startScreen = document.getElementById("startScreen");
 
-async function init() {
+async function startApp() {
+  if (appStarted) return;
+
+  startBtn.disabled = true;
+  startBtn.querySelector(".start-title").textContent = "Starting…";
+  cameraText.textContent = "Loading MobileNet…";
+  statusEl.textContent = "Loading MobileNet feature extractor…";
+
   try {
-    statusEl.textContent = "Loading MobileNet feature extractor…";
     featureModel = await mobilenet.load({version: 2, alpha: 1.0});
 
+    cameraText.textContent = "Requesting camera access…";
     stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: "user", width: {ideal: 640}, height: {ideal: 480} },
       audio: false
     });
+
     video.srcObject = stream;
     await video.play();
 
+    appStarted = true;
+    startScreen.classList.add("hidden");
     cameraText.textContent = "Camera ready";
-    statusEl.textContent = "Add examples to both classes.";
-    drawNetwork();
+    statusEl.textContent = "Step 2: add examples to both classes.";
+    setPhase("collect");
+    addA.disabled = false;
+    addB.disabled = false;
+    refreshCounts();
+    updateWorkflow(2);
+    networkCaption.textContent = "The webcam is active. Add examples to wake up the network.";
   } catch (err) {
     console.error(err);
+    startBtn.disabled = false;
+    startBtn.querySelector(".start-title").textContent = "Start webcam";
     cameraText.textContent = "Camera unavailable";
     statusEl.textContent = "Could not start the camera or load MobileNet. Use HTTPS and allow camera access.";
   }
@@ -540,21 +676,36 @@ async function addExample(classId) {
   }
 }
 
+function updateWorkflow(current) {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById("wf" + i);
+    el.classList.remove("active", "done");
+    if (i < current) el.classList.add("done");
+    if (i === current) el.classList.add("active");
+  }
+}
+
 function setPhase(next) {
   phase = next;
   const labels = {
-    collect: "COLLECT DATA",
+    start: "START",
+    collect: "ACQUIRE IMAGES",
     training: "TRAINING",
-    trained: "MODEL TRAINED",
+    trained: "READY TO TEST",
     testing: "TEST YOUR MODEL"
   };
   phaseText.textContent = labels[next];
 
   const locked = next !== "collect";
-  addA.disabled = locked;
-  addB.disabled = locked;
-  nameA.disabled = locked;
-  nameB.disabled = locked;
+  addA.disabled = locked || !appStarted;
+  addB.disabled = locked || !appStarted;
+  nameA.disabled = locked || !appStarted;
+  nameB.disabled = locked || !appStarted;
+
+  if (next === "collect") updateWorkflow(2);
+  if (next === "training") updateWorkflow(3);
+  if (next === "trained") updateWorkflow(4);
+  if (next === "testing") updateWorkflow(4);
 
   if (next !== "testing") prediction.classList.remove("show");
 }
@@ -677,6 +828,7 @@ function startTesting() {
 async function saveModel() {
   if (!classifier) return;
 
+  updateWorkflow(5);
   statusEl.textContent = "Saving classifier…";
   await classifier.save("downloads://mini-teachable-machine-classifier");
 
@@ -699,6 +851,8 @@ async function saveModel() {
   URL.revokeObjectURL(url);
 
   statusEl.textContent = "Model saved. Your browser downloaded the classifier plus label metadata.";
+  document.getElementById("wf5").classList.remove("active");
+  document.getElementById("wf5").classList.add("done");
 }
 
 function resetAll() {
@@ -724,12 +878,32 @@ function resetAll() {
   testBtn.textContent = "Test your model";
   prediction.classList.remove("show");
 
-  setPhase("collect");
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+  video.srcObject = null;
+  appStarted = false;
+
+  startScreen.classList.remove("hidden");
+  startBtn.disabled = false;
+  startBtn.querySelector(".start-title").textContent = "Start webcam";
+  cameraText.textContent = "Webcam not started";
+
+  setPhase("start");
+  addA.disabled = true;
+  addB.disabled = true;
+  nameA.disabled = false;
+  nameB.disabled = false;
   refreshCounts();
-  statusEl.textContent = "Reset complete. Add new examples to both classes.";
-  networkCaption.textContent = "Add examples to wake up the network. During training, signals will flow through the layers.";
+  trainBtn.disabled = true;
+  updateWorkflow(1);
+
+  statusEl.textContent = "Reset complete. Click Start webcam to begin again.";
+  networkCaption.textContent = "Start the webcam, then add examples to wake up the network.";
 }
 
+startBtn.addEventListener("click", startApp);
 addA.addEventListener("click", () => addExample(0));
 addB.addEventListener("click", () => addExample(1));
 trainBtn.addEventListener("click", trainModel);
@@ -848,7 +1022,8 @@ function drawNetwork() {
 
 window.addEventListener("resize", resizeNetwork);
 resizeNetwork();
-init();
+updateWorkflow(1);
+drawNetwork();
 </script>
 </body>
 </html>
