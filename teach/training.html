@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Become the Machine — Learn from Data</title>
+<style>
+:root{
+  --navy:#13213a;--text:#17233b;--muted:#69748a;--blue:#5869ff;--blue-soft:#eef0ff;
+  --border:#dfe4ed;--panel:#fff;--soft:#f7f8fb;--orange:#d46a13;--green:#42a27c;--red:#dc6267;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f8;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.shell{min-height:100vh;padding:14px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(360px,.8fr);gap:14px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:26px;padding:18px;min-width:0}
+.title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+h1{margin:0;color:var(--navy);font-size:clamp(28px,4vw,48px);letter-spacing:-.045em;line-height:.98}
+.subtitle{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.5;max-width:760px}
+.turn-pill{display:inline-flex;align-items:center;gap:9px;border-radius:999px;padding:10px 14px;background:var(--blue-soft);color:#3445cb;font-weight:900;font-size:13px;white-space:nowrap}
+.turn-dot{width:11px;height:11px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 5px rgba(88,105,255,.12)}
+.graph-stage{margin-top:14px;background:var(--navy);border-radius:22px;padding:14px;display:flex;flex-direction:column}
+.chart-wrap{background:#fff;border-radius:15px;padding:8px;position:relative;overflow:hidden}
+svg{display:block;width:100%;height:auto;user-select:none}
+.grid{stroke:#e7eaf0;stroke-width:1}.axis{stroke:#69748a;stroke-width:1.4}.tick{font-size:12px;fill:#707b90}.axis-title{font-size:13px;font-weight:800;fill:#28344c}
+.model{stroke:var(--orange);stroke-width:5.5;stroke-linecap:round}.data-dot{fill:var(--blue);stroke:white;stroke-width:3}.new-dot{fill:var(--blue);stroke:white;stroke-width:4}
+.error-line{stroke:var(--red);stroke-width:3;stroke-dasharray:7 5}.guide{stroke:#a0a8b8;stroke-width:1.2;stroke-dasharray:4 5}
+.label{font-size:12px;font-weight:900;fill:#26344d}
+.feed-anim{position:absolute;width:22px;height:22px;border-radius:50%;background:var(--blue);border:4px solid white;box-shadow:0 3px 16px rgba(20,32,58,.25);pointer-events:none;opacity:0}
+.graph-feed{position:absolute;top:14px;right:14px;z-index:8;min-height:48px;border:0;border-radius:14px;background:var(--blue);color:#fff;font:inherit;font-weight:950;padding:0 16px;cursor:pointer;display:flex;align-items:center;gap:9px;box-shadow:0 8px 22px rgba(88,105,255,.22)}
+.graph-feed:disabled{background:#c9cfdb;color:#f4f5f8;cursor:not-allowed;box-shadow:none}.graph-feed .human-icon{font-size:22px}
+.sw{width:9px;height:9px;border-radius:50%;display:inline-block}
+.sw.data{background:var(--blue)}
+.graph-legend{
+  position:absolute;left:18px;bottom:14px;z-index:7;
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  padding:7px 10px;border-radius:10px;
+  background:rgba(255,255,255,.90);border:1px solid rgba(223,228,237,.9);
+  color:#69748a;font-size:10px;font-weight:800;
+  backdrop-filter:blur(3px)
+}
+.graph-legend span{display:inline-flex;align-items:center;gap:5px}
+.sidebar{display:grid;gap:14px;align-content:start}
+.card{border:1px solid var(--border);border-radius:20px;padding:16px;background:linear-gradient(180deg,#fbfcff,#fff)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:900;color:#66738b}.card h2{margin:5px 0 0;color:var(--navy);font-size:22px}.copy{margin:7px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+
+.machine-box{margin-top:8px;border-radius:15px;background:var(--navy);color:white;padding:10px 12px}.machine-box strong{display:block;font-size:13px}.machine-box p{margin:3px 0 0;color:#cbd2df;font-size:9px;line-height:1.25}
+.equation{margin-top:3px;text-align:center;font-family:Georgia,"Times New Roman",serif;font-size:28px;font-weight:800}.equation .w{color:#ffb56e}.equation .b{color:#91d9bd}
+.knob-rack{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:18px}.knob-control{display:flex;flex-direction:column;align-items:center;text-align:center}.knob-label{font-size:10px;font-weight:1000;color:var(--navy);text-transform:uppercase;letter-spacing:.07em;margin-top:3px;margin-bottom:1px}.knob-host{position:relative;width:112px;height:88px}.jsaudio-knob{position:absolute!important;left:50%!important;top:2px!important;transform:translateX(-50%);cursor:ns-resize;touch-action:none}.jsaudio-knob img{display:block}.knob-value{min-width:82px;text-align:center;font-size:11px;font-weight:900;color:var(--navy);background:#fff;border:1px solid var(--border);border-radius:9px;padding:4px 7px;margin-top:10px}.knob-help{margin-top:2px;font-size:8px;color:var(--muted)}.knob-disabled{opacity:.38;pointer-events:none;filter:grayscale(1)}.knob-fallback{display:none;font-size:11px;color:#8e2834;margin-top:8px}
+.error-card{margin-top:8px;border-radius:14px;padding:9px 11px;background:#fff4f4;border:1px solid #f2c9cc}.error-card.good{background:#f1faf6;border-color:#c9e9da}.error-card.equal{background:#f7f8fb;border-color:#dfe4ed}.error-title{font-weight:950;color:#a93f46}.error-card.good .error-title{color:#287358}.error-card.equal .error-title{color:#69748a}.error-number{margin-top:2px;font-size:30px;line-height:1;font-weight:1000;letter-spacing:-.04em;color:var(--navy)}.error-number small{font-size:12px;font-weight:900;letter-spacing:0;color:var(--muted)}.error-detail{margin-top:3px;font-size:9px;color:var(--muted);line-height:1.25}.progress{height:9px;background:#edf0f5;border-radius:999px;margin-top:9px;overflow:hidden}.progress>div{height:100%;width:0;background:var(--green);transition:width .25s ease}.done-btn{
+  width:100%;min-height:50px;margin-top:8px;border:0;border-radius:13px;
+  background:var(--blue);color:#fff;font:inherit;font-weight:1000;font-size:14px;
+  cursor:pointer;box-shadow:0 7px 18px rgba(88,105,255,.22)
+}.done-btn:disabled{background:#c9cfdb;color:#f4f5f8;cursor:not-allowed;box-shadow:none}
+.lesson{border-left:5px solid var(--green);background:#f1faf6;border-radius:14px;padding:13px 14px}.lesson strong{color:#267357}.lesson p{margin:4px 0 0;color:#5f7168;font-size:12px;line-height:1.45}
+.reset{width:100%;min-height:44px;border-radius:12px;border:1px solid #f0c9cf;background:white;color:#8e2834;font:inherit;font-weight:900;cursor:pointer}
+@media(min-width:901px){html,body{height:100%;overflow:hidden}.shell{height:100vh;min-height:0;padding:10px;gap:10px}.panel{height:100%;min-height:0;overflow:hidden;padding:clamp(10px,1.5vh,18px);border-radius:clamp(18px,2.3vh,26px)}.shell>section.panel{display:flex;flex-direction:column}.title-row{flex:0 0 auto}.title-row h1{font-size:clamp(26px,4.6vh,46px)}.subtitle{font-size:clamp(11px,1.45vh,14px);margin-top:5px;line-height:1.35}.turn-pill{padding:7px 11px;font-size:11px}.graph-stage{flex:1;min-height:0;margin-top:clamp(7px,1vh,14px);padding:clamp(7px,1vh,14px);display:flex;flex-direction:column}.chart-wrap{flex:1;min-height:0;display:flex}.chart-wrap svg{width:100%;height:100%;max-height:100%}.legend{flex:0 0 auto;margin-top:6px;font-size:10px}.sidebar{height:100%;min-height:0;gap:clamp(6px,.8vh,12px);grid-template-rows:auto minmax(0,1fr) auto auto;align-content:stretch}.card{padding:clamp(9px,1.2vh,15px);border-radius:clamp(14px,1.8vh,20px);min-height:0}.sidebar .card:nth-child(2){overflow:hidden;display:flex;flex-direction:column}.card h2{font-size:clamp(17px,2.2vh,22px)}.copy{font-size:clamp(10px,1.25vh,13px);line-height:1.3;margin-top:4px}.machine-box{margin-top:clamp(6px,.8vh,12px);padding:clamp(8px,1vh,13px)}.machine-box strong{font-size:clamp(14px,1.7vh,18px)}.machine-box p{font-size:clamp(9px,1.05vh,11px);line-height:1.25;margin-top:3px}.equation{margin-top:4px;font-size:clamp(25px,3.6vh,34px)}.knob-rack{margin-top:clamp(5px,.7vh,12px);padding-top:clamp(5px,.7vh,10px);gap:8px}.knob-host{height:clamp(62px,9vh,92px);transform:scale(clamp(.68,.095vh + .63,1));transform-origin:top center}.knob-label{font-size:clamp(9px,1vh,11px)}.knob-value{font-size:clamp(10px,1.1vh,12px);padding:3px 6px;margin-top:1px}.knob-help{font-size:8px;margin-top:1px}.error-card{margin-top:clamp(5px,.7vh,10px);padding:clamp(8px,1vh,12px)}.error-number{font-size:clamp(27px,4.2vh,42px)}.error-detail{font-size:clamp(9px,1.05vh,11px);margin-top:2px}.progress{margin-top:5px;height:7px}.done-btn{min-height:clamp(34px,4.7vh,42px);margin-top:clamp(5px,.7vh,9px);font-size:clamp(11px,1.2vh,13px)}.lesson{padding:clamp(7px,.9vh,11px) 12px}.lesson p{font-size:clamp(9px,1vh,11px);line-height:1.25}.reset{min-height:clamp(34px,4.5vh,42px);font-size:12px}}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{grid-template-columns:1fr 1fr}.sidebar .card:first-child{grid-column:1/-1}}
+@media(max-width:620px){.shell{padding:8px}.panel{border-radius:18px;padding:13px}.sidebar{grid-template-columns:1fr}.sidebar .card:first-child{grid-column:auto}.equation{font-size:29px}}
+
+.human-bubble{
+  position:absolute;top:74px;right:18px;z-index:8;max-width:230px;
+  background:#fff;border:2px solid #5869ff;color:#24304a;
+  border-radius:16px;padding:10px 13px;font-size:13px;font-weight:900;
+  box-shadow:0 10px 24px rgba(19,33,58,.16);
+  opacity:0;transform:translateY(-6px) scale(.96);pointer-events:none;
+  transition:opacity .2s ease,transform .2s ease;
+}
+.human-bubble.show{opacity:1;transform:translateY(0) scale(1)}
+.human-bubble:after{
+  content:"";position:absolute;top:-9px;right:24px;width:16px;height:16px;
+  background:#fff;border-left:2px solid #5869ff;border-top:2px solid #5869ff;
+  transform:rotate(45deg);
+}
+
+.start-overlay{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:rgba(255,255,255,.94);border-radius:15px}
+.start-card{text-align:center;max-width:420px;padding:24px}.start-card h2{margin:0;color:var(--navy);font-size:28px;font-weight:1000}.start-card p{margin:8px 0 16px;color:var(--muted);font-size:14px;line-height:1.45}.start-btn{min-width:190px;min-height:54px;border:0;border-radius:14px;background:var(--blue);color:#fff;font:inherit;font-size:17px;font-weight:1000;cursor:pointer;box-shadow:0 8px 18px rgba(88,105,255,.24)}
+.done-btn-strong:not(:disabled){outline:3px solid rgba(88,105,255,.14)}
+.center-neuron-card{
+  margin-top:6px;border:1px solid var(--border);border-radius:16px;background:#f8f9fc;
+  padding:7px 8px;display:grid;
+  grid-template-columns:minmax(62px,.62fr) minmax(170px,1.35fr) minmax(70px,.62fr);
+  gap:6px;align-items:center
+}
+.center-neuron-body{position:relative;min-height:138px;display:grid;place-items:center}.center-wire{position:absolute;height:4px;background:#abb3c1;border-radius:999px;top:50%;z-index:0}.center-wire.in{left:0;right:50%}.center-wire.out{left:50%;right:0}.center-neuron{
+  position:relative;z-index:2;width:126px;height:126px;border-radius:50%;
+  background:#fff;border:5px solid var(--navy);display:grid;place-items:center;
+  box-shadow:0 0 0 7px #eef1f5;overflow:hidden
+}.center-neuron .sigma{
+  position:absolute;font-family:Georgia,"Times New Roman",serif;font-size:86px;
+  font-weight:700;color:#d8dde6;line-height:1;transform:translateY(6px)
+}.center-neuron .formula{
+  position:relative;z-index:2;text-align:center;font-family:Georgia,"Times New Roman",serif;
+  color:var(--navy);font-weight:800;font-size:13px;line-height:1.0
+}.center-neuron .formula small{
+  display:block;margin-top:4px;color:#5d687c;font-size:8px;font-style:italic
+}.center-node{border:1px solid var(--border);border-radius:13px;background:#fff;padding:8px;text-align:center}.center-node .lbl{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:900}.center-node .val{margin-top:2px;font-size:17px;font-weight:1000;color:var(--navy)}
+@media(min-width:901px){.center-neuron-card{padding:clamp(6px,.8vh,10px)}.center-neuron-body{min-height:clamp(90px,13vh,124px)}.center-neuron{width:clamp(82px,10vh,104px);height:clamp(82px,10vh,104px)}.center-neuron .sigma{font-size:clamp(54px,7vh,70px)}.center-node .val{font-size:clamp(15px,2vh,19px)}}
+
+@media(min-width:901px){
+  .sidebar{gap:6px;grid-template-rows:auto minmax(0,1fr) auto auto}
+  .sidebar .card:first-child{padding:8px 10px}
+  .sidebar .card:first-child .eyebrow{font-size:8px}
+  .sidebar .card:first-child h2{font-size:16px;margin-top:2px}
+  .sidebar .card:first-child .copy{font-size:9px;line-height:1.2;margin-top:2px}
+  .sidebar .card:nth-child(2){padding:8px 10px}
+  .sidebar .card:nth-child(2)>.eyebrow{font-size:8px}
+  .sidebar .card:nth-child(2)>h2{font-size:18px;margin-top:2px}
+  .sidebar .card:nth-child(2)>.copy{font-size:9px;line-height:1.2;margin-top:2px}
+  .machine-box{margin-top:5px;padding:7px 10px}
+  .machine-box p{display:none}
+  .equation{font-size:24px;margin-top:1px}
+  .center-neuron-card{margin-top:5px;padding:4px 7px}
+  .center-neuron-body{min-height:126px}
+  .center-neuron{width:118px;height:118px}
+  .center-neuron .sigma{font-size:80px}
+  .knob-rack{margin-top:4px;padding-top:4px;gap:6px}
+  .knob-host{height:72px;transform:scale(.78);transform-origin:top center}
+  .knob-value{margin-top:5px;padding:3px 6px;font-size:10px}
+  .error-card{margin-top:4px;padding:6px 9px}
+  .error-title{font-size:11px}
+  .error-number{font-size:26px}
+  .error-detail{display:none}
+  .progress{margin-top:4px;height:6px}
+  .done-btn{min-height:44px;margin-top:5px;font-size:13px;flex:0 0 auto}
+  .lesson{padding:6px 10px}
+  .lesson strong{font-size:12px}
+  .lesson p{font-size:8px;line-height:1.15;margin-top:2px}
+  .reset{min-height:34px;font-size:10px}
+  .graph-legend{left:14px;bottom:10px;font-size:9px;padding:5px 8px}
+}
+
+
+.model-heading{
+  text-align:center;
+  width:100%;
+  display:block;
+}
+.neuron-heading{
+  margin-top:5px;
+  text-align:center;
+  font-size:10px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--navy);
+}
+.graph-legend{
+  top:14px!important;
+  bottom:auto!important;
+  left:16px!important;
+}
+.dash-sample{
+  width:20px;
+  height:0;
+  display:inline-block;
+  border-top:3px dashed var(--red);
+  border-radius:0;
+}
+.error-card{
+  text-align:center!important;
+}
+.error-card > *{
+  text-align:center!important;
+}
+.error-number{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:5px;
+}
+.progress{
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+
+.lower-better{
+  font-size:.72em;
+  font-weight:800;
+  color:var(--muted);
+  margin-left:3px;
+}
+
+
+
+
+
+
+.graph-legend-wrap{
+  position:absolute;
+  left:16px;
+  top:14px;
+  z-index:9;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
+}
+.graph-legend-wrap .graph-legend{
+  position:static!important;
+  display:flex;
+  gap:14px;
+  align-items:center;
+  flex-wrap:wrap;
+  padding:7px 10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.94);
+  border:1px solid rgba(223,228,237,.95);
+  color:#69748a;
+  font-size:10px;
+  font-weight:800;
+  backdrop-filter:blur(3px);
+}
+.error-toggle-row{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 8px 6px 10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.94);
+  border:1px solid rgba(223,228,237,.95);
+  color:#69748a;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+  user-select:none;
+}
+.error-toggle-input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.error-toggle-switch{
+  position:relative;
+  width:38px;
+  height:22px;
+  border-radius:999px;
+  background:#cfd4dd;
+  transition:background .18s ease;
+  flex:0 0 auto;
+}
+.error-toggle-switch::after{
+  content:"";
+  position:absolute;
+  top:2px;
+  left:2px;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 1px 4px rgba(19,33,58,.28);
+  transition:transform .18s ease;
+}
+.error-toggle-input:checked + .error-toggle-switch{
+  background:#5869ff;
+}
+.error-toggle-input:checked + .error-toggle-switch::after{
+  transform:translateX(16px);
+}
+.error-toggle-input:focus-visible + .error-toggle-switch{
+  outline:3px solid rgba(88,105,255,.22);
+  outline-offset:2px;
+}
+@media(min-width:901px){
+  .graph-legend-wrap{left:14px;top:12px;gap:5px}
+  .graph-legend-wrap .graph-legend{font-size:9px;padding:5px 8px}
+  .error-toggle-row{font-size:9px;padding:5px 7px 5px 8px}
+  .error-toggle-switch{width:34px;height:20px}
+  .error-toggle-switch::after{width:16px;height:16px}
+  .error-toggle-input:checked + .error-toggle-switch::after{transform:translateX(14px)}
+}
+
+
+.graph-legend-wrap{
+  position:absolute;
+  left:16px;
+  top:14px;
+  z-index:9;
+}
+.graph-legend-wrap .graph-legend{
+  position:static!important;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:nowrap;
+  padding:7px 8px 7px 10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.94);
+  border:1px solid rgba(223,228,237,.95);
+  color:#69748a;
+  font-size:10px;
+  font-weight:800;
+  backdrop-filter:blur(3px);
+}
+.graph-legend-wrap .error-toggle-row{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin-left:4px;
+  padding-left:10px;
+  border-left:1px solid rgba(223,228,237,.95);
+  background:transparent;
+  border-top:0;
+  border-right:0;
+  border-bottom:0;
+  border-radius:0;
+  color:#69748a;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+  user-select:none;
+}
+@media(min-width:901px){
+  .graph-legend-wrap{left:14px;top:12px}
+  .graph-legend-wrap .graph-legend{font-size:9px;padding:5px 7px 5px 8px;gap:10px}
+  .graph-legend-wrap .error-toggle-row{font-size:9px;padding-left:8px;margin-left:2px}
+}
+
+
+.completion-overlay{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:none;
+  place-items:center;
+  background:rgba(255,255,255,.94);
+  border-radius:15px;
+}
+.completion-overlay.show{display:grid}
+.completion-card{
+  width:min(520px,88%);
+  text-align:center;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:24px 26px;
+  box-shadow:0 16px 36px rgba(19,33,58,.16);
+}
+.completion-card h2{
+  margin:0;
+  color:var(--navy);
+  font-size:28px;
+  font-weight:1000;
+  letter-spacing:-.03em;
+}
+.completion-card p{
+  margin:8px auto 0;
+  max-width:440px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+}
+.completion-results{
+  margin:16px 0 10px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+.completion-stat{
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#f8f9fc;
+  padding:10px 8px;
+}
+.completion-stat .k{
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--muted);
+  font-weight:900;
+}
+.completion-stat .v{
+  margin-top:3px;
+  color:var(--navy);
+  font-size:20px;
+  font-weight:1000;
+}
+.completion-summary{
+  margin-top:12px!important;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#f1faf6;
+  color:#267357!important;
+  font-weight:800;
+}
+.completion-btn{
+  margin-top:16px;
+  min-height:44px;
+  padding:0 18px;
+  border:0;
+  border-radius:12px;
+  background:var(--blue);
+  color:#fff;
+  font:inherit;
+  font-weight:1000;
+  cursor:pointer;
+}
+@media(max-width:560px){
+  .completion-results{grid-template-columns:1fr}
+  .completion-card{padding:20px}
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+  <section class="panel">
+    <div class="title-row">
+      <div>
+        <h1>You are the machine.</h1>
+        <p class="subtitle">A human gives you examples. Your job is to change the <strong>weight</strong> and <strong>bias</strong> so your line predicts the data better. This is the basic learning loop behind machine learning.</p>
+      </div>
+      <div class="turn-pill"><span class="turn-dot"></span><span id="turnText">HUMAN'S TURN</span></div>
+    </div>
+
+    <div class="graph-stage">
+      <div class="chart-wrap" id="chartWrap">
+        
+        <div id="completionOverlay" class="completion-overlay" role="dialog" aria-modal="true" aria-labelledby="completionTitle">
+          <div class="completion-card">
+            <h2 id="completionTitle">Congratulations — you trained the machine</h2>
+            <p>You adjusted the model using the data the human gave you. The machine changed its parameters to reduce its prediction error.</p>
+
+            <div class="completion-results">
+              <div class="completion-stat">
+                <div class="k">Final weight</div>
+                <div id="finalWeight" class="v">—</div>
+              </div>
+              <div class="completion-stat">
+                <div class="k">Final bias</div>
+                <div id="finalBias" class="v">—</div>
+              </div>
+              <div class="completion-stat">
+                <div class="k">Final MSE</div>
+                <div id="finalMSE" class="v">—</div>
+              </div>
+            </div>
+
+            <p class="completion-summary">You learned from examples: data → prediction → error → parameter adjustment → better predictions. That repeated process is the basic idea behind machine learning.</p>
+            <button id="completionResetBtn" class="completion-btn" type="button">Train again</button>
+          </div>
+        </div>
+<div id="startOverlay" class="start-overlay">
+          <div class="start-card">
+            <h2>You are the machine</h2>
+            <p>Your model starts as <strong>ŷ = x</strong>. A human will feed you data. Adjust the neuron’s weight and bias to reduce the error.</p>
+            <button id="startBtn" class="start-btn" type="button">Start training</button>
+          </div>
+        </div>
+        <button id="feedBtn" class="graph-feed"><span class="human-icon">🧑</span><span>Feed data</span></button>
+        
+<div id="humanBubble" class="human-bubble" role="status" aria-live="polite">Here’s more data — adjust!</div>
+        <svg id="chart" viewBox="0 0 800 520" role="img" aria-label="Interactive machine learning graph">
+          <rect width="800" height="520" rx="14" fill="#fff"/>
+          <g id="gridLayer"></g><g id="axisLayer"></g><g id="lineLayer"></g><g id="pointLayer"></g><g id="errorLayer"></g>
+        </svg>
+        <div id="feedAnim" class="feed-anim"></div>
+        <div class="graph-legend-wrap">
+          <div class="graph-legend">
+            <span><i class="sw data"></i>Human data</span>
+            <span><i class="dash-sample"></i>Error distance</span>
+            <label class="error-toggle-row" for="toggleErrorsBtn">
+              <span>Show error distance</span>
+              <input id="toggleErrorsBtn" class="error-toggle-input" type="checkbox" aria-label="Show error distance">
+              <span class="error-toggle-switch" aria-hidden="true"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <aside class="panel sidebar">
+    <section class="card">
+      <div class="eyebrow">Human</div>
+      <h2>Feed the machine data</h2>
+      <p class="copy" id="humanCopy">Press Feed data on the graph to give the machine its first training example.</p>
+    </section>
+
+    <section class="card">
+      <div class="eyebrow">Machine — you</div>
+      <h2>Adjust your model</h2>
+      <p class="copy">Your prediction is a straight line. Change its parameters to reduce the error on all the data seen so far.</p>
+      <div class="machine-box">
+        <strong class="model-heading">Your model</strong>
+        <div class="equation">ŷ = <span class="w" id="eqW">1.00</span>x <span id="eqSign">+</span> <span class="b" id="eqB">0.00</span></div>
+        <p>The activity begins at <strong>weight = 1</strong> and <strong>bias = 0</strong>, so the starting line is y = x.</p>
+      </div>
+
+
+      <div class="neuron-heading">Your neuron</div>
+          <div class="center-neuron-card" aria-label="Artificial neuron">
+        <div class="center-node"><div class="lbl">input x</div><div id="centerNeuronX" class="val">—</div></div>
+        <div class="center-neuron-body">
+          <div class="center-wire in"></div><div class="center-wire out"></div>
+          <div class="center-neuron"><span class="sigma" aria-hidden="true">Σ</span><div class="formula">ŷ = wx + b<small id="centerNeuronFormula">ŷ = 1.00x + 0.00</small></div></div>
+        </div>
+        <div class="center-node"><div class="lbl">output ŷ</div><div id="centerNeuronY" class="val">—</div></div>
+      </div>
+
+      <div id="knobRack" class="knob-rack knob-disabled" aria-label="Machine parameters">
+        <div class="knob-control">
+          <div class="knob-label">Weight w</div>
+          <div class="knob-host"><div id="wKnob" class="jsaudio-knob" aria-label="Weight knob"></div></div>
+          <div id="wChip" class="knob-value">w = 1.00</div>
+          <div class="knob-help">drag ↑ / ↓</div>
+        </div>
+        <div class="knob-control">
+          <div class="knob-label">Bias b</div>
+          <div class="knob-host"><div id="bKnob" class="jsaudio-knob" aria-label="Bias knob"></div></div>
+          <div id="bChip" class="knob-value">b = 0.00</div>
+          <div class="knob-help">drag ↑ / ↓</div>
+        </div>
+      </div>
+      <div id="knobFallback" class="knob-fallback">The knob graphics could not load.</div>
+
+      <div id="errorCard" class="error-card">
+        <div id="errorTitle" class="error-title">ERROR — lower is better</div>
+        <div id="errorNumber" class="error-number">— <small>MSE</small></div>
+        <div id="errorDetail" class="error-detail">This is the signal the machine watches while changing its parameters.</div>
+        <div class="progress"><div id="progressBar"></div></div>
+      </div>
+      <button id="doneBtn" class="done-btn done-btn-strong" disabled>✓ Machine has chosen — Done</button>
+    </section>
+
+    <section class="lesson">
+      <strong id="lessonTitle">The learning loop</strong>
+      <p id="lessonCopy">Human gives data → machine predicts → machine sees error → machine changes weight and bias → prediction improves.</p>
+    </section>
+
+    <button id="resetBtn" class="reset">Reset activity</button>
+  </aside>
+</div>
+
+<script src="https://colinbd.github.io/JSAudioKnobs/knobs.js"></script>
+<script>
+(()=>{
+  const NS='http://www.w3.org/2000/svg';
+  const W=800,H=520,M={l:70,r:30,t:34,b:62},xMin=0,xMax=10,yMin=-5,yMax=15;
+  const X=x=>M.l+(x-xMin)/(xMax-xMin)*(W-M.l-M.r);
+  const Y=y=>H-M.b-(y-yMin)/(yMax-yMin)*(H-M.t-M.b);
+  const make=(tag,a={})=>{const n=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(a))n.setAttribute(k,v);return n};
+  const text=(p,x,y,s,cls,anchor='middle')=>{const n=make('text',{x,y,class:cls,'text-anchor':anchor});n.textContent=s;p.appendChild(n);return n};
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+  const gridLayer=document.getElementById('gridLayer'),axisLayer=document.getElementById('axisLayer'),lineLayer=document.getElementById('lineLayer'),pointLayer=document.getElementById('pointLayer'),errorLayer=document.getElementById('errorLayer');
+  const feedBtn=document.getElementById('feedBtn'),toggleErrorsBtn=document.getElementById('toggleErrorsBtn'),wKnobEl=document.getElementById('wKnob'),bKnobEl=document.getElementById('bKnob'),knobRack=document.getElementById('knobRack'),knobFallback=document.getElementById('knobFallback');
+  const wChip=document.getElementById('wChip'),bChip=document.getElementById('bChip'),eqW=document.getElementById('eqW'),eqB=document.getElementById('eqB'),eqSign=document.getElementById('eqSign');
+  const turnText=document.getElementById('turnText'),humanCopy=document.getElementById('humanCopy'),errorCard=document.getElementById('errorCard'),errorTitle=document.getElementById('errorTitle'),errorNumber=document.getElementById('errorNumber'),errorDetail=document.getElementById('errorDetail'),progressBar=document.getElementById('progressBar'),doneBtn=document.getElementById('doneBtn'),lessonTitle=document.getElementById('lessonTitle'),lessonCopy=document.getElementById('lessonCopy'),resetBtn=document.getElementById('resetBtn'),feedAnim=document.getElementById('feedAnim'),chartWrap=document.getElementById('chartWrap');
+  const humanBubble=document.getElementById('humanBubble'),startBtn=document.getElementById('startBtn'),startOverlay=document.getElementById('startOverlay'),completionOverlay=document.getElementById('completionOverlay'),completionResetBtn=document.getElementById('completionResetBtn'),finalWeight=document.getElementById('finalWeight'),finalBias=document.getElementById('finalBias'),finalMSE=document.getElementById('finalMSE'),centerNeuronX=document.getElementById('centerNeuronX'),centerNeuronY=document.getElementById('centerNeuronY'),centerNeuronFormula=document.getElementById('centerNeuronFormula');
+
+  // Hidden target relationship used only to generate the human's examples.
+  // The learner never sees these parameters directly.
+  const target={w:1.15,b:1.6};
+  // Pre-spaced examples deliberately arrive out of x/y order. Larger noise means
+  // there is no single line that passes through most points exactly. All points
+  // stay comfortably inside the visible graph.
+  const feedPool=[{x:1.6,y:7.4},{x:7.8,y:8.5},{x:9.1,y:13.4},{x:4.7,y:5.0},{x:1.0,y:1.1},{x:6.3,y:10.7},{x:3.2,y:3.6},{x:8.6,y:9.5},{x:5.5,y:9.1},{x:2.7,y:2.1},{x:7.0,y:7.2},{x:4.0,y:7.8}];
+  let state={w:1,b:0,data:[],turn:'human',round:0,baseline:null,started:false,showErrors:false};
+  let wDial=null,bDial=null,syncingDial=false;
+
+  function showHumanBubble(){
+    if(!humanBubble)return;
+    humanBubble.classList.add('show');
+    clearTimeout(showHumanBubble._t);
+    showHumanBubble._t=setTimeout(()=>humanBubble.classList.remove('show'),1800);
+  }
+
+  function setupAxes(){
+    gridLayer.replaceChildren();axisLayer.replaceChildren();
+    for(let x=0;x<=10;x+=1){gridLayer.appendChild(make('line',{x1:X(x),y1:M.t,x2:X(x),y2:H-M.b,class:'grid'}));if(x%2===0)text(axisLayer,X(x),H-M.b+23,String(x),'tick')}
+    for(let y=-5;y<=15;y+=5){gridLayer.appendChild(make('line',{x1:M.l,y1:Y(y),x2:W-M.r,y2:Y(y),class:'grid'}));text(axisLayer,M.l-10,Y(y)+4,String(y),'tick','end')}
+    axisLayer.appendChild(make('line',{x1:M.l,y1:Y(0),x2:W-M.r,y2:Y(0),class:'axis'}));
+    axisLayer.appendChild(make('line',{x1:X(0),y1:M.t,x2:X(0),y2:H-M.b,class:'axis'}));
+    text(axisLayer,(M.l+W-M.r)/2,H-18,'Input x','axis-title');
+    const yt=text(axisLayer,20,(M.t+H-M.b)/2,'Output y','axis-title');yt.setAttribute('transform',`rotate(-90 20 ${(M.t+H-M.b)/2})`);
+  }
+
+  function mse(){
+    if(!state.data.length)return null;
+    return state.data.reduce((s,d)=>s+(d.y-(state.w*d.x+state.b))**2,0)/state.data.length;
+  }
+
+  function renderGraph(){
+    lineLayer.replaceChildren();pointLayer.replaceChildren();errorLayer.replaceChildren();
+    const y0=state.b,y1=state.w*xMax+state.b;
+    lineLayer.appendChild(make('line',{x1:X(0),y1:Y(y0),x2:X(xMax),y2:Y(y1),class:'model'}));
+
+    state.data.forEach((d,i)=>{
+      pointLayer.appendChild(make('circle',{cx:X(d.x),cy:Y(d.y),r:i===state.data.length-1?7:6,class:i===state.data.length-1?'new-dot':'data-dot'}));
+    });
+
+    if(state.showErrors && state.data.length){
+      state.data.forEach(d=>{
+        const py=state.w*d.x+state.b;
+        errorLayer.appendChild(make('line',{x1:X(d.x),y1:Y(d.y),x2:X(d.x),y2:Y(py),class:'error-line'}));
+      });
+    }
+  }
+
+  function renderUI(){
+    const machine=state.started && state.turn==='machine';
+    const human=state.started && state.turn==='human';
+    knobRack.classList.toggle('knob-disabled',!machine);
+    feedBtn.disabled=!human;
+    if(toggleErrorsBtn){
+      toggleErrorsBtn.checked=state.showErrors;
+    }
+    doneBtn.disabled=!machine;
+    turnText.textContent=!state.started?'READY TO START':(machine?"MACHINE'S TURN":"HUMAN'S TURN");
+
+    wChip.textContent=`w = ${state.w.toFixed(2)}`;bChip.textContent=`b = ${state.b.toFixed(2)}`;
+    eqW.textContent=state.w.toFixed(2);eqB.textContent=Math.abs(state.b).toFixed(2);eqSign.textContent=state.b>=0?'+':'−';
+
+    const latest=state.data[state.data.length-1];
+    if(centerNeuronFormula){
+      const sign=state.b>=0?'+':'−';
+      centerNeuronFormula.textContent=`ŷ = ${state.w.toFixed(2)}x ${sign} ${Math.abs(state.b).toFixed(2)}`;
+      centerNeuronX.textContent=latest?latest.x.toFixed(1):'—';
+      centerNeuronY.textContent=latest?(state.w*latest.x+state.b).toFixed(2):'—';
+    }
+
+    const e=mse();
+    if(e===null){
+      errorCard.classList.remove('good');errorTitle.textContent='ERROR — lower is better';errorNumber.innerHTML='— <small>MSE <span class="lower-better">(lower is better)</span></small>';errorDetail.textContent='This is the signal the machine watches while changing its parameters.';progressBar.style.width='0%';
+    } else {
+      if(state.baseline===null)state.baseline=e;
+      const improvement=state.baseline>0?clamp((state.baseline-e)/state.baseline,0,1):1;
+      progressBar.style.width=`${Math.round(improvement*100)}%`;
+      // Color is based ONLY on the MSE at the beginning of this machine turn:
+      // green = below baseline, red = above baseline, neutral = exactly equal.
+      const good=e < state.baseline;
+      const worse=e > state.baseline;
+      errorCard.classList.toggle('good',good);
+      errorCard.classList.toggle('equal',!good && !worse);
+      errorTitle.textContent=good?'ERROR ↓':(worse?'ERROR ↑':'ERROR');
+      errorNumber.innerHTML=`${e.toFixed(2)} <small>MSE <span class="lower-better">(lower is better)</span></small>`;
+      errorDetail.textContent=`Mean squared error across ${state.data.length} data point${state.data.length>1?'s':''}. Lower is better.`;
+    }
+    renderGraph();
+  }
+
+  function animatePoint(d,done){
+    const rect=chartWrap.getBoundingClientRect();
+    const btnRect=feedBtn.getBoundingClientRect();
+    const sx=btnRect.left-rect.left+btnRect.width/2-11;
+    const sy=btnRect.top-rect.top+btnRect.height/2-11;
+    const ex=(X(d.x)/W)*rect.width;
+    const ey=(Y(d.y)/H)*rect.height;
+
+    // Create a dedicated flying dot for each data point so 1, 2, or 3 points
+    // can all be launched from the human at the same time.
+    const anim=document.createElement('div');
+    anim.className='feed-anim';
+    anim.style.left=`${sx}px`;
+    anim.style.top=`${sy}px`;
+    anim.style.opacity='1';
+    anim.style.transition='none';
+    chartWrap.appendChild(anim);
+
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      anim.style.transition='left .65s cubic-bezier(.2,.8,.2,1), top .65s cubic-bezier(.2,.8,.2,1), opacity .15s .58s';
+      anim.style.left=`${ex-11}px`;
+      anim.style.top=`${ey-11}px`;
+      anim.style.opacity='0';
+      setTimeout(()=>{
+        anim.remove();
+        done();
+      },680);
+    }));
+  }
+
+  function finishTraining(){
+    const e=mse();
+    state.turn='complete';
+
+    finalWeight.textContent=state.w.toFixed(2);
+    finalBias.textContent=state.b.toFixed(2);
+    finalMSE.textContent=e===null?'—':e.toFixed(2);
+
+    if(completionOverlay)completionOverlay.classList.add('show');
+    feedBtn.disabled=true;
+    doneBtn.disabled=true;
+    knobRack.classList.add('knob-disabled');
+    turnText.textContent='TRAINING COMPLETE';
+    humanCopy.textContent='Training complete after 12 data points.';
+    lessonTitle.textContent='You learned from data';
+    lessonCopy.textContent='The model improved by changing its weight and bias in response to prediction error.';
+  }
+
+  function feedBatch(){
+    // First human turn: exactly 1 point.
+    // From the second human turn onward: randomly feed 1, 2, or 3 points.
+    // Every point in the batch animates at the same time.
+    if(state.turn!=='human')return;
+    feedBtn.disabled=true;
+
+    const requestedBatch = state.round===0 ? 1 : (1 + Math.floor(Math.random()*3));
+    const remaining = Math.max(0,12-state.data.length);
+    const batchSize = Math.min(requestedBatch,remaining);
+    const batch = [];
+    for(let i=0;i<batchSize;i++){
+      batch.push(feedPool[(state.data.length+i)%feedPool.length]);
+    }
+
+    let completed=0;
+
+    const finishBatch=()=>{
+      state.round++;
+      state.turn='machine';
+      state.baseline=mse();
+
+      humanCopy.textContent=batchSize===1
+        ? 'One new data point delivered. Adjust the model, watch the error, then press Done.'
+        : `${batchSize} new data points delivered. Adjust the model, watch the error, then press Done.`;
+
+      lessonTitle.textContent='Your turn: learn';
+      lessonCopy.textContent='Move weight and bias. Watch the orange line and the dotted error distances change immediately.';
+      renderUI();
+    };
+
+    batch.forEach(d=>{
+      animatePoint(d,()=>{
+        state.data.push(d);
+        completed++;
+        if(completed===batch.length) finishBatch();
+      });
+    });
+  }
+
+
+  toggleErrorsBtn.addEventListener('change',()=>{
+    state.showErrors=toggleErrorsBtn.checked;
+    renderUI();
+  });
+
+  feedBtn.addEventListener('click',feedBatch);
+
+  doneBtn.addEventListener('click',()=>{
+    if(state.turn!=='machine')return;
+
+    // Once 12 data points have been seen, this Done press ends training.
+    if(state.data.length>=12){
+      finishTraining();
+      return;
+    }
+
+    // Otherwise hand control back to the human and automatically feed the next batch.
+    state.turn='human';
+    renderUI();
+    showHumanBubble();
+
+    setTimeout(()=>{
+      feedBatch();
+    },450);
+  });
+
+  window.knobChanged=(id,val)=>{
+    if(syncingDial || state.turn!=='machine')return;
+    if(id==='wKnob') state.w=clamp(val/100,-1,3);
+    if(id==='bKnob') state.b=clamp(val/10,-15,15);
+    renderUI();
+  };
+
+  function setDialValues(){
+    if(!wDial||!bDial)return;
+    syncingDial=true;
+    wDial.setValue(Math.round(state.w*100));
+    bDial.setValue(Math.round(state.b*10));
+    syncingDial=false;
+  }
+
+  function initialiseKnobs(){
+    if(typeof Knob!=='function'){knobFallback.style.display='block';return;}
+    wDial=new Knob({id:'wKnob',lowVal:-100,highVal:300,value:100,size:'large',sensitivity:.8,type:'LittlePhatty',label:false,lblTxtColor:'silver'});
+    bDial=new Knob({id:'bKnob',lowVal:-150,highVal:150,value:0,size:'large',sensitivity:.8,type:'LittlePhatty',label:false,lblTxtColor:'silver'});
+    wKnobEl.setAttribute('title','Weight w: drag vertically');
+    bKnobEl.setAttribute('title','Bias b: drag vertically');
+  }
+
+
+  completionResetBtn.addEventListener('click',()=>{
+    if(completionOverlay)completionOverlay.classList.remove('show');
+    resetBtn.click();
+  });
+
+  resetBtn.addEventListener('click',()=>{
+    state={w:1,b:0,data:[],turn:'human',round:0,baseline:null,started:false,showErrors:false};
+    setDialValues();
+    if(startOverlay)startOverlay.style.display='grid';
+    if(completionOverlay)completionOverlay.classList.remove('show');
+    humanCopy.textContent='Press Start training. The human will give the machine its first example.';
+    lessonTitle.textContent='The learning loop';
+    lessonCopy.textContent='Human gives data → machine sees error → machine changes weight and bias → repeat.';
+    renderUI();
+  });
+
+  startBtn.addEventListener('click',()=>{
+    state.started=true;
+    startOverlay.style.display='none';
+    state.turn='human';
+    humanCopy.textContent='Watch the graph. The human will send the first training example.';
+    renderUI();
+
+    // Show the empty graph and initial y = x model for one second,
+    // then automatically launch the first data point from the human.
+    setTimeout(()=>{
+      feedBatch();
+    },1000);
+  });
+
+  setupAxes();initialiseKnobs();renderUI();
+})();
+</script>
+</body>
+</html>
