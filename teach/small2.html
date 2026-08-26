@@ -873,7 +873,7 @@ async function trainModel() {
   testBtn.disabled = true;
   saveBtn.disabled = true;
   progressBar.style.width = "0%";
-  networkCaption.textContent = "Each epoch is shown as a back-and-forth cycle: blue activations move forward, then red gradient signals move backward to update the classifier weights.";
+  networkCaption.textContent = "Each epoch is shown as a back-and-forth cycle. The two small italic numbers to the left of each trainable neuron are representative incoming weights; they highlight when backpropagation changes them.";
 
   const xsList = [];
   const ysList = [];
@@ -910,7 +910,7 @@ async function trainModel() {
         trainingStage = "forward";
         updateTrainingVisual();
         trainingForwardPulse(0.82);
-        await new Promise(resolve => setTimeout(resolve, 420));
+        await new Promise(resolve => setTimeout(resolve, 500));
         await tf.nextFrame();
       },
       onEpochEnd: async (epoch, logs) => {
@@ -925,7 +925,7 @@ async function trainModel() {
         updateTrainingVisual();
         statusEl.textContent = `Epoch ${epoch + 1}/${epochs} — loss ${logs.loss.toFixed(3)} — accuracy ${Math.round(acc*100)}%`;
         backpropPulse(0.82);
-        await new Promise(resolve => setTimeout(resolve, 420));
+        await new Promise(resolve => setTimeout(resolve, 500));
         await tf.nextFrame();
       }
     }
@@ -1030,10 +1030,10 @@ function resetAll() {
   totalEpochs = 0;
   trainingStage = "idle";
   backPulses = [];
-  links.forEach(link => {
-    link.weightValue = null;
-    link.weightDelta = 0;
-    link.weightFlash = 0;
+  nodes.forEach(n => {
+    n.repWeights = [null, null];
+    n.repWeightDelta = [0, 0];
+    n.repWeightFlash = [0, 0];
   });
 
   if (classifier) {
@@ -1104,7 +1104,7 @@ function buildNetwork(w,h) {
   nodes = [];
   links = [];
   const layers = [5, 8, 6, 2];
-  const xs = [w*.10, w*.36, w*.66, w*.90];
+  const xs = [w*.08, w*.31, w*.68, w*.92];
 
   layers.forEach((count, li) => {
     for(let i=0;i<count;i++){
@@ -1115,7 +1115,10 @@ function buildNetwork(w,h) {
         x:xs[li],
         y,
         value:Math.random()*0.25 + 0.05,
-        target:Math.random()*0.25 + 0.05
+        target:Math.random()*0.25 + 0.05,
+        repWeights:[null, null],
+        repWeightDelta:[0, 0],
+        repWeightFlash:[0, 0]
       });
     }
   });
@@ -1132,10 +1135,7 @@ function buildNetwork(w,h) {
       links.push({
         a,
         b,
-        showWeight,
-        weightValue: null,
-        weightDelta: 0,
-        weightFlash: 0
+        showWeight:false
       });
     }));
   }
@@ -1217,26 +1217,43 @@ function updateVisualWeightsFromClassifier() {
     const dense1Weights = classifier.layers[0].getWeights()[0].arraySync(); // [inputDim, 32]
     const dense2Weights = classifier.layers[2].getWeights()[0].arraySync(); // [32, 2]
 
-    links.forEach(link => {
-      if (!link.showWeight) return;
+    const hiddenNodes = nodes.filter(n => n.layer === 2);
+    const outputNodes = nodes.filter(n => n.layer === 3);
 
-      let newValue = null;
+    // Two representative incoming weights for each displayed hidden neuron.
+    // The real network has many more weights; these two are pedagogical samples.
+    hiddenNodes.forEach(n => {
+      const [colStart, colEnd] = groupBounds(dense1Weights[0].length, 6, n.index);
 
-      if (link.a.layer === 1 && link.b.layer === 2) {
-        const [rowStart, rowEnd] = groupBounds(dense1Weights.length, 8, link.a.index);
-        const [colStart, colEnd] = groupBounds(dense1Weights[0].length, 6, link.b.index);
-        newValue = meanBlock(dense1Weights, rowStart, rowEnd, colStart, colEnd);
-      } else if (link.a.layer === 2 && link.b.layer === 3) {
-        const [rowStart, rowEnd] = groupBounds(dense2Weights.length, 6, link.a.index);
-        newValue = meanBlock(dense2Weights, rowStart, rowEnd, link.b.index, link.b.index + 1);
-      }
+      const inputMid = Math.floor(dense1Weights.length / 2);
+      const newWeights = [
+        meanBlock(dense1Weights, 0, inputMid, colStart, colEnd),
+        meanBlock(dense1Weights, inputMid, dense1Weights.length, colStart, colEnd)
+      ];
 
-      if (newValue !== null) {
-        const previous = link.weightValue;
-        link.weightValue = newValue;
-        link.weightDelta = previous === null ? Math.abs(newValue) : Math.abs(newValue - previous);
-        link.weightFlash = Math.min(1, 0.15 + link.weightDelta * 18);
-      }
+      newWeights.forEach((value, i) => {
+        const previous = n.repWeights[i];
+        n.repWeights[i] = value;
+        n.repWeightDelta[i] = previous === null ? Math.abs(value) : Math.abs(value - previous);
+        n.repWeightFlash[i] = Math.min(1, 0.18 + n.repWeightDelta[i] * 22);
+      });
+    });
+
+    // Two representative incoming weights for each output neuron.
+    // We aggregate the hidden layer into two groups.
+    outputNodes.forEach(n => {
+      const hiddenMid = Math.floor(dense2Weights.length / 2);
+      const newWeights = [
+        meanBlock(dense2Weights, 0, hiddenMid, n.index, n.index + 1),
+        meanBlock(dense2Weights, hiddenMid, dense2Weights.length, n.index, n.index + 1)
+      ];
+
+      newWeights.forEach((value, i) => {
+        const previous = n.repWeights[i];
+        n.repWeights[i] = value;
+        n.repWeightDelta[i] = previous === null ? Math.abs(value) : Math.abs(value - previous);
+        n.repWeightFlash[i] = Math.min(1, 0.18 + n.repWeightDelta[i] * 22);
+      });
     });
 
     visualWeightVersion++;
@@ -1407,39 +1424,6 @@ function drawNetwork() {
     ctx.stroke();
   });
 
-  links.forEach(l => {
-    if (!l.showWeight || l.weightValue === null) return;
-
-    const midX = l.a.x + (l.b.x - l.a.x) * 0.54;
-    const midY = l.a.y + (l.b.y - l.a.y) * 0.54;
-
-    const dx = l.b.x - l.a.x;
-    const dy = l.b.y - l.a.y;
-    const len = Math.max(1, Math.hypot(dx, dy));
-    const nx = -dy / len;
-    const ny = dx / len;
-
-    const offsetDir = ((l.a.index + l.b.index) % 2 === 0) ? 1 : -1;
-    const labelX = midX + nx * 8 * offsetDir;
-    const labelY = midY + ny * 8 * offsetDir;
-
-    const label = l.weightValue >= 0 ? `+${l.weightValue.toFixed(2)}` : l.weightValue.toFixed(2);
-    ctx.font = "italic 9px Inter, system-ui, sans-serif";
-    const width = ctx.measureText(label).width;
-    const padX = 3;
-    const boxH = 11;
-
-    const flash = Math.max(0, Math.min(1, l.weightFlash || 0));
-    const bgAlpha = 0.70 + flash * 0.18;
-
-    ctx.fillStyle = flash > 0.22 ? `rgba(255,248,250,${bgAlpha})` : `rgba(255,255,255,${bgAlpha})`;
-    ctx.fillRect(labelX - padX, labelY - 8, width + padX * 2, boxH);
-
-    ctx.fillStyle = flash > 0.22 ? "rgba(176,62,92,.92)" : "rgba(102,111,131,.88)";
-    ctx.fillText(label, labelX, labelY);
-
-    l.weightFlash *= 0.94;
-  });
 
   nodes.forEach(n=>{
     const radius = n.layer===3 ? 9 : 6;
@@ -1477,6 +1461,37 @@ function drawNetwork() {
     ctx.fillRect(boxX, boxY, measured + padX * 2, 12);
     ctx.fillStyle = "rgba(73,82,104,.90)";
     ctx.fillText(label, tx, ty + 1);
+
+    // Pedagogical weight display:
+    // show only two representative incoming weights to the LEFT of each
+    // trainable hidden/output neuron. These are sampled/aggregated from the
+    // real classifier weights so students can see them change during training.
+    if ((n.layer === 2 || n.layer === 3) && n.repWeights[0] !== null) {
+      const weightX = n.x - (n.layer === 3 ? 44 : 38);
+      const baseY = n.y - 8;
+
+      n.repWeights.forEach((w, wi) => {
+        const wLabel = (w >= 0 ? "+" : "") + w.toFixed(2);
+        const wy = baseY + wi * 12;
+        const flash = Math.max(0, Math.min(1, n.repWeightFlash[wi] || 0));
+
+        ctx.font = "italic 8px Inter, system-ui, sans-serif";
+        ctx.textAlign = "right";
+
+        const measuredW = ctx.measureText(wLabel).width;
+        ctx.fillStyle = flash > 0.20
+          ? `rgba(255,244,247,${0.78 + flash * 0.18})`
+          : "rgba(255,255,255,.76)";
+        ctx.fillRect(weightX - measuredW - 4, wy - 7, measuredW + 7, 10);
+
+        ctx.fillStyle = flash > 0.20
+          ? "rgba(190,55,89,.96)"
+          : "rgba(90,99,119,.80)";
+        ctx.fillText(wLabel, weightX, wy);
+
+        n.repWeightFlash[wi] *= 0.93;
+      });
+    }
   });
 
   pulses = pulses.filter(p=>p.t<1.15);
