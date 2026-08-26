@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mini Teachable Machine</title>
+  <title>Interactive Image Classifier Lab</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
@@ -301,7 +301,7 @@
     }
     .epoch-pill.active{
       background:rgba(243,245,255,.96);
-      border-color:#cfd4ff;
+      border-color:#b8dcc3;
       color:#3d49c9;
     }
     .flow-stack{
@@ -324,19 +324,19 @@
       text-overflow:ellipsis;
       box-shadow:0 8px 20px rgba(24,32,51,.04);
     }
-    .flow-line.forward{color:#4f60f5}
-    .flow-line.backward{color:#b55d18}
+    .flow-line.forward{color:#2f8f4e}
+    .flow-line.backward{color:#c43d3d}
     .flow-line.active{
       opacity:1;
       transform:translateX(0);
     }
     .flow-line.forward.active{
       border-color:#cfd4ff;
-      background:rgba(242,244,255,.98);
+      background:rgba(241,251,244,.98);
     }
     .flow-line.backward.active{
-      border-color:#e7c8aa;
-      background:rgba(255,248,241,.98);
+      border-color:#efc1c1;
+      background:rgba(255,244,244,.98);
     }
     .network-caption{
       margin-top:7px;
@@ -525,8 +525,8 @@
     <section class="card main">
       <div class="topbar">
         <div>
-          <h1>Mini Teachable Machine</h1>
-          <div class="tiny">Start webcam → acquire images → train → test → save</div>
+          <h1>Interactive Image Classifier Lab</h1>
+          <div class="tiny">Start webcam → collect examples → train → test → save</div>
         </div>
         <div class="phase"><span class="phase-dot"></span><span id="phaseText">START</span></div>
       </div>
@@ -617,15 +617,15 @@
         <div class="network-visual">
           <canvas id="networkCanvas"></canvas>
           <div class="network-labels">
-            <span>image</span><span>features</span><span>neurons</span><span>output</span>
+            <span>image</span><span>features</span><span>hidden layer</span><span>output</span>
           </div>
         </div>
         <div class="network-info">
           <div class="training-visual" id="trainingVisual">
             <div class="epoch-pill" id="epochPill">No training yet</div>
             <div class="flow-stack">
-              <div class="flow-line forward" id="forwardLine">● Blue forward pass → activations / prediction</div>
-              <div class="flow-line backward" id="backwardLine">● Orange backpropagation ← gradient signal</div>
+              <div class="flow-line forward" id="forwardLine">● Green forward pass → activations / prediction</div>
+              <div class="flow-line backward" id="backwardLine">● Red backpropagation ← gradient signal</div>
             </div>
           </div>
           <div class="network-caption" id="networkCaption">
@@ -775,7 +775,7 @@ async function addExample(classId) {
   refreshCounts();
 
   statusEl.textContent = `Added an example to ${classId === 0 ? nameA.value : nameB.value}.`;
-  photoCapturePulse();
+  photoCapturePulse(classId);
 
   if (examples[0].length >= 3 && examples[1].length >= 3) {
     statusEl.textContent = "Enough examples collected. You can train the model.";
@@ -1285,22 +1285,23 @@ function networkPulse(strength=0.7) {
   });
 }
 
-function photoCapturePulse() {
+function photoCapturePulse(classId=0) {
   animLevel = Math.max(animLevel, 0.72);
 
-  // Every captured photo must create a visible forward signal.
-  // Start from one random input node so each capture is clearly identifiable.
+  // Every captured photo creates a visible class-colored data signal.
   const starts = nodes.filter(n=>n.layer===0);
   if (!starts.length) return;
 
   const start = starts[Math.floor(Math.random() * starts.length)];
+  const pulseColor = classId === 1 ? "rgba(201,106,27,.86)" : "rgba(89,103,255,.82)";
 
   pulses.push({
     layer:0,
     from:start,
     to:null,
     t:0,
-    speed:.018 + Math.random()*.004
+    speed:.018 + Math.random()*.004,
+    color:pulseColor
   });
 }
 
@@ -1316,7 +1317,8 @@ function trainingForwardPulse(strength=0.85) {
       from:n,
       to:null,
       t:-i*.06,
-      speed:.055 + Math.random()*.008
+      speed:.055 + Math.random()*.008,
+      color:"rgba(47,143,78,.82)"
     });
   });
 }
@@ -1332,7 +1334,8 @@ function backpropPulse(strength=0.85) {
       from:n,
       to:null,
       t:-i*.08,
-      speed:.055 + Math.random()*.008
+      speed:.055 + Math.random()*.008,
+      color:"rgba(196,61,61,.86)"
     });
   });
 }
@@ -1445,16 +1448,22 @@ function drawNetwork() {
 
 
   nodes.forEach(n=>{
-    const radius = n.layer===3 ? 9 : 6;
     const active = 0.22 + 0.72*n.value;
 
     ctx.beginPath();
-    ctx.arc(n.x,n.y, radius, 0, Math.PI*2);
+
+    if(n.layer===0 || n.layer===1) {
+      const size = n.layer===0 ? 11 : 11;
+      ctx.rect(n.x - size/2, n.y - size/2, size, size);
+    } else {
+      const radius = n.layer===3 ? 11 : 8;
+      ctx.arc(n.x,n.y, radius, 0, Math.PI*2);
+    }
 
     if(n.layer===0) {
       ctx.fillStyle = `rgba(89,103,255,${active})`;
     } else if(n.layer===1) {
-      ctx.fillStyle = `rgba(88,116,170,${0.22 + 0.66*n.value})`;
+      ctx.fillStyle = `rgba(201,106,27,${0.22 + 0.66*n.value})`;
     } else if(n.layer===2) {
       ctx.fillStyle = `rgba(70,81,110,${0.20 + 0.70*n.value})`;
     } else {
@@ -1533,7 +1542,7 @@ function drawNetwork() {
 
     ctx.beginPath();
     ctx.arc(x,y,3.3,0,Math.PI*2);
-    ctx.fillStyle = "rgba(89,103,255,.78)";
+    ctx.fillStyle = p.color || "rgba(89,103,255,.78)";
     ctx.fill();
 
     if(p.t>=1 && startLayer<2){
@@ -1562,7 +1571,7 @@ function drawNetwork() {
 
     ctx.beginPath();
     ctx.arc(x,y,3.3,0,Math.PI*2);
-    ctx.fillStyle = "rgba(201,106,27,.86)";
+    ctx.fillStyle = p.color || "rgba(196,61,61,.86)";
     ctx.fill();
 
     if(p.t>=1 && startLayer>1){
