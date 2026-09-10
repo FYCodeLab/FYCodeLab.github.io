@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Educational Games</title>
 
   <style>
@@ -10,41 +11,70 @@
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
-      padding: 40px;
-      font-family: Arial, sans-serif;
-      background: #f4f6fa;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f2f5f9;
+      color: #172033;
+    }
+
+    body {
+      padding: 40px 25px;
     }
 
     h1 {
+      margin: 0 0 10px;
       text-align: center;
-      margin-bottom: 40px;
+      font-size: clamp(2rem, 5vw, 3.5rem);
     }
 
-    /* Game thumbnails */
+    .introduction {
+      margin: 0 auto 40px;
+      text-align: center;
+      font-size: 1.2rem;
+      color: #546078;
+    }
+
+    /* Game gallery */
+
     .game-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 25px;
-      max-width: 1100px;
-      margin: auto;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 28px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .game-card {
-      border: 0;
+      display: block;
+      width: 100%;
       padding: 0;
-      background: white;
-      border-radius: 16px;
       overflow: hidden;
+
+      border: 0;
+      border-radius: 18px;
+      background: white;
+      color: inherit;
+      text-align: left;
       cursor: pointer;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
-      transition: transform 0.25s, box-shadow 0.25s;
+
+      box-shadow: 0 8px 25px rgba(20, 35, 60, 0.14);
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
     }
 
-    .game-card:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    .game-card:hover,
+    .game-card:focus-visible {
+      transform: translateY(-7px) scale(1.02);
+      box-shadow: 0 16px 40px rgba(20, 35, 60, 0.23);
+    }
+
+    .game-card:focus-visible {
+      outline: 4px solid #3485ff;
+      outline-offset: 4px;
     }
 
     .game-card img {
@@ -52,59 +82,77 @@
       width: 100%;
       aspect-ratio: 16 / 10;
       object-fit: cover;
+      background: #dce5f2;
     }
 
-    .game-card span {
+    .game-title {
       display: block;
-      padding: 14px;
-      font-size: 18px;
-      font-weight: bold;
+      padding: 18px 20px 7px;
+      font-size: 1.35rem;
+      font-weight: 700;
     }
 
-    /* Dark background behind the opened game */
+    .game-description {
+      display: block;
+      padding: 0 20px 20px;
+      color: #667188;
+      font-size: 1rem;
+    }
+
+    /* Full-screen overlay */
+
     .overlay {
       position: fixed;
       inset: 0;
       z-index: 1000;
+
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(10, 15, 25, 0.75);
-      backdrop-filter: blur(5px);
+
+      background: rgba(7, 12, 22, 0.82);
+      backdrop-filter: blur(7px);
 
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s, visibility 0.3s;
+      pointer-events: none;
+
+      transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
     }
 
     .overlay.open {
       opacity: 1;
       visibility: visible;
+      pointer-events: auto;
     }
 
-    /* Game window */
+    /* Game occupies 95% of the screen */
+
     .game-window {
       position: relative;
-      width: 80vw;
-      height: 80vh;
+      width: 95vw;
+      height: 95vh;
       overflow: hidden;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
 
-      transform: scale(0.15);
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 25px 90px rgba(0, 0, 0, 0.55);
+
       opacity: 0;
+      transform: scale(0.15);
       transition:
         transform 0.45s cubic-bezier(.2, .8, .2, 1),
-        opacity 0.25s;
+        opacity 0.25s ease;
     }
 
     .overlay.open .game-window {
-      transform: scale(1);
       opacity: 1;
+      transform: scale(1);
     }
 
-    .game-window iframe {
+    .game-frame {
       display: block;
       width: 100%;
       height: 100%;
@@ -112,94 +160,269 @@
       background: white;
     }
 
-    /* Close button */
+    /* Large close button */
+
     .close-button {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 2;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
 
-      width: 42px;
-      height: 42px;
-      border: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      width: 58px;
+      height: 58px;
+      padding: 0;
+
+      border: 3px solid white;
       border-radius: 50%;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(15, 20, 30, 0.88);
       color: white;
-      font-size: 28px;
+
+      font-size: 42px;
+      font-weight: 300;
       line-height: 1;
       cursor: pointer;
+
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+      transition:
+        background 0.2s ease,
+        transform 0.2s ease;
     }
 
-    .close-button:hover {
-      background: #d53030;
+    .close-button:hover,
+    .close-button:focus-visible {
+      background: #d72f3f;
+      transform: scale(1.08);
+    }
+
+    .close-button:focus-visible {
+      outline: 4px solid #ffcc00;
+      outline-offset: 3px;
     }
 
     @media (max-width: 700px) {
       body {
-        padding: 20px;
+        padding: 25px 15px;
+      }
+
+      .game-grid {
+        grid-template-columns: 1fr;
       }
 
       .game-window {
-        width: 94vw;
-        height: 85vh;
+        width: 95vw;
+        height: 95vh;
+        border-radius: 12px;
+      }
+
+      .close-button {
+        width: 52px;
+        height: 52px;
+        font-size: 38px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .game-card,
+      .overlay,
+      .game-window,
+      .close-button {
+        transition: none;
       }
     }
   </style>
 </head>
 
 <body>
-  <h1>Educational Games</h1>
+  <header>
+    <h1>Educational Games</h1>
+    <p class="introduction">
+      Select an activity to begin.
+    </p>
+  </header>
 
   <main class="game-grid">
 
-    <button class="game-card"
-            data-game="reg.html"
-            aria-label="Open regression game">
-      <img src="images/regression.jpg" alt="Regression game">
-      <span>Regression Game</span>
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/main.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/main.jpg"
+        alt="Main educational activity"
+      >
+      <span class="game-title">Main Activity</span>
+      <span class="game-description">Open the main educational game.</span>
     </button>
 
-    <button class="game-card"
-            data-game="regneur.html"
-            aria-label="Open neuron game">
-      <img src="images/neuron.jpg" alt="Neuron game">
-      <span>Neuron Game</span>
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/3Dregneur.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/3d-regression.jpg"
+        alt="Three-dimensional regression activity"
+      >
+      <span class="game-title">3D Regression</span>
+      <span class="game-description">Explore regression in three dimensions.</span>
     </button>
 
-    <button class="game-card"
-            data-game="two_variable_plane_neuron_lab.html"
-            aria-label="Open two-variable neuron lab">
-      <img src="images/two-variable.jpg" alt="Two-variable neuron lab">
-      <span>Two-Variable Neuron Lab</span>
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/reg.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/regression.jpg"
+        alt="Regression activity"
+      >
+      <span class="game-title">Regression</span>
+      <span class="game-description">Experiment with a regression model.</span>
+    </button>
+
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/reg4.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/regression-4.jpg"
+        alt="Regression activity number four"
+      >
+      <span class="game-title">Regression 4</span>
+      <span class="game-description">Open the fourth regression activity.</span>
+    </button>
+
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/regneur.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/neuron-regression.jpg"
+        alt="Neuron regression activity"
+      >
+      <span class="game-title">Neuron Regression</span>
+      <span class="game-description">Explore regression using a neuron model.</span>
+    </button>
+
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/regneur2.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/neuron-regression-2.jpg"
+        alt="Second neuron regression activity"
+      >
+      <span class="game-title">Neuron Regression 2</span>
+      <span class="game-description">Open the second neuron activity.</span>
+    </button>
+
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/small.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/small.jpg"
+        alt="Small educational activity"
+      >
+      <span class="game-title">Small Activity</span>
+      <span class="game-description">Open the interactive activity.</span>
+    </button>
+
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/small2.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/small-2.jpg"
+        alt="Second small educational activity"
+      >
+      <span class="game-title">Small Activity 2</span>
+      <span class="game-description">Open the second interactive activity.</span>
+    </button>
+
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/training.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/training.jpg"
+        alt="Model training activity"
+      >
+      <span class="game-title">Training</span>
+      <span class="game-description">Explore the model-training process.</span>
+    </button>
+
+    <button
+      class="game-card"
+      type="button"
+      data-game="https://fycodelab.github.io/teach/two_variable_plane_neuron_lab.html"
+    >
+      <img
+        src="https://fycodelab.github.io/teach/images/two-variable-neuron.jpg"
+        alt="Two-variable neuron laboratory"
+      >
+      <span class="game-title">Two-Variable Neuron Lab</span>
+      <span class="game-description">Experiment with two input variables.</span>
     </button>
 
   </main>
 
-  <div class="overlay" id="gameOverlay" aria-hidden="true">
-    <div class="game-window" role="dialog" aria-modal="true">
-      <button class="close-button"
-              id="closeButton"
-              aria-label="Close game">&times;</button>
+  <div
+    class="overlay"
+    id="gameOverlay"
+    aria-hidden="true"
+  >
+    <div
+      class="game-window"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Educational game"
+    >
+      <button
+        class="close-button"
+        id="closeButton"
+        type="button"
+        aria-label="Close game"
+      >
+        &times;
+      </button>
 
       <iframe
+        class="game-frame"
         id="gameFrame"
         title="Educational game"
-        allow="fullscreen">
-      </iframe>
+        allow="fullscreen"
+      ></iframe>
     </div>
   </div>
 
   <script>
     const overlay = document.getElementById("gameOverlay");
-    const iframe = document.getElementById("gameFrame");
+    const gameFrame = document.getElementById("gameFrame");
     const closeButton = document.getElementById("closeButton");
     const gameCards = document.querySelectorAll(".game-card");
 
-    function openGame(gameUrl) {
-      iframe.src = gameUrl;
+    let previouslyFocusedElement = null;
+
+    function openGame(url) {
+      previouslyFocusedElement = document.activeElement;
+      gameFrame.src = url;
+
       overlay.classList.add("open");
       overlay.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
+
       closeButton.focus();
     }
 
@@ -208,10 +431,14 @@
       overlay.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
 
-      // Stops the game, sounds and animations after closing.
-      setTimeout(() => {
-        iframe.src = "";
+      // Wait until the closing animation finishes before stopping the game.
+      window.setTimeout(() => {
+        gameFrame.src = "";
       }, 450);
+
+      if (previouslyFocusedElement) {
+        previouslyFocusedElement.focus();
+      }
     }
 
     gameCards.forEach(card => {
@@ -222,17 +449,17 @@
 
     closeButton.addEventListener("click", closeGame);
 
-    // Close by clicking on the dark background.
     overlay.addEventListener("click", event => {
       if (event.target === overlay) {
         closeGame();
       }
     });
 
-    // Close with the Escape key.
     document.addEventListener("keydown", event => {
-      if (event.key === "Escape" &&
-          overlay.classList.contains("open")) {
+      if (
+        event.key === "Escape" &&
+        overlay.classList.contains("open")
+      ) {
         closeGame();
       }
     });
