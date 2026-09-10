@@ -180,13 +180,14 @@
 
       if (!answerChecked) return;
       fill(0); textSize(16); text('Your count is:', 630, 300);
-      fill(215, 25, 32); text(submittedCount.toLocaleString() + ' cells/mL', 630, 340);
+      // Do not add a thousands comma: in danger.ttf its comma resembles a zero.
+      fill(215, 25, 32); text(String(submittedCount) + ' cells/mL', 630, 340);
       textSize(30); text('Score: ' + score.toFixed(1) + '%', 630, 400);
       if (resultRevealed) {
         fill(0, 155, 55); textSize(18);
         text('Real result:', 630, 455);
         textSize(22);
-        text(realCount.toLocaleString(), 630, 486);
+        text(String(realCount), 630, 486);
         textSize(16);
         text('cells/mL', 630, 515);
       }
