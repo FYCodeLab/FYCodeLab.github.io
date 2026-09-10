@@ -20,6 +20,11 @@
     --accent:#284c66;
   }
   *{box-sizing:border-box}
+  html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+  }
   body{
     margin:0;
     background:var(--bg);
@@ -27,9 +32,13 @@
     font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   }
   .app{
-    max-width:1180px;
+    width:min(1180px,100%);
+    height:100%;
     margin:0 auto;
-    padding:24px;
+    padding:14px 18px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
   }
   .topline{
     display:flex;
@@ -50,18 +59,19 @@
   }
   .restart-btn:hover{background:#ebe6d9}
   h1{
-    margin:0 0 4px;
-    font-size:clamp(24px,3vw,38px);
+    margin:0 0 2px;
+    font-size:clamp(22px,2.5vw,34px);
   }
   .subtitle{
-    margin:0 0 22px;
+    margin:0 0 10px;
     color:var(--muted);
+    font-size:14px;
   }
   .stagebar{
     display:flex;
     gap:10px;
     flex-wrap:wrap;
-    margin-bottom:18px;
+    margin-bottom:10px;
   }
   .pill{
     border:1px solid #bdb9ae;
@@ -79,16 +89,18 @@
   }
   .workspace{
     display:grid;
-    grid-template-columns: 1.1fr .9fr;
-    gap:20px;
-    align-items:start;
+    grid-template-columns: 1.08fr .92fr;
+    gap:12px;
+    align-items:stretch;
+    flex:1;
+    min-height:0;
   }
-  .leftcol{display:grid; gap:18px}
+  .leftcol{display:grid; grid-template-rows:auto auto auto; gap:10px; min-height:0}
   .panel{
     background:var(--paper);
     border:1px solid #c9c5ba;
     border-radius:16px;
-    padding:18px;
+    padding:12px;
     box-shadow:0 2px 0 rgba(0,0,0,.03);
   }
   .panel-title{
@@ -97,17 +109,29 @@
     text-transform:uppercase;
     color:var(--muted);
     font-weight:800;
-    margin-bottom:14px;
+    margin-bottom:8px;
+  }
+
+
+  .tube-panel{
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+  .tube-panel .tube-row{
+    flex:1;
   }
 
   /* tubes */
   .tube-row{
     display:flex;
-    align-items:flex-end;
+    align-items:center;
     justify-content:center;
     gap:15px;
-    min-height:155px;
+    min-height:118px;
+    height:100%;
     position:relative;
+    padding:8px 0;
   }
   .tube-wrap{
     width:62px;
@@ -130,34 +154,53 @@
   }
   .tube{
     width:38px;
-    height:100px;
+    height:78px;
     margin:0 auto 6px;
     border:3px solid #95aab5;
     border-top:0;
     border-radius:0 0 14px 14px;
     position:relative;
     background:rgba(220,240,248,.28);
-    overflow:hidden;
+    overflow:visible;
   }
   .tube::before{
     content:"";
     position:absolute;
-    left:-4px; right:-4px; top:0;
+    left:-2px;
+    top:-4px;
+    width:32px;
     height:8px;
     border:3px solid #95aab5;
     border-radius:50%;
     background:#f8fbfc;
+    z-index:3;
+  }
+  .tube::after{
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    right:0;
+    height:7px;
+    background:#f8fbfc;
+    z-index:2;
   }
   .liquid{
     position:absolute;
-    left:3px; right:3px; bottom:3px;
+    left:3px;
+    right:3px;
+    bottom:3px;
+    height:58px;
     border-radius:0 0 10px 10px;
     background:var(--liquid);
     transition:height .3s ease, filter .3s ease;
+    overflow:hidden;
+    z-index:1;
   }
   .tube-label{
     font-weight:800;
     font-size:13px;
+    margin-top:2px;
   }
   .tube-sub{
     font-size:11px;
@@ -172,14 +215,14 @@
     align-items:center;
   }
   .spectro{
-    width:330px;
+    width:300px;
     max-width:100%;
     margin:auto;
     position:relative;
     background:linear-gradient(#c8c5bb,#aaa79e);
     border:2px solid #66645f;
     border-radius:14px 14px 10px 10px;
-    padding:18px 18px 20px;
+    padding:12px 14px 14px;
     box-shadow:inset 0 0 0 4px rgba(255,255,255,.18);
   }
   .spectro-top{
@@ -189,7 +232,7 @@
     align-items:center;
   }
   .lcd{
-    height:58px;
+    height:48px;
     background:var(--lcd);
     border:6px inset #55524c;
     border-radius:4px;
@@ -223,7 +266,7 @@
   .dial-row{
     display:flex;
     gap:14px;
-    margin-top:18px;
+    margin-top:10px;
     align-items:center;
   }
   .dial{
@@ -259,10 +302,17 @@
   }
 
   /* graph */
-  .graph-panel{position:relative}
+  .graph-panel{
+    position:relative;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+  }
   #graph{
     width:100%;
-    height:auto;
+    height:100%;
+    min-height:0;
+    flex:1;
     display:block;
     background:
       linear-gradient(rgba(66,108,145,.10) 1px, transparent 1px),
@@ -283,14 +333,14 @@
     font-weight:700;
   }
   .message{
-    margin-top:18px;
+    margin-top:10px;
     border-left:5px solid #222;
     padding:12px 14px;
     background:#ebe6d9;
     min-height:54px;
   }
   .unknown-area{
-    min-height:155px;
+    min-height:118px;
     display:flex;
     align-items:flex-end;
     justify-content:center;
@@ -354,27 +404,27 @@
         <div class="tube-row" id="tubeRow">
           <div class="tube-wrap" data-index="0">
             <div class="tube"><div class="liquid" style="height:58px;opacity:.25"></div></div>
-            <div class="tube-label">C1</div><div class="tube-sub">0 mg/L</div>
+            <div class="tube-label">C1</div><div class="tube-sub">0 mg/mL</div>
           </div>
           <div class="tube-wrap" data-index="1">
             <div class="tube"><div class="liquid" style="height:58px;opacity:.36"></div></div>
-            <div class="tube-label">C2</div><div class="tube-sub">20 mg/L</div>
+            <div class="tube-label">C2</div><div class="tube-sub">20 mg/mL</div>
           </div>
           <div class="tube-wrap" data-index="2">
             <div class="tube"><div class="liquid" style="height:58px;opacity:.47"></div></div>
-            <div class="tube-label">C3</div><div class="tube-sub">40 mg/L</div>
+            <div class="tube-label">C3</div><div class="tube-sub">40 mg/mL</div>
           </div>
           <div class="tube-wrap" data-index="3">
             <div class="tube"><div class="liquid" style="height:58px;opacity:.58"></div></div>
-            <div class="tube-label">C4</div><div class="tube-sub">60 mg/L</div>
+            <div class="tube-label">C4</div><div class="tube-sub">60 mg/mL</div>
           </div>
           <div class="tube-wrap" data-index="4">
             <div class="tube"><div class="liquid" style="height:58px;opacity:.69"></div></div>
-            <div class="tube-label">C5</div><div class="tube-sub">80 mg/L</div>
+            <div class="tube-label">C5</div><div class="tube-sub">80 mg/mL</div>
           </div>
           <div class="tube-wrap" data-index="5">
             <div class="tube"><div class="liquid" style="height:58px;opacity:.80"></div></div>
-            <div class="tube-label">C6</div><div class="tube-sub">100 mg/L</div>
+            <div class="tube-label">C6</div><div class="tube-sub">100 mg/mL</div>
           </div>
         </div>
         <div class="unknown-area hidden" id="unknownArea"></div>
@@ -409,7 +459,7 @@
         <g id="axes">
           <line x1="70" y1="430" x2="525" y2="430" stroke="#222" stroke-width="2"/>
           <line x1="70" y1="430" x2="70" y2="35" stroke="#222" stroke-width="2"/>
-          <text x="300" y="485" text-anchor="middle" font-size="16">Sugar concentration</text>
+          <text x="300" y="485" text-anchor="middle" font-size="16">Sugar concentration (mg/mL)</text>
           <text x="18" y="235" text-anchor="middle" font-size="16" transform="rotate(-90 18 235)">OD / absorbance</text>
         </g>
         <g id="ticks"></g>
@@ -430,7 +480,7 @@
   if (jsNotice) jsNotice.remove();
 
   const standards = [
-    // Blank-corrected values: the 0 mg/L standard is therefore exactly 0 OD.
+    // Blank-corrected values: the 0 mg/mL standard is therefore exactly 0 OD.
     // The other points deliberately include realistic experimental scatter.
     {name:"C1", c:0,   od:0.000},
     {name:"C2", c:20,  od:0.205},
@@ -489,7 +539,7 @@
           <div class="liquid" style="height:${height}px;opacity:${opacity}"></div>
         </div>
         <div class="tube-label">${item.name}</div>
-        <div class="tube-sub">${sample ? 'unknown concentration' : item.c + ' mg/L'}</div>
+        <div class="tube-sub">${sample ? 'unknown concentration' : item.c + ' mg/mL'}</div>
       </div>
     `;
   }
@@ -602,7 +652,7 @@ function drawTicks(){
 
     const s=standards[current];
     const wrap=tubeRow.querySelector(`[data-index="${current}"]`);
-    msg.innerHTML=`<strong>${s.name}</strong> (${s.c} mg/L) moves into the spectrophotometer.`;
+    msg.innerHTML=`<strong>${s.name}</strong> (${s.c} mg/mL) moves into the spectrophotometer.`;
 
     const flying = await flyTubeToSlot(wrap);
 
@@ -677,8 +727,8 @@ function drawTicks(){
     wrap.remove();
     await animateInterpolation();
 
-    msg.innerHTML=`OD ${unknown.od.toFixed(3)} corresponds to a concentration of approximately <strong>${unknown.c.toFixed(1)} mg/L</strong>. The calibration curve has turned a measured signal into a predicted concentration.`;
-    graphNote.innerHTML=`Unknown OD = <strong>${unknown.od.toFixed(3)}</strong> → predicted concentration ≈ <strong>${unknown.c.toFixed(1)} mg/L</strong>.`;
+    msg.innerHTML=`OD ${unknown.od.toFixed(3)} corresponds to a concentration of approximately <strong>${unknown.c.toFixed(1)} mg/mL</strong>. The calibration curve has turned a measured signal into a predicted concentration.`;
+    graphNote.innerHTML=`Unknown OD = <strong>${unknown.od.toFixed(3)}</strong> → predicted concentration ≈ <strong>${unknown.c.toFixed(1)} mg/mL</strong>.`;
     button.textContent="NEW SAMPLE";
     button.disabled=false;
     busy=false;
@@ -758,6 +808,26 @@ function drawTicks(){
     }
   });
 })();
+
+  function fitGameToWindow(){
+    const app = document.querySelector(".app");
+    if(!app) return;
+    app.style.transform = "";
+    app.style.transformOrigin = "top center";
+    app.style.width = "min(1180px,100%)";
+
+    const availableH = window.innerHeight;
+    const neededH = app.scrollHeight;
+    if(neededH > availableH){
+      const scale = Math.max(0.72, availableH / neededH);
+      app.style.transform = `scale(${scale})`;
+      app.style.width = `${100/scale}%`;
+      app.style.maxWidth = `${1180/scale}px`;
+    }
+  }
+  window.addEventListener("resize", fitGameToWindow);
+  requestAnimationFrame(fitGameToWindow);
+
 </script>
 </body>
 </html>
