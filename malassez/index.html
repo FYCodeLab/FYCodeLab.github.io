@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Malassez Cell Counter</title>
+  <style>
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #f3f4f6; }
+    body { display: grid; place-items: center; font-family: Arial, sans-serif; }
+    #stage { position: relative; width: 1000px; height: 600px; transform-origin: center; background: white; box-shadow: 0 10px 30px #0002; }
+    canvas { position: absolute; inset: 0; z-index: 0; display: block; }
+    button, input { position: absolute; z-index: 2; box-sizing: border-box; border: 1px solid #111; border-radius: 5px; }
+    button { cursor: pointer; color: white; font-weight: 700; }
+    #renew { left: 545px; top: 20px; width: 120px; height: 50px; background: #d71920; }
+    #count { left: 545px; top: 100px; width: 120px; height: 34px; padding: 4px 8px; font-size: 16px; }
+    #check { left: 545px; top: 150px; width: 120px; height: 34px; background: #1455d9; }
+    #reveal { left: 545px; top: 200px; width: 120px; height: 34px; background: #16833a; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main id="stage" aria-label="Malassez chamber cell-counting activity">
+    <button id="renew" type="button">Renew Cells</button>
+    <input id="count" type="text" inputmode="numeric" aria-label="Your count in cells per millilitre" autocomplete="off">
+    <button id="check" type="button">Check your count</button>
+    <button id="reveal" type="button">Real Results</button>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
+  <script>
+    'use strict';
+
+    const W = 1000, H = 600;
+    const chamber = { x: 120, y: 30, w: 360, h: 460 };
+    const keys = ['1','2','3','4','5','6','7','8','9','0','<'];
+    const keypad = { x: 800, y: 100, size: 40, gap: 10 };
+    const ui = {};
+    let cells = [], mainImage, animationImage, customFont;
+    let state = 'animation', animationStart = 0, realCount = 0;
+    let answerChecked = false, resultRevealed = false, score = 0, submittedCount = 0;
+    let imageError = false, animationError = false;
+
+    function preload() {
+      mainImage = loadImage('MALASSEZ5.jpg', undefined, () => { imageError = true; });
+      animationImage = loadImage('MAL5.gif', undefined, () => { animationError = true; });
+      customFont = loadFont('danger.ttf', undefined, () => { customFont = null; });
+    }
+
+    function setup() {
+      const canvas = createCanvas(W, H);
+      canvas.parent('stage');
+      ui.renew = select('#renew');
+      ui.input = select('#count');
+      ui.check = select('#check');
+      ui.reveal = select('#reveal');
+      ui.renew.mousePressed(startRound);
+      ui.check.mousePressed(checkAnswer);
+      ui.reveal.mousePressed(revealAnswer);
+      ui.input.elt.addEventListener('input', () => {
+        ui.input.value(ui.input.value().replace(/\D/g, ''));
+      });
+      ui.input.elt.addEventListener('keydown', event => {
+        if (event.key === 'Enter') checkAnswer();
+      });
+      resizeStage();
+      window.addEventListener('resize', resizeStage);
+      startRound();
+    }
+
+    function draw() {
+      background(255);
+      if (state === 'animation') drawAnimation();
+      else drawActivity();
+    }
+
+    function startRound() {
+      cells = [];
+      answerChecked = false;
+      resultRevealed = false;
+      ui.input.value('');
+      setControlsVisible(false);
+      state = 'animation';
+      animationStart = millis();
+      if (animationImage && animationImage.reset) animationImage.reset();
+      loop();
+    }
+
+    function finishAnimation() {
+      state = 'principal';
+      generateCells();
+      setControlsVisible(true);
+      ui.input.elt.focus();
+    }
+
+    function setControlsVisible(visible) {
+      [ui.renew, ui.input, ui.check, ui.reveal].forEach(element => {
+        element.elt.hidden = !visible;
+      });
+    }
+
+    function drawAnimation() {
+      if (millis() - animationStart >= 2800) {
+        finishAnimation();
+        return;
+      }
+      if (!animationError && animationImage && animationImage.width > 1) {
+        const scale = Math.min(0.8, 800 / animationImage.width, 520 / animationImage.height);
+        const w = animationImage.width * scale, h = animationImage.height * scale;
+        image(animationImage, (W - w) / 2, (H - h) / 2, w, h);
+      } else {
+        fill(25); noStroke(); textAlign(CENTER, CENTER); textSize(24);
+        text('Preparing a new chamber…', W / 2, H / 2);
+      }
+    }
+
+    function drawActivity() {
+      if (!imageError && mainImage && mainImage.width > 1) {
+        const imageW = 540;
+        image(mainImage, 0, 0, imageW, imageW / (mainImage.width / mainImage.height));
+      } else {
+        fill(245); stroke(80); strokeWeight(2);
+        rect(chamber.x, chamber.y, chamber.w, chamber.h);
+        drawGrid();
+        noStroke(); fill(70); textAlign(CENTER, CENTER); textSize(13);
+        text('Add MALASSEZ5.jpg beside this HTML file', chamber.x + chamber.w / 2, chamber.y + chamber.h + 24);
+      }
+
+      noStroke(); fill(0);
+      for (const c of cells) ellipse(c.x, c.y, c.w, c.h);
+      drawKeypad();
+      drawLabelsAndResults();
+    }
+
+    function drawGrid() {
+      stroke(185); strokeWeight(1);
+      for (let i = 1; i < 10; i++) {
+        line(chamber.x + i * chamber.w / 10, chamber.y, chamber.x + i * chamber.w / 10, chamber.y + chamber.h);
+        line(chamber.x, chamber.y + i * chamber.h / 10, chamber.x + chamber.w, chamber.y + i * chamber.h / 10);
+      }
+    }
+
+    function generateCells() {
+      cells = [];
+      const number = floor(random(50, 300));
+      for (let i = 0; i < number; i++) {
+        const w = random(6, 12);
+        cells.push({
+          x: random(chamber.x, chamber.x + chamber.w),
+          y: random(chamber.y, chamber.y + chamber.h),
+          w,
+          h: w + random(-3, 3)
+        });
+      }
+      realCount = cells.length * 1000;
+    }
+
+    function checkAnswer() {
+      const raw = ui.input.value().trim();
+      if (!raw) {
+        ui.input.elt.focus();
+        return;
+      }
+      submittedCount = Number.parseInt(raw, 10);
+      const difference = Math.abs(submittedCount - realCount);
+      score = Math.max(0, (1 - difference / realCount) * 100);
+      answerChecked = true;
+      resultRevealed = false;
+    }
+
+    function revealAnswer() {
+      if (!answerChecked) checkAnswer();
+      if (answerChecked) resultRevealed = true;
+    }
+
+    function drawLabelsAndResults() {
+      textFont(customFont || 'Arial'); textStyle(NORMAL); textAlign(CENTER, CENTER);
+      fill(0); textSize(12);
+      text('Your count:', 605, 85);
+      text('cells/mL', 605, 141);
+
+      if (!answerChecked) return;
+      fill(0); textSize(16); text('Your count is:', 630, 300);
+      fill(215, 25, 32); text(submittedCount.toLocaleString() + ' cells/mL', 630, 340);
+      textSize(30); text('Score: ' + score.toFixed(1) + '%', 630, 400);
+      if (resultRevealed) {
+        fill(0, 155, 55); textSize(19);
+        text('Real result: ' + realCount.toLocaleString() + ' cells/mL', 630, 460);
+      }
+    }
+
+    function drawKeypad() {
+      textFont('Arial'); textStyle(BOLD); textSize(20); textAlign(CENTER, CENTER);
+      for (let i = 0; i < keys.length; i++) {
+        const x = keypad.x + (i % 3) * (keypad.size + keypad.gap);
+        const y = keypad.y + floor(i / 3) * (keypad.size + keypad.gap);
+        stroke(0); strokeWeight(1); fill(20, 80, 215);
+        rect(x, y, keypad.size, keypad.size, 4);
+        noStroke(); fill(255);
+        text(keys[i], x + keypad.size / 2, y + keypad.size / 2 + 1);
+      }
+      textStyle(NORMAL);
+    }
+
+    function mousePressed() {
+      if (state !== 'principal') return;
+      for (let i = 0; i < keys.length; i++) {
+        const x = keypad.x + (i % 3) * (keypad.size + keypad.gap);
+        const y = keypad.y + floor(i / 3) * (keypad.size + keypad.gap);
+        if (mouseX >= x && mouseX <= x + keypad.size && mouseY >= y && mouseY <= y + keypad.size) {
+          const current = ui.input.value();
+          ui.input.value(keys[i] === '<' ? current.slice(0, -1) : current + keys[i]);
+          ui.input.elt.focus();
+          break;
+        }
+      }
+    }
+
+    function resizeStage() {
+      const stage = document.getElementById('stage');
+      const scale = Math.min(window.innerWidth / W, window.innerHeight / H, 1);
+      stage.style.transform = `scale(${scale})`;
+    }
+  </script>
+</body>
+</html>
