@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Discover how a regression line becomes an artificial neuron and then a neural network.">
+  <title>From regression to artificial intelligence</title>
+
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5f6b7f;
+      --blue: #2764e7;
+      --blue-dark: #1748b4;
+      --pale-blue: #edf4ff;
+      --green: #16866f;
+      --paper: #ffffff;
+      --background: #f3f6fb;
+      --border: #dce4f0;
+      --shadow: 0 14px 40px rgba(27, 48, 87, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--ink);
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .hero {
+      padding: 76px 24px 68px;
+      color: white;
+      text-align: center;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(76, 179, 255, 0.28), transparent 28%),
+        linear-gradient(135deg, #10275c 0%, #245ecf 60%, #158777 130%);
+    }
+
+    .hero-inner {
+      width: min(920px, 100%);
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      opacity: 0.82;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.4rem, 6vw, 4.7rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p:last-child {
+      max-width: 720px;
+      margin: 24px auto 0;
+      font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+      opacity: 0.92;
+    }
+
+    .course {
+      width: min(1120px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 68px 0 90px;
+    }
+
+    .lesson {
+      margin-bottom: 54px;
+      padding: clamp(25px, 4.5vw, 52px);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .lesson-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      height: 44px;
+      margin-bottom: 12px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: white;
+      font-weight: 800;
+    }
+
+    h2 {
+      margin: 0 0 24px;
+      font-size: clamp(1.8rem, 3.8vw, 2.65rem);
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+    }
+
+    p { margin: 0 0 1em; }
+
+    strong { color: #102b66; }
+
+    .equation {
+      margin: 28px 0;
+      padding: 22px;
+      border-left: 6px solid var(--blue);
+      border-radius: 12px;
+      background: var(--pale-blue);
+      color: #102b66;
+      text-align: center;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.65rem, 4vw, 2.35rem);
+      font-style: italic;
+      font-weight: 700;
+    }
+
+    .definition-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0 28px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .definition-list li {
+      padding: 15px 17px;
+      border-radius: 12px;
+      background: #f6f8fc;
+    }
+
+    .activity {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+      gap: 28px;
+      align-items: center;
+      margin-top: 35px;
+      overflow: hidden;
+      border: 1px solid #cbd9ee;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #edf4ff, #f8fbff);
+    }
+
+    .activity-preview {
+      display: block;
+      width: 100%;
+      min-height: 250px;
+      padding: 0;
+      overflow: hidden;
+      border: 0;
+      background: #dce6f5;
+      cursor: pointer;
+    }
+
+    .activity-preview img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 250px;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+
+    .activity-preview:hover img,
+    .activity-preview:focus-visible img { transform: scale(1.025); }
+
+    .activity-preview:focus-visible,
+    .open-activity:focus-visible {
+      outline: 4px solid #ffbf24;
+      outline-offset: 3px;
+    }
+
+    .activity-copy { padding: 25px 28px 25px 0; }
+
+    .activity-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .activity h3 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+      line-height: 1.2;
+    }
+
+    .activity p { color: var(--muted); }
+
+    .open-activity {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 48px;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 11px;
+      background: var(--blue);
+      color: white;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .open-activity:hover {
+      background: var(--blue-dark);
+      transform: translateY(-2px);
+    }
+
+    .note {
+      margin: 30px 0;
+      padding: 20px 22px;
+      border-left: 5px solid var(--green);
+      border-radius: 12px;
+      background: #eef9f6;
+    }
+
+    .flow {
+      margin: 24px 0;
+      padding: 19px;
+      border-radius: 12px;
+      background: #f6f8fc;
+      text-align: center;
+      font-weight: 750;
+    }
+
+    .congratulations {
+      margin: 35px 0 0;
+      padding: 26px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #163b86, #15816f);
+      color: white;
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(7, 12, 22, 0.84);
+      backdrop-filter: blur(7px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .overlay.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .game-window {
+      position: relative;
+      width: 95vw;
+      height: 95vh;
+      overflow: hidden;
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 25px 90px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      transform: scale(0.15);
+      transition: transform 0.45s cubic-bezier(.2, .8, .2, 1), opacity 0.25s ease;
+    }
+
+    .overlay.open .game-window {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .game-frame {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: white;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 58px;
+      height: 58px;
+      padding: 0;
+      border: 3px solid white;
+      border-radius: 50%;
+      background: rgba(15, 20, 30, 0.88);
+      color: white;
+      font-size: 42px;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .close-button:hover,
+    .close-button:focus-visible {
+      background: #d72f3f;
+      transform: scale(1.08);
+    }
+
+    @media (max-width: 780px) {
+      body { font-size: 17px; }
+      .hero { padding: 58px 20px 52px; }
+      .course { width: min(100% - 22px, 1120px); padding-top: 34px; }
+      .lesson { margin-bottom: 30px; border-radius: 20px; }
+      .definition-list { grid-template-columns: 1fr; }
+      .activity { grid-template-columns: 1fr; }
+      .activity-copy { padding: 0 22px 24px; }
+      .activity-preview, .activity-preview img { min-height: 190px; }
+      .game-window { width: 95vw; height: 95vh; border-radius: 12px; }
+      .close-button { width: 52px; height: 52px; font-size: 38px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Understanding artificial intelligence</p>
+      <h1>From a straight line to a neural network</h1>
+      <p>Begin with a familiar biology experiment and discover, step by step, how a very simple model can become artificial intelligence.</p>
+    </div>
+  </header>
+
+  <main class="course">
+    <section class="lesson">
+      <span class="lesson-number">1</span>
+      <h2>Regression is prediction</h2>
+
+      <p>As biologists, you have probably already prepared a calibration curve by plotting optical density (OD) against concentration. You measured several standards, placed the results on a graph, and drew the straight line that passed as close as possible to the experimental points.</p>
+
+      <p>You were performing <strong>linear regression</strong>.</p>
+
+      <p>A regression line is more than a visual summary of your results: it is also a simple <strong>predictive model</strong>. Once the line has been fitted, a new OD measurement can be used to estimate the concentration of an unknown sample.</p>
+
+      <div class="equation" aria-label="y equals a times x plus b">y = ax + b</div>
+
+      <ul class="definition-list">
+        <li><strong>x</strong> is the input, such as concentration.</li>
+        <li><strong>y</strong> is the predicted output, such as OD.</li>
+        <li><strong>a</strong> controls the slope of the line.</li>
+        <li><strong>b</strong> controls where the line crosses the vertical axis.</li>
+      </ul>
+
+      <p>In a calibration experiment, the model technically predicts OD from concentration. We can then use the same relationship in reverse to estimate an unknown concentration from its measured OD.</p>
+
+      <div class="activity">
+        <button class="activity-preview game-launcher" type="button" data-game="https://fycodelab.github.io/teach/reg5.html" aria-label="Open the linear regression activity">
+          <img src="https://fycodelab.github.io/teach/reg5.png" alt="Preview of the linear regression activity">
+        </button>
+        <div class="activity-copy">
+          <span class="activity-label">Activity 1</span>
+          <h3>Approach the perfect regression</h3>
+          <p>Draw the line that best matches the experimental points. The closer it is to all the points, the better its predictions will be.</p>
+          <button class="open-activity game-launcher" type="button" data-game="https://fycodelab.github.io/teach/reg5.html">Start the activity <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="lesson">
+      <span class="lesson-number">2</span>
+      <h2>A line can behave like an artificial neuron</h2>
+
+      <p>You can move the line by changing <em>a</em> and <em>b</em> in the equation <em>y = ax + b</em>. Adjusting two parameters seems quite simple. Yet this small calculation already contains the fundamental idea of an <strong>artificial neuron</strong>.</p>
+
+      <p>In the 1940s and 1950s, researchers began developing mathematical models inspired by biological neurons. Information enters the artificial neuron, is transformed using adjustable parameters, and then produces an output.</p>
+
+      <div class="flow">Input <em>x</em> &nbsp;→&nbsp; calculation <em>ax + b</em> &nbsp;→&nbsp; output <em>y</em></div>
+
+      <p>The parameter <em>a</em> determines how strongly the input affects the result. In artificial intelligence, it is usually called a <strong>weight</strong>. The parameter <em>b</em> is called the <strong>bias</strong>. Together, the weight and bias determine the neuron’s prediction.</p>
+
+      <p>In this example, the regression line therefore behaves like a very simple artificial neuron. Changing <em>a</em> and <em>b</em> changes its behaviour.</p>
+
+      <aside class="note"><strong>A biologist’s note:</strong> an artificial neuron is only very loosely inspired by a biological neuron. Real neurons have structures, electrical properties and biochemical interactions that are far more complex.</aside>
+
+      <div class="activity">
+        <button class="activity-preview game-launcher" type="button" data-game="https://fycodelab.github.io/teach/regneur2.html" aria-label="Open the artificial neuron activity">
+          <img src="https://fycodelab.github.io/teach/regneur2.png" alt="Preview of the artificial neuron activity">
+        </button>
+        <div class="activity-copy">
+          <span class="activity-label">Activity 2</span>
+          <h3>Control the neuron</h3>
+          <p>Observe the line and try moving it by changing the neuron’s parameters.</p>
+          <button class="open-activity game-launcher" type="button" data-game="https://fycodelab.github.io/teach/regneur2.html">Start the activity <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="lesson">
+      <span class="lesson-number">3</span>
+      <h2>Adding variables</h2>
+
+      <p>So far, our prediction has used only one input variable, <em>x</em>. But what happens if the result depends on two variables?</p>
+
+      <p>Imagine that we want to predict a biological response using both the concentration of a compound and the duration of exposure. The model now receives two inputs:</p>
+
+      <div class="equation" aria-label="y equals a one times x one plus a two times x two plus b">y = a<sub>1</sub>x<sub>1</sub> + a<sub>2</sub>x<sub>2</sub> + b</div>
+
+      <ul class="definition-list">
+        <li><strong>x<sub>1</sub> and x<sub>2</sub></strong> are the two input variables.</li>
+        <li><strong>a<sub>1</sub> and a<sub>2</sub></strong> are their respective weights.</li>
+        <li><strong>b</strong> is the bias.</li>
+        <li><strong>y</strong> is the model’s prediction.</li>
+      </ul>
+
+      <p>With one input, the model can be represented by a line. With two inputs, it becomes a <strong>plane in three-dimensional space</strong>. The goal remains the same: adjust the parameters until the plane passes as close as possible to the experimental points.</p>
+
+      <div class="activity">
+        <button class="activity-preview game-launcher" type="button" data-game="https://fycodelab.github.io/teach/3Dregneur.html" aria-label="Open the two-variable regression activity">
+          <img src="https://fycodelab.github.io/teach/3Dregneur.png" alt="Preview of the three-dimensional regression activity">
+        </button>
+        <div class="activity-copy">
+          <span class="activity-label">Activity 3</span>
+          <h3>Fit a plane in 3D</h3>
+          <p>This time, fitting the model by eye is much more difficult. Change the parameters to bring the plane closer to the points.</p>
+          <button class="open-activity game-launcher" type="button" data-game="https://fycodelab.github.io/teach/3Dregneur.html">Start the activity <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+
+      <p style="margin-top: 32px;">A model can use far more than two variables: 4, 20 or even 200. We cannot easily represent such a model because our brains are comfortable visualising no more than three dimensions. For an artificial neuron, however, the principle remains the same: each input has its own adjustable weight.</p>
+
+      <p>The real difficulty is no longer writing the equation, but finding the correct values for all those parameters.</p>
+    </section>
+
+    <section class="lesson">
+      <span class="lesson-number">4</span>
+      <h2>What are artificial neurons used for?</h2>
+
+      <p>One artificial neuron can make only a relatively simple prediction. However, many artificial neurons can be connected to form a <strong>neural network</strong>. By passing information from one neuron to another, the network can combine a very large number of inputs and adjustable parameters. This allows it to learn much more complex relationships.</p>
+
+      <p>Consider an image-classification task. We might give the network images belonging to two classes—for example, photographs of your face and photographs of your neighbour’s face.</p>
+
+      <p>A computer does not initially see a face in the way that we do. The image must first be converted into numerical information. A process called <strong>embedding</strong> represents the important features of an image as a list of numbers. These numbers become the inputs of the neural network.</p>
+
+      <p>The information then travels through the network. Each artificial neuron performs a small calculation using its weights and bias. At the end, the network produces a score for each possible class. The highest score represents the network’s prediction.</p>
+
+      <p>At first, the network’s parameters are not correctly adjusted, so its predictions are poor. During <strong>training</strong>, the network compares each prediction with the correct answer and measures its error.</p>
+
+      <p>A method called <strong>backpropagation</strong> then works backwards through the network to determine how the parameters should be modified to reduce that error. The network repeats this process many times. Each complete pass through the training data is called an <strong>epoch</strong>.</p>
+
+      <div class="activity">
+        <button class="activity-preview game-launcher" type="button" data-game="https://fycodelab.github.io/teach/small2.html" aria-label="Open the image-classification activity">
+          <img src="https://fycodelab.github.io/teach/small2.png" alt="Preview of the image-classification activity">
+        </button>
+        <div class="activity-copy">
+          <span class="activity-label">Activity 4</span>
+          <h3>Train an image classifier</h3>
+          <p>Observe how the network’s predictions improve over successive epochs.</p>
+          <button class="open-activity game-launcher" type="button" data-game="https://fycodelab.github.io/teach/small2.html">Start the activity <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+
+      <p style="margin-top: 32px;">Once the parameters have been adjusted, their final values define your trained <strong>model</strong>.</p>
+
+      <p>In the first activity, you trained a model manually by drawing and adjusting a line. In this final activity, the parameters were adjusted automatically using backpropagation. The network is more complex, but the principle is the same: find the parameter values that allow a mathematical model to make good predictions.</p>
+
+      <p>The trained model can now be tested using images it has never seen before. It can even be downloaded and used on another computer.</p>
+
+      <div class="congratulations">Congratulations—you have trained your first AI model!</div>
+    </section>
+  </main>
+
+  <div class="overlay" id="gameOverlay" aria-hidden="true">
+    <div class="game-window" role="dialog" aria-modal="true" aria-label="Interactive activity">
+      <button class="close-button" id="closeButton" type="button" aria-label="Close activity">&times;</button>
+      <iframe class="game-frame" id="gameFrame" title="Interactive activity" allow="fullscreen"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const overlay = document.getElementById("gameOverlay");
+    const gameFrame = document.getElementById("gameFrame");
+    const closeButton = document.getElementById("closeButton");
+    const launchers = document.querySelectorAll(".game-launcher");
+    let previouslyFocusedElement = null;
+
+    function openGame(url) {
+      previouslyFocusedElement = document.activeElement;
+      gameFrame.src = url;
+      overlay.classList.add("open");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      closeButton.focus();
+    }
+
+    function closeGame() {
+      overlay.classList.remove("open");
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      window.setTimeout(() => { gameFrame.src = ""; }, 450);
+      if (previouslyFocusedElement) previouslyFocusedElement.focus();
+    }
+
+    launchers.forEach((launcher) => {
+      launcher.addEventListener("click", () => openGame(launcher.dataset.game));
+    });
+
+    closeButton.addEventListener("click", closeGame);
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) closeGame();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && overlay.classList.contains("open")) closeGame();
+    });
+  </script>
+</body>
+</html>
