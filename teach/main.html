@@ -77,12 +77,52 @@
       outline-offset: 4px;
     }
 
-    .game-card img {
-      display: block;
+    .game-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       aspect-ratio: 16 / 10;
-      object-fit: cover;
-      background: #dce5f2;
+      padding: 20px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(52,133,255,.22), transparent 35%),
+        radial-gradient(circle at 80% 70%, rgba(133,82,255,.20), transparent 38%),
+        linear-gradient(135deg, #eaf2ff, #f5efff);
+      color: #24324a;
+      font-size: clamp(1.25rem, 3vw, 2rem);
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: .01em;
+    }
+
+    .game-toolbar {
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      z-index: 12;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .direct-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(15,20,30,.88);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 5px 18px rgba(0,0,0,.25);
+    }
+
+    .direct-link:hover,
+    .direct-link:focus-visible {
+      background: #234f9b;
+      outline: 3px solid #ffcc00;
+      outline-offset: 2px;
     }
 
     .game-title {
@@ -251,10 +291,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/main.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/main.jpg"
-        alt="Main educational activity"
-      >
+      <span class="game-preview" aria-hidden="true">Main educational activity</span>
       <span class="game-title">Main Activity</span>
       <span class="game-description">Open the main educational game.</span>
     </button>
@@ -264,10 +301,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/3Dregneur.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/3d-regression.jpg"
-        alt="Three-dimensional regression activity"
-      >
+      <span class="game-preview" aria-hidden="true">Three-dimensional regression activity</span>
       <span class="game-title">3D Regression</span>
       <span class="game-description">Explore regression in three dimensions.</span>
     </button>
@@ -277,10 +311,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/reg.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/regression.jpg"
-        alt="Regression activity"
-      >
+      <span class="game-preview" aria-hidden="true">Regression activity</span>
       <span class="game-title">Regression</span>
       <span class="game-description">Experiment with a regression model.</span>
     </button>
@@ -290,10 +321,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/reg4.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/regression-4.jpg"
-        alt="Regression activity number four"
-      >
+      <span class="game-preview" aria-hidden="true">Regression activity number four</span>
       <span class="game-title">Regression 4</span>
       <span class="game-description">Open the fourth regression activity.</span>
     </button>
@@ -303,10 +331,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/regneur.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/neuron-regression.jpg"
-        alt="Neuron regression activity"
-      >
+      <span class="game-preview" aria-hidden="true">Neuron regression activity</span>
       <span class="game-title">Neuron Regression</span>
       <span class="game-description">Explore regression using a neuron model.</span>
     </button>
@@ -316,10 +341,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/regneur2.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/neuron-regression-2.jpg"
-        alt="Second neuron regression activity"
-      >
+      <span class="game-preview" aria-hidden="true">Second neuron regression activity</span>
       <span class="game-title">Neuron Regression 2</span>
       <span class="game-description">Open the second neuron activity.</span>
     </button>
@@ -329,10 +351,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/small.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/small.jpg"
-        alt="Small educational activity"
-      >
+      <span class="game-preview" aria-hidden="true">Small educational activity</span>
       <span class="game-title">Small Activity</span>
       <span class="game-description">Open the interactive activity.</span>
     </button>
@@ -342,10 +361,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/small2.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/small-2.jpg"
-        alt="Second small educational activity"
-      >
+      <span class="game-preview" aria-hidden="true">Second small educational activity</span>
       <span class="game-title">Small Activity 2</span>
       <span class="game-description">Open the second interactive activity.</span>
     </button>
@@ -355,10 +371,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/training.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/training.jpg"
-        alt="Model training activity"
-      >
+      <span class="game-preview" aria-hidden="true">Model training activity</span>
       <span class="game-title">Training</span>
       <span class="game-description">Explore the model-training process.</span>
     </button>
@@ -368,10 +381,7 @@
       type="button"
       data-game="https://fycodelab.github.io/teach/two_variable_plane_neuron_lab.html"
     >
-      <img
-        src="https://fycodelab.github.io/teach/images/two-variable-neuron.jpg"
-        alt="Two-variable neuron laboratory"
-      >
+      <span class="game-preview" aria-hidden="true">Two-variable neuron laboratory</span>
       <span class="game-title">Two-Variable Neuron Lab</span>
       <span class="game-description">Experiment with two input variables.</span>
     </button>
@@ -389,6 +399,16 @@
       aria-modal="true"
       aria-label="Educational game"
     >
+      <div class="game-toolbar">
+        <a
+          class="direct-link"
+          id="directLink"
+          href="#"
+          target="_blank"
+          rel="noopener"
+        >Open directly ↗</a>
+      </div>
+
       <button
         class="close-button"
         id="closeButton"
@@ -402,7 +422,8 @@
         class="game-frame"
         id="gameFrame"
         title="Educational game"
-        allow="fullscreen"
+        allow="fullscreen; autoplay; clipboard-read; clipboard-write"
+        referrerpolicy="no-referrer-when-downgrade"
       ></iframe>
     </div>
   </div>
@@ -411,12 +432,17 @@
     const overlay = document.getElementById("gameOverlay");
     const gameFrame = document.getElementById("gameFrame");
     const closeButton = document.getElementById("closeButton");
+    const directLink = document.getElementById("directLink");
     const gameCards = document.querySelectorAll(".game-card");
 
     let previouslyFocusedElement = null;
 
     function openGame(url) {
       previouslyFocusedElement = document.activeElement;
+
+      // Always provide a normal-page fallback. Some interactive pages
+      // do not behave correctly when embedded in an iframe.
+      directLink.href = url;
       gameFrame.src = url;
 
       overlay.classList.add("open");
