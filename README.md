@@ -94,7 +94,7 @@ Code and tools for live classes to illustrate key points of programming, statist
 
 A compact, beginner-friendly collection of **CircuitPython** projects for the **ESPY** microcontroler card (included in kit). It includes colorful LED animations, tilt-controlled games, and small utilities (clock, timer, weather) that teach core microelectronics skills, without wiring, soldering...
 
-**Repo:** [FYCodeLab/espy-robotics › exemples](https://github.com/FYCodeLab/espy-robotics/tree/main/exemples)
+**Repo:** [FYCodeLab/vibe-robotics › exemples](https://github.com/FYCodeLab/vibe-robotics/tree/main/exemples)
 
 ---
 
