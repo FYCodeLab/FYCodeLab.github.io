@@ -53,24 +53,20 @@
 
   <form id="avis" method="post">
     <label for="nom">Nom</label>
-    <input type="text" id="nom" name="Nom" required autocomplete="family-name">
+    <input type="text" id="nom" name="entry.1272981590" required autocomplete="family-name">
 
     <label for="prenom">Prénom</label>
-    <input type="text" id="prenom" name="Prénom" required autocomplete="given-name">
+    <input type="text" id="prenom" name="entry.212644336" required autocomplete="given-name">
 
     <label for="classe">Classe</label>
-    <input type="text" id="classe" name="Classe" required placeholder="ex. Bach 3" autocomplete="off">
+    <input type="text" id="classe" name="entry.147421839" required placeholder="ex. Bach 3" autocomplete="off">
 
     <fieldset>
       <legend>Quelle est votre appréciation du thème choisi pour cette conférence ?</legend>
       <div class="scale" id="scale"></div>
     </fieldset>
 
-    <input type="hidden" name="Adresse IP" id="ip" value="">
-    <input type="hidden" name="_subject" value="Conférence SupBiotech 24 nov. 2026 — Appréciation du thème">
-    <input type="hidden" name="_template" value="table">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="text" name="_honey" style="display:none">
+    <input type="hidden" name="entry.1612659773" id="ip" value="">
 
     <button type="submit" id="envoyer">Envoyer mon avis</button>
     <p class="note">Votre adresse IP est enregistrée avec votre réponse.</p>
@@ -92,7 +88,7 @@
   for (var n = 1; n <= 10; n++) {
     var lab = document.createElement('label');
     var inp = document.createElement('input');
-    inp.type = 'radio'; inp.name = 'Appréciation (1-10)'; inp.value = n; inp.required = true;
+    inp.type = 'radio'; inp.name = 'entry.1254254759'; inp.value = n; inp.required = true;
     var sp = document.createElement('span'); sp.textContent = n;
     lab.appendChild(inp); lab.appendChild(sp); scale.appendChild(lab);
   }
@@ -103,23 +99,24 @@
     btn.disabled = true; btn.textContent = 'Envoi…';
     var form = e.target;
 
-    // Récupère l'adresse IP publique du répondant, puis envoie.
+    // Récupère l'adresse IP publique du répondant, puis envoie au Google Form.
+    // Google Forms n'autorise pas la lecture de la réponse (mode no-cors) :
+    // si la requête part sans erreur réseau, on considère l'envoi réussi.
     fetch('https://api.ipify.org?format=json')
       .then(function (r) { return r.json(); })
       .then(function (d) { document.getElementById('ip').value = d.ip || ''; })
       .catch(function () { /* sans IP, on envoie quand même */ })
       .then(function () {
-        return fetch('https://formsubmit.co/ajax/frank.yates@gmail.com', {
+        return fetch('https://docs.google.com/forms/d/e/1FAIpQLScZnqyRBc_uOG-WO1hXFh9PbnArBdRidPTQiCStmkNkFZesCA/formResponse', {
           method: 'POST',
-          body: new FormData(form)
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form))
         });
       })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (data && (data.success === 'true' || data.success === true)) {
-          form.style.display = 'none';
-          document.getElementById('merci').style.display = 'block';
-        } else { throw new Error('refus'); }
+      .then(function () {
+        form.style.display = 'none';
+        document.getElementById('merci').style.display = 'block';
       })
       .catch(function () {
         btn.disabled = false; btn.textContent = 'Envoyer mon avis';

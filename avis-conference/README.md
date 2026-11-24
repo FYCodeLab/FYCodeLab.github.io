@@ -15,10 +15,13 @@ Live : https://fycodelab.github.io/avis-conference/
 
 - Page statique sur GitHub Pages (dossier `avis-conference/` de
   FYCodeLab.github.io, comme `norvege/`).
-- Les réponses partent par e-mail via FormSubmit, à frank.yates@gmail.com
-  (sujet « Conférence SupBiotech 24 nov. 2026 — Appréciation du thème »).
-  Premier envoi = e-mail d'activation à cliquer dans Gmail, sinon les
-  réponses n'arrivent pas.
+- Les réponses partent dans le Google Form « Appréciation du thème —
+  Conférence SupBiotech 24 novembre 2026 »
+  (https://docs.google.com/forms/d/e/1FAIpQLScZnqyRBc_uOG-WO1hXFh9PbnArBdRidPTQiCStmkNkFZesCA/viewform)
+  : la page poste directement vers son endpoint formResponse (champs
+  `entry.*`). Les réponses sont visibles dans l'onglet Réponses du Form ;
+  depuis le Form, « Lier à Sheets » crée le tableur des réponses. Plus
+  d'envoi par e-mail, plus d'activation FormSubmit.
 - L'adresse IP du répondant est récupérée côté navigateur via ipify
   (https://api.ipify.org) au moment de l'envoi, et jointe à la réponse dans
   le champ « Adresse IP ». Si ipify ne répond pas, la réponse part quand
